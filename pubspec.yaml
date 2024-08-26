@@ -1,0 +1,54 @@
+name: petwalks_app
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^3.1.1
+  cloud_firestore: ^5.0.2
+  font_awesome_flutter: ^9.2.0
+  http: ^1.2.1
+  google_sign_in: 
+  firebase_auth: 
+  firebase_storage:
+  fluttertoast: ^8.2.4
+  dio: ^5.4.1
+  flutter_polyline_points: ^2.0.0
+  google_maps_flutter: ^2.0.2
+  geocoding: ^2.0.0
+  geolocator: ^8.0.3
+  permission_handler: ^10.2.0
+  intl: ^0.18.1
+  flutter_typeahead: ^4.0.0
+  convex_bottom_bar: ^3.2.0
+  flutter_launcher_icons: ^0.13.1
+  image_picker: ^1.1.2
+  path_provider: ^2.1.3
+  path: ^1.9.0
+  carousel_slider: ^5.0.0
+  table_calendar: ^3.0.9
+  provider: ^6.1.2
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/logoApp.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/mexico.png
+    - assets/eu.png
