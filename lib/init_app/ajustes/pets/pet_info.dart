@@ -121,72 +121,78 @@ class _InfoPetState extends State<InfoPet> {
                     )),
               ]),
               PhotoCarousel(
-                imageUrls: (widget.imageUrls as List<dynamic>)
-                    .map((item) => item.toString())
-                    .toList(),
+                imageUrls:
+                    (widget.imageUrls).map((item) => item.toString()).toList(),
               ),
-              const EmptyBox(h: 10),
-              containerStyle('Nombre: ${widget.petData['name']}'),
-              const EmptyBox(h: 20),
-              containerStyle('Raza: ${widget.petData['race']}'),
-              const EmptyBox(h: 20),
-              containerStyle('Tamaño: ${widget.petData['size']}'),
-              const EmptyBox(h: 20),
-              containerStyle('Descripcion: ${widget.petData['description']}'),
-              const EmptyBox(h: 20),
-              containerStyle('Edad: ${widget.petData['old']}'),
-              const EmptyBox(h: 20),
-              containerStyle('Color: ${widget.petData['color']}'),
-              const EmptyBox(h: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              SingleChildScrollView(
+                  child: Column(
                 children: [
-                  Column(
+                  const EmptyBox(h: 8),
+                  containerStyle('Nombre: ${widget.petData['name']}'),
+                  const EmptyBox(h: 8),
+                  containerStyle('Raza: ${widget.petData['race']}'),
+                  const EmptyBox(h: 8),
+                  containerStyle('Tamaño: ${widget.petData['size']} cm'),
+                  const EmptyBox(h: 8),
+                  containerStyleDescription(
+                      'Descripcion: ${widget.petData['description']}'),
+                  const EmptyBox(h: 8),
+                  containerStyle('Edad: ${widget.petData['old']} años'),
+                  const EmptyBox(h: 8),
+                  containerStyle('Color: ${widget.petData['color']}'),
+                  const EmptyBox(h: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Row(
+                      Column(
                         children: [
-                          Icon(
-                              widget.petData['rating'] > 0
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber),
-                          Icon(
-                              widget.petData['rating'] > 1
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber),
-                          Icon(
-                              widget.petData['rating'] > 2
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber),
-                          Icon(
-                              widget.petData['rating'] > 3
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber),
-                          Icon(
-                              widget.petData['rating'] > 4
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber),
+                          Row(
+                            children: [
+                              Icon(
+                                  widget.petData['rating'] > 0
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.amber),
+                              Icon(
+                                  widget.petData['rating'] > 1
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.amber),
+                              Icon(
+                                  widget.petData['rating'] > 2
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.amber),
+                              Icon(
+                                  widget.petData['rating'] > 3
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.amber),
+                              Icon(
+                                  widget.petData['rating'] > 4
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.amber),
+                            ],
+                          ),
+                          const SizedBox(width: 8.0),
+                          Text('${widget.petData['rating']}/5'),
                         ],
                       ),
-                      SizedBox(width: 8.0),
-                      Text('${widget.petData['rating']}/5'),
+                      TextButton(
+                        onPressed: () {
+                          showCommentsDialog(
+                              context, widget.petData['comments']);
+                        },
+                        child: const Text(
+                          "Comentarios",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
                     ],
                   ),
-                  TextButton(
-                    onPressed: () {
-                      showCommentsDialog(context, widget.petData['comments']);
-                    },
-                    child: Text(
-                      "Comentarios",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
                 ],
-              ),
+              )),
             ],
           ),
         ),

@@ -39,11 +39,21 @@ ButtonStyle customOutlinedButtonStyle() {
   );
 }
 
+ButtonStyle customOutlinedButtonStyleYellow() {
+  return OutlinedButton.styleFrom(
+    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15.0),
+    ),
+    backgroundColor: Colors.yellow[100],
+  );
+}
+
 Container containerStyle(String msg) {
   return Container(
     width: 300.0,
     height: 60.0,
-    padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 18.0),
     decoration: BoxDecoration(
       color: Colors.grey[200],
       border: Border.all(
@@ -54,7 +64,7 @@ Container containerStyle(String msg) {
     ),
     child: Text(
       msg,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 16.0,
         color: Colors.black,
         letterSpacing: 1.2,
@@ -65,6 +75,41 @@ Container containerStyle(String msg) {
             color: Colors.grey,
           ),
         ],
+      ),
+    ),
+  );
+}
+
+Container containerStyleDescription(String msg) {
+  return Container(
+    constraints: const BoxConstraints(maxHeight: 150.0, maxWidth: 300),
+    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 18.0),
+    decoration: BoxDecoration(
+      color: Colors.grey[200],
+      border: Border.all(
+        color: Colors.grey,
+        width: 2.0,
+      ),
+      borderRadius: BorderRadius.circular(15.0),
+    ),
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 150.0, maxWidth: 300),
+      child: SingleChildScrollView(
+        child: Text(
+          msg,
+          style: const TextStyle(
+            fontSize: 16.0,
+            color: Colors.black,
+            letterSpacing: 1.2,
+            shadows: [
+              Shadow(
+                offset: Offset(1.0, 1.0),
+                blurRadius: 2.0,
+                color: Colors.grey,
+              ),
+            ],
+          ),
+        ),
       ),
     ),
   );

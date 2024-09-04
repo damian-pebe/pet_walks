@@ -23,7 +23,27 @@ class _MascotasState extends State<Mascotas> {
         body: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            titleW(title: 'Mascotas'),
+            Stack(
+              children: [
+                titleW(title: 'Mascotas'),
+                Positioned(
+                    left: 30,
+                    top: 70,
+                    child: Column(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(Icons.arrow_back_ios,
+                              size: 30, color: Colors.black),
+                        ),
+                        Text(
+                          'Regresar',
+                          style: TextStyle(fontSize: 10),
+                        )
+                      ],
+                    )),
+              ],
+            ),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [

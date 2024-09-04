@@ -60,7 +60,27 @@ class _EditHomeState extends State<EditHome> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              titleW(title: 'Editar domicilio'),
+              Stack(
+                children: [
+                  const titleW(title: 'Editar domicilio'),
+                  Positioned(
+                      left: 30,
+                      top: 70,
+                      child: Column(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.arrow_back_ios,
+                                size: 30, color: Colors.black),
+                          ),
+                          const Text(
+                            'Regresar',
+                            style: TextStyle(fontSize: 10),
+                          )
+                        ],
+                      )),
+                ],
+              ),
               SizedBox(
                 height: 30,
               ),

@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:petwalks_app/init_app/servicios/agregar_empresa.dart';
-import 'package:petwalks_app/init_app/servicios/editar_empresa.dart';
-import 'package:petwalks_app/init_app/servicios/pasear.dart';
-import 'package:petwalks_app/init_app/servicios/programar_paseo.dart';
-import 'package:petwalks_app/init_app/servicios/solicitar_paseo.dart';
+import 'package:petwalks_app/init_app/servicios/add_business.dart';
+import 'package:petwalks_app/init_app/servicios/edit_business.dart';
+import 'package:petwalks_app/init_app/servicios/walk.dart';
+import 'package:petwalks_app/init_app/servicios/schedule_walk.dart';
+import 'package:petwalks_app/init_app/servicios/request_walk.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
@@ -56,10 +56,8 @@ class _ServiciosState extends State<Servicios> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       email = user.email;
-    } else {
-      print('Error getting email from user');
+      fetchServices();
     }
-    fetchServices();
   }
 
   @override

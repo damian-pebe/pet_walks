@@ -105,12 +105,14 @@ class _PasearState extends State<Pasear> {
   @override
   void initState() {
     super.initState();
+
     initialCameraPosition = const CameraPosition(
       target: LatLng(0, 0),
     );
     _checkLocationPermission();
-    initData();
-    _getWalks();
+    initData().then((_) {
+      _getWalks();
+    });
   }
 
   Future<void> _checkLocationPermission() async {

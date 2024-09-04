@@ -39,7 +39,23 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
         body: Column(
           children: [
             Stack(children: [
-              titleW(title: 'Fecha/s'),
+              const titleW(title: 'Fecha/s'),
+              Positioned(
+                  left: 30,
+                  top: 70,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back_ios,
+                            size: 30, color: Colors.black),
+                      ),
+                      const Text(
+                        'Regresar',
+                        style: TextStyle(fontSize: 10),
+                      )
+                    ],
+                  )),
               Positioned(
                   left: 330,
                   top: 70,
@@ -57,11 +73,12 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
                             _selectedEndDay = null;
                             _selectedDays.clear();
                             type();
+                            setState(() {});
                           });
                         },
                       ),
                       Text(
-                        'Modo',
+                        type() ? 'Intervalo' : 'Libre',
                         style: TextStyle(fontSize: 10),
                       )
                     ],
@@ -124,18 +141,43 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
                 ),
               ),
             ),
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(
-                      context,
-                      !type()
-                          ? {'dates': _selectedDays}
-                          : {
-                              'start': _selectedStartDay,
-                              'end': _selectedEndDay
-                            });
-                },
-                child: const Text('Regresa'))
+            const SizedBox(
+              height: 20,
+            ),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.pop(
+                    context,
+                    !type()
+                        ? {'dates': _selectedDays}
+                        : {'start': _selectedStartDay, 'end': _selectedEndDay});
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.dataset,
+                    size: 25,
+                    color: Colors.black,
+                  ),
+                  const SizedBox(width: 20),
+                  Text(
+                    'Aceptar fechas',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 22.0,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  const Icon(
+                    Icons.schedule,
+                    size: 25,
+                    color: Colors.black,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

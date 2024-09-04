@@ -18,6 +18,7 @@ class AddPets extends StatefulWidget {
 }
 
 class _AddPetsState extends State<AddPets> {
+  bool _isLoading = false;
   TextEditingController nameController = TextEditingController(text: "");
   TextEditingController raceController = TextEditingController(text: "");
   TextEditingController sizeController = TextEditingController(text: "");
@@ -61,8 +62,6 @@ class _AddPetsState extends State<AddPets> {
       print('Error getting email from user');
     }
   }
-
-  late String lastPetId;
 
   @override
   void initState() {
@@ -171,60 +170,84 @@ class _AddPetsState extends State<AddPets> {
           ),
           Divider(),
           OutlinedButton(
-            onPressed: () async {
-              if (!verifyFields()) {
-                if (!verifyFieldsName()) {
-                  _isName = false;
-                  setState(() {});
-                } else {
-                  _isName = true;
-                  setState(() {});
-                }
-                if (!verifyFieldsPics()) {
-                  _isPics = false;
-                  setState(() {});
-                } else {
-                  _isPics = true;
-                  setState(() {});
-                }
-              } else {
-                save() async {
-                  lastPetId = await newPet(
-                      nameController.text,
-                      raceController.text,
-                      sizeController.text,
-                      descriptionController.text,
-                      oldController.text,
-                      colorController.text,
-                      _downloadUrls);
-                  await addPetToUser(email!, lastPetId);
-                }
+            onPressed: _isLoading
+                ? null
+                : () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
 
-                save();
-                toastF('La mascota ha sido agregada');
-                clear();
-              }
-            },
+                    if (!verifyFields()) {
+                      if (!verifyFieldsName()) {
+                        setState(() {
+                          _isName = false;
+                        });
+                      } else {
+                        setState(() {
+                          _isName = true;
+                        });
+                      }
+
+                      if (!verifyFieldsPics()) {
+                        setState(() {
+                          _isPics = false;
+                        });
+                      } else {
+                        setState(() {
+                          _isPics = true;
+                        });
+                      }
+
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    } else {
+                      Future<void> save() async {
+                        String lastPetId = await newPet(
+                          nameController.text,
+                          raceController.text,
+                          sizeController.text,
+                          descriptionController.text,
+                          oldController.text,
+                          colorController.text,
+                          _downloadUrls,
+                        );
+                        await addPetToUser(email!, lastPetId);
+                      }
+
+                      await save();
+
+                      setState(() {
+                        _isLoading = false;
+                      });
+
+                      toastF('La mascota ha sido agregada');
+                      clear();
+                    }
+                  },
             style: customOutlinedButtonStyle(),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.pets_sharp,
-                  size: 30,
-                  color: Colors.black,
-                ),
-                SizedBox(width: 30),
-                Text(
-                  'Agregar mascota',
-                  style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 20),
-                ),
-              ],
-            ),
+            child: _isLoading
+                ? CircularProgressIndicator()
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.pets_sharp,
+                        size: 30,
+                        color: Colors.black,
+                      ),
+                      SizedBox(width: 30),
+                      Text(
+                        'Agregar mascota',
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),

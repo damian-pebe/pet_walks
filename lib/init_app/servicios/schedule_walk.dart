@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petwalks_app/init_app/ajustes/pets/pet_info.dart';
-import 'package:petwalks_app/init_app/funcion.dart';
+import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -22,6 +22,7 @@ class ProgramarPaseo extends StatefulWidget {
 }
 
 class _ProgramarPaseo extends State<ProgramarPaseo> {
+  bool _isLoading = false;
   TextEditingController timeShowController = TextEditingController(text: "1");
   late LatLng homelatlng;
   TextEditingController homeController = TextEditingController(text: "");
@@ -37,10 +38,11 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
 
   Map<String, bool> checkboxStates = {};
   //dateTime
-  var endDate;
-  var startDate;
-  var selectedDates;
-  String mode = 'interval';
+  DateTime? endDate;
+  DateTime? startDate;
+  List<DateTime>? selectedDates;
+
+  String mode = '';
   TimeOfDay? _selectedTime;
 
   bool mascotas = true;
@@ -63,7 +65,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
 
   void _saveTime() {
     if (_selectedTime != null) {
-      final String formattedTime =
+      String formattedTime =
           "${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}";
       print(formattedTime.toString());
     }
@@ -135,7 +137,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: FutureBuilder<List<String>>(
@@ -245,7 +247,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Divider(
                     color: Colors.black.withOpacity(0.5),
                     thickness: 2,
@@ -257,9 +259,9 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                       Navigator.pop(context);
                     },
                     style: customOutlinedButtonStyle(),
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Icon(
                           Icons.checklist_rtl_sharp,
                           size: 28,
@@ -276,7 +278,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                 ],
               ),
             );
@@ -300,233 +302,28 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Stack(children: [
-                  titleW(title: 'Programar paseo'),
-                  Positioned(
-                      left: 30,
-                      top: 70,
-                      child: Column(
-                        children: [
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: Icon(Icons.arrow_back_ios,
-                                size: 30, color: Colors.black),
-                          ),
-                          Text(
-                            'Regresar',
-                            style: TextStyle(fontSize: 10),
-                          )
-                        ],
-                      )),
-                ]),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Stack(
                   children: [
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 16.0,
-                          horizontal: 24.0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Text(
-                          'Mostrar solicitud por: ${timeShowController.text} hrs\n(Max: 8 horas)',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black,
-                            letterSpacing: 1.2,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    Expanded(
-                        flex: 1,
-                        child: TextField(
-                            onChanged: (_) {
-                              setState(() {});
-                            },
-                            onEditingComplete: () {
-                              String x = timeShowController.text;
-                              if (!['1', '2', '3', '4', '5', '6', '7', '8']
-                                  .contains(x)) {
-                                setState(() {
-                                  timeShowController.text = '8';
-                                });
-                              } else if (x == '0' || x == '') {
-                                setState(() {
-                                  timeShowController.text = '1';
-                                });
-                              } else {
-                                setState(() {
-                                  timeShowController.text = '1';
-                                });
-                              }
-                            },
-                            keyboardType: TextInputType.number,
-                            controller: timeShowController,
-                            decoration: StyleTextField('Tiempo'))),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      alignment: Alignment.bottomLeft,
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 24.0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        border: Border.all(color: Colors.grey, width: 2.0),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: Text(
-                        'Metodo de pago: ',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.black,
-                          letterSpacing: 1.2,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(1.0, 1.0),
-                              blurRadius: 2.0,
-                              color: Colors.grey,
+                    const titleW(title: 'Programar'),
+                    Positioned(
+                        left: 30,
+                        top: 70,
+                        child: Column(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(Icons.arrow_back_ios,
+                                  size: 30, color: Colors.black),
                             ),
+                            const Text(
+                              'Regresar',
+                              style: TextStyle(fontSize: 10),
+                            )
                           ],
-                        ),
-                      ),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          payMethod = 'Efectivo';
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: payMethod == 'Efectivo'
-                              ? Colors.black
-                              : Color.fromRGBO(250, 244, 229, .65),
-                          width: 2,
-                        ),
-                      ),
-                      child: Icon(Icons.attach_money_outlined,
-                          color: payMethod == 'Efectivo'
-                              ? Colors.black
-                              : Colors.black),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          payMethod = 'Tarjeta';
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: payMethod == 'Tarjeta'
-                              ? Colors.black
-                              : Color.fromRGBO(250, 244, 229, .65),
-                          width: 2,
-                        ),
-                      ),
-                      child: Icon(Icons.credit_card_sharp,
-                          color: payMethod == 'Tarjeta'
-                              ? Colors.black
-                              : Colors.black),
-                    ),
+                        )),
                   ],
                 ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      alignment: Alignment.bottomLeft,
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 24.0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        border: Border.all(color: Colors.grey, width: 2.0),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: Text(
-                        '¿Paseo con \nmas mascotas?: ',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.black,
-                          letterSpacing: 1.2,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(1.0, 1.0),
-                              blurRadius: 2.0,
-                              color: Colors.grey,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          walkWFriends = 'Si';
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: walkWFriends == 'Si'
-                              ? Colors.black
-                              : Color.fromRGBO(250, 244, 229, .65),
-                          width: 2,
-                        ),
-                      ),
-                      child: Text('Si',
-                          style: TextStyle(
-                            color: walkWFriends == 'Si'
-                                ? Colors.black
-                                : Colors.black,
-                          )),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          walkWFriends = 'No';
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: walkWFriends == 'No'
-                              ? Colors.black
-                              : Color.fromRGBO(250, 244, 229, .65),
-                          width: 2,
-                        ),
-                      ),
-                      child: Text('No',
-                          style: TextStyle(
-                            color: walkWFriends == 'No'
-                                ? Colors.black
-                                : Colors.black,
-                          )),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -539,7 +336,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                         border: Border.all(color: Colors.grey, width: 2.0),
                         borderRadius: BorderRadius.circular(15.0),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Tiempo de \npaseo (min): ',
                         style: TextStyle(
                           fontSize: 16.0,
@@ -620,170 +417,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
-                Container(
-                  width: 250,
-                  child: TextField(
-                      controller: descriptionController,
-                      maxLines: 2,
-                      keyboardType: TextInputType.multiline,
-                      decoration: StyleTextField('Descripcion')),
-                ),
-                SizedBox(height: 20),
-                OutlinedButton(
-                  onPressed: () => details(),
-                  style: OutlinedButton.styleFrom(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      side: BorderSide(width: 2.0, color: Colors.black),
-                    ),
-                    backgroundColor: Colors.grey[200],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Seleccionar mascotas',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 22.0,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Icon(
-                        Icons.list,
-                        size: 25,
-                        color: Colors.black,
-                      ),
-                    ],
-                  ),
-                ),
-                VisibilityW(
-                    boolean: mascotas, string: 'Falta seleccionar mascota/s'),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    OutlinedButton(
-                        //seleccionar domicilio
-                        onPressed: () async {
-                          String domicilio = '';
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SelectHome(),
-                            ),
-                          );
-
-                          if (result != null) {
-                            domicilio = result['domicilio'];
-                            homelatlng = result['position'];
-                          }
-                          setState(() {
-                            homeController.text = domicilio.toString();
-                          });
-                        },
-                        style: customOutlinedButtonStyle(),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              FontAwesomeIcons.home,
-                              size: 25,
-                              color: Colors.black,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              'Seleccionar\ndomicilio',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 18.0,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ],
-                        )),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    OutlinedButton(
-                        //editar domicilio
-                        onPressed: () async {
-                          String domicilio = '';
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditHome(
-                                homeToEdit: homeController.text,
-                              ),
-                            ),
-                          );
-
-                          if (result != null) {
-                            domicilio = result['domicilio'];
-                          }
-                          setState(() {
-                            homeController.text = domicilio.toString();
-                          });
-                        },
-                        style: customOutlinedButtonStyle(),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Editar\ndomicilio',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 18.0,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                            Icon(
-                              Icons.edit,
-                              size: 25,
-                              color: Colors.black,
-                            ),
-                          ],
-                        )),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 2.0,
-                    ),
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  child: Text(
-                    "Domicilio: " + homeController.text,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.black,
-                      letterSpacing: 1.2,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(1.0, 1.0),
-                          blurRadius: 2.0,
-                          color: Colors.grey,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                VisibilityW(
-                    boolean: domicilio, string: 'Falta seleccionar domicilio'),
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -853,7 +487,11 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                       children: [
                         OutlinedButton(
                           onPressed: () async {
-                            _selectTime();
+                            if (mode != '') {
+                              _selectTime();
+                            } else {
+                              toastF('Primero seleccione la/s fechas');
+                            }
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
@@ -865,7 +503,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                             ),
                             backgroundColor: Colors.grey[200],
                           ),
-                          child: Column(
+                          child: const Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
@@ -876,7 +514,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
                           'Horario',
                           style: TextStyle(
@@ -892,81 +530,91 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                OutlinedButton(
-                  onPressed: () {
-                    bool pass() {
-                      if (selectedPets.isEmpty) {
-                        mascotas = false;
-                      } else {
-                        mascotas = true;
-                      }
-                      if (homeController.text.isEmpty) {
-                        domicilio = false;
-                      } else {
-                        domicilio = true;
-                      }
-                      if (endDate == null &&
-                          startDate == null &&
-                          selectedDates == null) {
-                        fechas = false;
-                      } else {
-                        fechas = true;
-                      }
-                      if (_selectedTime == null) {
-                        horario = false;
-                      } else {
-                        horario = true;
-                      }
-                      setState(() {});
-
-                      if (mascotas && domicilio && fechas && horario)
-                        return true;
-                      else {
-                        return false;
-                      }
-                    }
-
-                    DateTime date = DateTime.now();
-                    saveTime() {
-                      int hoursToAdd =
-                          int.tryParse(timeShowController.text) ?? 0;
-                      print(hoursToAdd);
-                      date = date.add(Duration(hours: hoursToAdd));
-                    }
-
-                    save() async {
-                      await newProgramWalk(
-                          date,
-                          timeShowController.text,
-                          payMethod,
-                          walkWFriends,
-                          timeWalking,
-                          '',
-                          const LatLng(0, 0),
-                          homeController.text,
-                          homelatlng,
-                          descriptionController.text,
-                          selectedPets,
-                          selectedDates,
-                          startDate,
-                          endDate,
-                          mode);
-                    }
-
-                    if (pass()) {
-                      saveTime();
-                      save();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Funcion(),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      alignment: Alignment.bottomLeft,
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16.0, horizontal: 24.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        border: Border.all(color: Colors.grey, width: 2.0),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: const Text(
+                        '¿Paseo con \nmas mascotas?: ',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.black,
+                          letterSpacing: 1.2,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Colors.grey,
+                            ),
+                          ],
                         ),
-                      );
-                    } else {
-                      toastF('Falta llenar informacion del paseo');
-                    }
-                  },
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          walkWFriends = 'Si';
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: walkWFriends == 'Si'
+                              ? Colors.black
+                              : Color.fromRGBO(250, 244, 229, .65),
+                          width: 2,
+                        ),
+                      ),
+                      child: Text('Si',
+                          style: TextStyle(
+                            color: walkWFriends == 'Si'
+                                ? Colors.black
+                                : Colors.black,
+                          )),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          walkWFriends = 'No';
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: walkWFriends == 'No'
+                              ? Colors.black
+                              : Color.fromRGBO(250, 244, 229, .65),
+                          width: 2,
+                        ),
+                      ),
+                      child: Text('No',
+                          style: TextStyle(
+                            color: walkWFriends == 'No'
+                                ? Colors.black
+                                : Colors.black,
+                          )),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: 250,
+                  child: TextField(
+                      controller: descriptionController,
+                      maxLines: 2,
+                      keyboardType: TextInputType.multiline,
+                      decoration: StyleTextField('Descripcion')),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  onPressed: () => details(),
                   style: OutlinedButton.styleFrom(
                     padding:
                         EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
@@ -979,28 +627,429 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        FontAwesomeIcons.dog,
-                        size: 25,
-                        color: Colors.black,
-                      ),
-                      SizedBox(width: 20),
                       Text(
-                        'Solicitar paseo',
+                        'Seleccionar mascotas',
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 22.0,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
-                      SizedBox(width: 15),
-                      Icon(
-                        FontAwesomeIcons.bone,
+                      const SizedBox(width: 10),
+                      const Icon(
+                        Icons.list,
                         size: 25,
                         color: Colors.black,
                       ),
                     ],
                   ),
+                ),
+                VisibilityW(
+                    boolean: mascotas, string: 'Falta seleccionar mascota/s'),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    OutlinedButton(
+                        //seleccionar domicilio
+                        onPressed: () async {
+                          String domicilio = '';
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SelectHome(),
+                            ),
+                          );
+
+                          if (result != null) {
+                            domicilio = result['domicilio'];
+                            homelatlng = result['position'];
+                          }
+                          setState(() {
+                            homeController.text = domicilio.toString();
+                          });
+                        },
+                        style: customOutlinedButtonStyle(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              FontAwesomeIcons.home,
+                              size: 25,
+                              color: Colors.black,
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              'Seleccionar\ndomicilio',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 18.0,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        )),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    OutlinedButton(
+                        //editar domicilio
+                        onPressed: () async {
+                          String domicilio = '';
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditHome(
+                                homeToEdit: homeController.text,
+                              ),
+                            ),
+                          );
+
+                          if (result != null) {
+                            domicilio = result['domicilio'];
+                          }
+                          setState(() {
+                            homeController.text = domicilio.toString();
+                          });
+                        },
+                        style: customOutlinedButtonStyle(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Editar\ndomicilio',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 18.0,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.edit,
+                              size: 25,
+                              color: Colors.black,
+                            ),
+                          ],
+                        )),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 24.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 2.0,
+                    ),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  child: Text(
+                    "Domicilio: ${homeController.text}",
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                      letterSpacing: 1.2,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1.0, 1.0),
+                          blurRadius: 2.0,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                VisibilityW(
+                    boolean: domicilio, string: 'Falta seleccionar domicilio'),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      alignment: Alignment.bottomLeft,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16.0, horizontal: 24.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        border: Border.all(color: Colors.grey, width: 2.0),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: const Text(
+                        'Metodo de pago: ',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.black,
+                          letterSpacing: 1.2,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          payMethod = 'Efectivo';
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: payMethod == 'Efectivo'
+                              ? Colors.black
+                              : Color.fromRGBO(250, 244, 229, .65),
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(Icons.attach_money_outlined,
+                          color: payMethod == 'Efectivo'
+                              ? Colors.black
+                              : Colors.black),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          payMethod = 'Tarjeta';
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: payMethod == 'Tarjeta'
+                              ? Colors.black
+                              : Color.fromRGBO(250, 244, 229, .65),
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(Icons.credit_card_sharp,
+                          color: payMethod == 'Tarjeta'
+                              ? Colors.black
+                              : Colors.black),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 16.0,
+                          horizontal: 24.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          border: Border.all(
+                            color: Colors.grey,
+                            width: 2.0,
+                          ),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Text(
+                          'Mostrar solicitud por: ${timeShowController.text} hrs\n(Max: 8 horas)',
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.black,
+                            letterSpacing: 1.2,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1.0, 1.0),
+                                blurRadius: 2.0,
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                        flex: 1,
+                        child: TextField(
+                            onChanged: (_) {
+                              setState(() {});
+                            },
+                            onEditingComplete: () {
+                              String x = timeShowController.text;
+                              if (!['1', '2', '3', '4', '5', '6', '7', '8']
+                                  .contains(x)) {
+                                setState(() {
+                                  timeShowController.text = '8';
+                                });
+                              } else if (x == '0' || x == '') {
+                                setState(() {
+                                  timeShowController.text = '1';
+                                });
+                              } else {
+                                setState(() {
+                                  timeShowController.text = '1';
+                                });
+                              }
+                            },
+                            keyboardType: TextInputType.number,
+                            controller: timeShowController,
+                            decoration: StyleTextField('Tiempo'))),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  //enviar
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          setState(() {
+                            _isLoading = true;
+                          });
+
+                          bool pass() {
+                            if (selectedPets.isEmpty) {
+                              mascotas = false;
+                            } else {
+                              mascotas = true;
+                            }
+                            if (homeController.text.isEmpty) {
+                              domicilio = false;
+                            } else {
+                              domicilio = true;
+                            }
+                            if (mode == '') {
+                              fechas = false;
+                            } else {
+                              fechas = true;
+                            }
+                            if (_selectedTime == null) {
+                              horario = false;
+                            } else {
+                              horario = true;
+                            }
+                            setState(() {});
+
+                            return mascotas && domicilio && fechas && horario;
+                          }
+
+                          DateTime date = DateTime.now();
+                          saveTime() {
+                            int hoursToAdd =
+                                int.tryParse(timeShowController.text) ?? 0;
+                            date = date.add(Duration(hours: hoursToAdd));
+                          }
+
+                          updateTimes() {
+                            if (mode == 'startEnd') {
+                              startDate = DateTime(
+                                startDate!.year,
+                                startDate!.month,
+                                startDate!.day,
+                                _selectedTime!.hour,
+                                _selectedTime!.minute,
+                              );
+                              endDate = DateTime(
+                                endDate!.year,
+                                endDate!.month,
+                                endDate!.day,
+                                _selectedTime!.hour,
+                                _selectedTime!.minute,
+                              );
+                              print('startDate: $startDate, endDate: $endDate');
+                            } else {
+                              // mode == selectedDates
+                              for (var element in selectedDates!) {
+                                element = DateTime(
+                                  element.year,
+                                  element.month,
+                                  element.day,
+                                  _selectedTime!.hour,
+                                  _selectedTime!.minute,
+                                );
+                              }
+                            }
+                          }
+
+                          save() async {
+                            String lastWalkId = await newProgramWalk(
+                                date,
+                                timeShowController.text,
+                                payMethod,
+                                walkWFriends,
+                                timeWalking,
+                                '',
+                                const LatLng(0, 0),
+                                homeController.text,
+                                homelatlng,
+                                descriptionController.text,
+                                selectedPets,
+                                selectedDates,
+                                startDate,
+                                endDate,
+                                mode,
+                                'walk',
+                                email!);
+                            await addWalkToUser(email!, lastWalkId);
+                          }
+
+                          if (pass()) {
+                            updateTimes();
+                            saveTime();
+                            await save();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Funcion(),
+                              ),
+                            );
+                          } else {
+                            toastF('Falta llenar informacion del paseo');
+                          }
+
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20.0, horizontal: 20.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: const BorderSide(width: 2.0, color: Colors.black),
+                    ),
+                    backgroundColor: Colors.grey[200],
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              FontAwesomeIcons.dog,
+                              size: 25,
+                              color: Colors.black,
+                            ),
+                            const SizedBox(width: 20),
+                            Text(
+                              'Solicitar paseo',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 22.0,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            const Icon(
+                              FontAwesomeIcons.bone,
+                              size: 25,
+                              color: Colors.black,
+                            ),
+                          ],
+                        ),
                 ),
                 const EmptyBox(h: 25)
               ],

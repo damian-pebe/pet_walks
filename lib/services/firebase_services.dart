@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
@@ -32,6 +33,28 @@ Future<List<String>> getPets(String email) async {
   } catch (e) {
     print('Error fetching user: $e');
     return [];
+  }
+}
+
+Future<Set<Map<String, dynamic>>> getPetsHistory(List<String> idPets) async {
+  try {
+    if (idPets.isEmpty) {
+      return {};
+    }
+
+    var petsQuerySnapshot = await db
+        .collection("pets")
+        .where(FieldPath.documentId, whereIn: idPets.toList())
+        .get();
+
+    Set<Map<String, dynamic>> pets = petsQuerySnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toSet();
+
+    return pets;
+  } catch (e) {
+    print('Error fetching pets: $e');
+    return {};
   }
 }
 
@@ -148,6 +171,10 @@ Future<void> newUser(
       "phone": phone ?? "",
       "address": home ?? "",
       "idPets": [],
+      "idBusiness": [],
+      "idPost": [],
+      "idWalks": [],
+      "idWalksDone": [],
       "profilePhoto": '',
       "activeServices": ['walk', 'request', 'business'],
       "languaje": 'spanish'
@@ -171,6 +198,88 @@ Future<List<String>> getServices(String email) async {
     print(e);
     return [];
   }
+}
+
+Future<Set<Map<String, dynamic>>> ownPosts() async {
+  Set<Map<String, dynamic>> posts = {};
+  CollectionReference collectionReferencePosts = db.collection('post');
+  QuerySnapshot queryPosts = await collectionReferencePosts.get();
+
+  for (var element in queryPosts.docs) {
+    posts.add({
+      'id': element.id,
+      "description": element['description'] ?? "",
+      "imageUrls": element['imageUrls'],
+      "address": element['address'],
+      "type": element['type'],
+      "deleteTime": element['deleteTime'],
+      "comments": element['comments'],
+    });
+  }
+
+  return posts;
+}
+
+Future<Set<Map<String, dynamic>>> getPost() async {
+  Set<Map<String, dynamic>> posts = {};
+  CollectionReference collectionReferencePosts = db.collection('post');
+  QuerySnapshot queryPosts = await collectionReferencePosts.get();
+  DateTime now = DateTime.now();
+
+  for (var element in queryPosts.docs) {
+    Timestamp deleteTimeTimestamp = element['deleteTime'] as Timestamp;
+    DateTime deleteTime = deleteTimeTimestamp.toDate();
+
+    if (deleteTime.isBefore(now)) {
+      deletePost(element.id);
+    } else {
+      posts.add({
+        'id': element.id,
+        'address': element['address'],
+      });
+    }
+  }
+
+  return posts;
+}
+
+Future<void> deletePost(String idToDelete) async {
+  CollectionReference collectionReferencePosts = db.collection('post');
+  await collectionReferencePosts.doc(idToDelete).delete();
+}
+
+Future<void> checkArrayDeletedPosts() async {
+  var userDoc =
+      await db.collection("users").where("email", isEqualTo: email).get();
+  CollectionReference collectionReferencePosts = db.collection('post');
+  QuerySnapshot queryPosts = await collectionReferencePosts.get();
+
+  if (userDoc.docs.isNotEmpty) {
+    var user = userDoc.docs.first;
+    var post = List<String>.from(user.data()['idPost'] ?? []);
+
+    var existingPostIds = queryPosts.docs.map((doc) => doc.id).toSet();
+
+    post.removeWhere((id) => !existingPostIds.contains(id));
+
+    await db.collection("users").doc(user.id).update({"idPost": post});
+  }
+}
+
+Future<Set<Map<String, dynamic>>> getInfoPosts(List<String> postIds) async {
+  Set<Map<String, dynamic>> posts = {};
+  CollectionReference collectionReferencePosts = db.collection('post');
+
+  for (var postId in postIds) {
+    DocumentSnapshot docSnapshot =
+        await collectionReferencePosts.doc(postId).get();
+
+    if (docSnapshot.exists) {
+      posts.add(docSnapshot.data() as Map<String, dynamic>);
+    }
+  }
+
+  return posts;
 }
 
 Future<void> updateServices(String email, List? services) async {
@@ -197,7 +306,6 @@ Future<String> getLanguaje(String? email) async {
     var languaje = user.data()['languaje'];
     return languaje;
   } else {
-    print("User with email $email not found.");
     return 'Error';
   }
 }
@@ -209,9 +317,7 @@ Future<void> updateLanguaje(String? email, String languaje) async {
     var user = userDoc.docs.first;
 
     await db.collection("users").doc(user.id).update({"languaje": languaje});
-  } else {
-    print("User with email $email not found.");
-  }
+  } else {}
 }
 
 Future<void> modifyUser(String? name, String email, String? phone, String? home,
@@ -241,9 +347,52 @@ Future<void> addPetToUser(String email, String? newPetId) async {
     pets.add(newPetId ?? 'Invalid state for pet');
 
     await db.collection("users").doc(user.id).update({"idPets": pets});
-  } else {
-    print("User with email $email not found.");
   }
+}
+
+Future<void> addWalkToUser(String email, String? newWalkId) async {
+  try {
+    var userDoc =
+        await db.collection("users").where("email", isEqualTo: email).get();
+    if (userDoc.docs.isNotEmpty) {
+      var user = userDoc.docs.first;
+      var walk = List<String>.from(user.data()['idWalks'] ?? []);
+      walk.add(newWalkId ?? 'Invalid state for walk');
+
+      await db.collection("users").doc(user.id).update({"idWalks": walk});
+    }
+  } catch (e) {}
+}
+
+Future<void> addBusinessToUser(String email, String? newBusinessId) async {
+  try {
+    var userDoc =
+        await db.collection("users").where("email", isEqualTo: email).get();
+    if (userDoc.docs.isNotEmpty) {
+      var user = userDoc.docs.first;
+      var business = List<String>.from(user.data()['idBusiness'] ?? []);
+      business.add(newBusinessId ?? 'Invalid state for walk');
+
+      await db
+          .collection("users")
+          .doc(user.id)
+          .update({"idBusiness": business});
+    }
+  } catch (e) {}
+}
+
+Future<void> addPostToUser(String email, String? newPostId) async {
+  try {
+    var userDoc =
+        await db.collection("users").where("email", isEqualTo: email).get();
+    if (userDoc.docs.isNotEmpty) {
+      var user = userDoc.docs.first;
+      var post = List<String>.from(user.data()['idPost'] ?? []);
+      post.add(newPostId ?? 'Invalid state for walk');
+
+      await db.collection("users").doc(user.id).update({"idPost": post});
+    }
+  } catch (e) {}
 }
 
 class UserService {
@@ -265,7 +414,7 @@ class UserService {
   }
 }
 
-Future<void> newBusiness(
+Future<String> newBusiness(
     String? name,
     String? category,
     String? phone,
@@ -274,7 +423,7 @@ Future<void> newBusiness(
     String? description,
     List<String>? downloadUrls) async {
   double rating = 0;
-  await db.collection("business").add({
+  DocumentReference userDoc = await db.collection("business").add({
     "name": name ?? "",
     "email": category ?? "",
     "phone": phone ?? "",
@@ -289,10 +438,13 @@ Future<void> newBusiness(
     ],
     "imageUrls": downloadUrls ?? [],
   });
+  String lastBusinessId = userDoc.id;
+
+  return lastBusinessId;
 }
 
-Future<void> newWalk(
-    DateTime? timeShow, //for the script as well
+Future<String> newWalk(
+    DateTime timeShow, //for the script as well
     String? timeShowController, //for the script as well
     String? payMethod,
     String? walkWFriends,
@@ -300,44 +452,59 @@ Future<void> newWalk(
     String? place,
     LatLng position,
     String? description,
-    List<String>? selectedPets) async {
-  await db.collection("walks").add({
-    "timeShow": timeShow ?? "",
+    List<String>? selectedPets,
+    String? type,
+    String ownerEmail) async {
+  int timeWalkingInt = int.parse(timeWalking!);
+  int price = getPriceWalk(timeWalkingInt);
+
+  DocumentReference userDoc = await db.collection("walks").add({
+    "timeShow": timeShow,
     "timeShowController": timeShowController ?? "",
     "payMethod": payMethod ?? "",
     "walkWFriends": walkWFriends ?? "",
-    "timeWalking": timeWalking ?? "",
+    "timeWalking": timeWalking,
     "address": place ?? "",
     "position": GeoPoint(position.latitude, position.longitude),
     "description": description ?? "",
     "selectedPets": selectedPets ?? [],
-    //just to be empty
-    "dateTime": [],
-    "startDate": [],
-    "endDate": [],
     "mode": '',
+    "type": type ?? '',
+    "price": price,
+    "ownerEmail": ownerEmail
   });
+  String lastWalkId = userDoc.id;
+
+  return lastWalkId;
 }
 
-Future<void> newProgramWalk(
-  DateTime? timeShow, //for the script as well
-  String? timeShowController, //for the script as well
-  String? payMethod,
-  String? walkWFriends,
-  String? timeWalking,
-  String? travelTo,
-  LatLng travelToPosition,
-  String? place,
-  LatLng position,
-  String? description,
-  List<String>? selectedPets,
-  //this fields are gonna be checked to return the walk or not
-  List<DateTime>? dateTime,
-  DateTime? startDate,
-  DateTime? endDate,
-  String? mode,
-) async {
-  await db.collection("walks").add({
+Future<String> newProgramWalk(
+    DateTime? timeShow, //for the script as well
+    String? timeShowController, //for the script as well
+    String? payMethod,
+    String? walkWFriends,
+    String? timeWalking,
+    String? travelTo,
+    LatLng travelToPosition,
+    String? place,
+    LatLng position,
+    String? description,
+    List<String>? selectedPets,
+    //this fields are gonna be checked to return the walk or not
+    List<DateTime>? dateTime,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? mode,
+    String? type,
+    String ownerEmail) async {
+  int? price;
+  if (timeWalking != '') {
+    int timeWalkingInt = int.parse(timeWalking!);
+    price = getPriceWalk(timeWalkingInt);
+  } else {
+    price = getPriceTravel(travelToPosition);
+  }
+  DocumentReference userDoc = await db.collection("walks").add({
     "timeShow": timeShow ?? "",
     "timeShowController": timeShowController ?? "",
     "payMethod": payMethod ?? "",
@@ -354,7 +521,80 @@ Future<void> newProgramWalk(
     "startDate": startDate ?? [],
     "endDate": endDate ?? [],
     "mode": mode ?? '',
+    "type": type ?? '',
+    "price": price,
+    "ownerEmail": ownerEmail
   });
+  String lastWalkId = userDoc.id;
+
+  return lastWalkId;
+}
+
+int getPriceWalk(int time) {
+  return 0;
+}
+
+int getPriceTravel(LatLng goTo) {
+  return 0;
+}
+
+Future<String> newHistoryWalk(
+  //ill see what to add
+  DateTime? timeShow, //for the script as well
+  String? timeShowController, //for the script as well
+  String? payMethod,
+  String? walkWFriends,
+  String? timeWalking,
+  String? travelTo,
+  LatLng travelToPosition,
+  String? place,
+  LatLng position,
+  String? description,
+  List<String>? selectedPets,
+  //this fields are gonna be checked to return the walk or not
+  List<DateTime>? dateTime,
+  DateTime? startDate,
+  DateTime? endDate,
+  String? mode,
+  String? type,
+) async {
+  DocumentReference userDoc = await db.collection("walks").add({
+    "timeShow": timeShow ?? "",
+    "timeShowController": timeShowController ?? "",
+    "payMethod": payMethod ?? "",
+    "walkWFriends": walkWFriends ?? "",
+    "timeWalking": timeWalking ?? "",
+    "travelTo": travelTo ?? "",
+    "travelToPosition":
+        GeoPoint(travelToPosition.latitude, travelToPosition.longitude),
+    "address": place ?? "",
+    "position": GeoPoint(position.latitude, position.longitude),
+    "description": description ?? "",
+    "selectedPets": selectedPets ?? [],
+    "dateTime": dateTime ?? [],
+    "startDate": startDate ?? [],
+    "endDate": endDate ?? [],
+    "mode": mode ?? '',
+    "type": type ?? ''
+  });
+  String lastWalkId = userDoc.id;
+
+  return lastWalkId;
+}
+
+Future<Set<Map<String, dynamic>>> getHistory(List<String> listOfHistory) async {
+  Set<Map<String, dynamic>> history = {};
+  CollectionReference collectionReferenceHistory = db.collection('history');
+
+  for (String id in listOfHistory) {
+    DocumentSnapshot docSnapshot =
+        await collectionReferenceHistory.doc(id).get();
+    if (docSnapshot.exists) {
+      history.add(docSnapshot.data() as Map<String, dynamic>);
+    }
+  }
+
+  return history;
 }
 
 Future<Set<Map<String, dynamic>>> getBusiness() async {
@@ -369,39 +609,107 @@ Future<Set<Map<String, dynamic>>> getBusiness() async {
   return business;
 }
 
+// Future<Set<Map<String, dynamic>>> getWalks() async {
+//   Set<Map<String, dynamic>> walks = {};
+//   CollectionReference collectionReferenceWalks = db.collection('walks');
+//   QuerySnapshot queryWalks = await collectionReferenceWalks.get();
+
+//   DateTime now = DateTime.now();
+//   for (var element in queryWalks.docs) {
+//     var data = element.data() as Map<String, dynamic>?;
+//     if (data != null) {
+//       String? mode = data['mode'] as String?;
+//       Timestamp? timeShowTimestamp = data['timeShow'] as Timestamp?;
+//       DateTime? timeShow = timeShowTimestamp?.toDate();
+
+//       if (mode == '') {
+//         if (timeShow != null && !timeShow.isAfter(now)) {
+//           walks.add(data);
+//         }
+//       } else if (mode == 'selectedDates') {
+//         List<Timestamp>? listTimestamps = data['dateTime'] as List<Timestamp>?;
+//         List<DateTime>? list =
+//             listTimestamps?.map((ts) => ts.toDate()).toList();
+//         if (list != null) {
+//           for (var elementInto in list) {
+//             if (elementInto.isAfter(now)) {
+//               int? timeShowController = data['timeShowController'] as int?;
+//               if (timeShowController != null) {
+//                 DateTime dateFuture =
+//                     now.add(Duration(hours: timeShowController));
+//                 if (elementInto.isBefore(dateFuture)) {
+//                   walks.add(data);
+//                   break;
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       } else if (mode == 'startEnd') {
+//         List<Timestamp>? listTimestamps = data['dateTime'] as List<Timestamp>?;
+//         List<DateTime>? list =
+//             listTimestamps?.map((ts) => ts.toDate()).toList();
+//         if (list != null) {
+//           for (var elementInto in list) {
+//             if (elementInto.isAfter(now)) {
+//               int? timeShowController = data['timeShowController'] as int?;
+//               if (timeShowController != null) {
+//                 DateTime dateFuture =
+//                     now.add(Duration(hours: timeShowController));
+//                 if (elementInto.isBefore(dateFuture)) {
+//                   walks.add(data);
+//                   break;
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+
+//   return walks;
+// }
+
 Future<Set<Map<String, dynamic>>> getWalks() async {
   Set<Map<String, dynamic>> walks = {};
   CollectionReference collectionReferenceWalks = db.collection('walks');
   QuerySnapshot queryWalks = await collectionReferenceWalks.get();
+
   DateTime now = DateTime.now();
 
-  for (var element in queryWalks.docs) {
-    walks.add(element.data() as Map<String, dynamic>);
-  }
-/*
   for (var element in queryWalks.docs) {
     var data = element.data() as Map<String, dynamic>?;
     if (data != null) {
       String? mode = data['mode'] as String?;
-      DateTime? timeShow = data['timeShow'] as DateTime?;
-      print('INICIO DE GET2');
+      Timestamp? timeShowTimestamp = data['timeShow'] as Timestamp?;
+      DateTime? timeShow = timeShowTimestamp?.toDate();
+      print('Processing data with mode: $mode, timeShow: $timeShow');
+
       if (mode == '') {
-        print('INICIO DE GET mode empty');
-        if (timeShow != null && !timeShow.isAfter(now)) {
+        //CORRECT!!!
+        if (timeShow != null && timeShow.isAfter(now)) {
           walks.add(data);
         }
       } else if (mode == 'selectedDates') {
-        print('INICIO DE GET mode selected');
-        List<DateTime>? list = data['dateTime'] as List<DateTime>?;
-        if (list != null) {
+        print('Processing selectedDates mode');
+        var listDynamic = data['dateTime'];
+        if (listDynamic is List<dynamic>) {
+          List<DateTime> list = listDynamic
+              .whereType<Timestamp>()
+              .map((item) => item.toDate())
+              .toList();
           for (var elementInto in list) {
+            print('Checking date in selectedDates: $elementInto');
             if (elementInto.isAfter(now)) {
               int? timeShowController = data['timeShowController'] as int?;
               if (timeShowController != null) {
                 DateTime dateFuture =
                     now.add(Duration(hours: timeShowController));
+                print('Calculated dateFuture: $dateFuture');
                 if (elementInto.isBefore(dateFuture)) {
                   walks.add(data);
+                  print('Added walk to set, selectedDates mode');
                   break;
                 }
               }
@@ -409,17 +717,31 @@ Future<Set<Map<String, dynamic>>> getWalks() async {
           }
         }
       } else if (mode == 'startEnd') {
-        print('INICIO DE GET mode started');
-        List<DateTime>? list = data['dateTime'] as List<DateTime>?;
-        if (list != null) {
+        print('Processing startEnd mode');
+
+        List<DateTime> list = getArrayOfDateTime(data);
+        if (list.isNotEmpty) {
           for (var elementInto in list) {
+            print('Checking date in startEnd: $elementInto');
             if (elementInto.isAfter(now)) {
-              int? timeShowController = data['timeShowController'] as int?;
+              int? timeShowController;
+
+              if (data['timeShowController'] is String) {
+                timeShowController =
+                    int.tryParse(data['timeShowController'] as String);
+              } else if (data['timeShowController'] is int) {
+                timeShowController = data['timeShowController'] as int?;
+              }
+
               if (timeShowController != null) {
                 DateTime dateFuture =
-                    now.add(Duration(hours: timeShowController));
-                if (elementInto.isBefore(dateFuture)) {
+                    elementInto.add(Duration(hours: timeShowController));
+                print('Calculated dateFuture from elementInto: $dateFuture');
+
+                if (elementInto.isBefore(now) && dateFuture.isAfter(now)) {
+                  // ELEMENT INTO BEFORE NOW & DATE FUTURE AFTER NOW i guess
                   walks.add(data);
+                  print('Added walk to set, startEnd mode');
                   break;
                 }
               }
@@ -428,11 +750,74 @@ Future<Set<Map<String, dynamic>>> getWalks() async {
         }
       }
     } else {
-      print('INICIO DE GET');
+      print('Data is null for document id: ${element.id}');
     }
   }
-*/
+
+  print('Total walks collected: ${walks.length}');
   return walks;
+}
+
+List<DateTime> getArrayOfDateTime(Map<String, dynamic> data) {
+  List<DateTime> list = [];
+
+  if (data['startDate'] is Timestamp && data['endDate'] is Timestamp) {
+    Timestamp startTimestamp = data['startDate'] as Timestamp;
+    DateTime timeShowStart = startTimestamp.toDate();
+    Timestamp endTimestamp = data['endDate'] as Timestamp;
+    DateTime timeShowEnd = endTimestamp.toDate();
+
+    while (timeShowStart.isBefore(timeShowEnd) ||
+        timeShowStart.isAtSameMomentAs(timeShowEnd)) {
+      list.add(timeShowStart);
+      timeShowStart = timeShowStart.add(Duration(days: 1));
+    }
+  } else {
+    print("startDate or endDate is not of type Timestamp");
+  }
+
+  return list;
+}
+
+Future<String> newPost(
+    String? description, List<String?> imageUrls, String? type) async {
+  DateTime now = DateTime.now();
+  DateTime futureDate = now.add(Duration(days: 7));
+
+  var address;
+  String _email = await fetchUserEmail();
+  var userDocEmail =
+      await db.collection("users").where("email", isEqualTo: _email).get();
+
+  if (userDocEmail.docs.isNotEmpty) {
+    var user = userDocEmail.docs.first;
+    address = user.data()['address'] ?? '';
+  }
+
+  DocumentReference userDoc = await db.collection("post").add({
+    "description": description ?? "",
+    "imageUrls": imageUrls,
+    "address": address,
+    "type": type,
+    "deleteTime": futureDate,
+    "comments": ['RECOMENDADOOO!'],
+  });
+  String lastPostId = userDoc.id;
+
+  return lastPostId;
+}
+
+Future<LatLng?> getLatLngFromAddress(String address) async {
+  try {
+    List<Location> locations = await locationFromAddress(address);
+    if (locations.isNotEmpty) {
+      final location = locations.first;
+      return LatLng(location.latitude, location.longitude);
+    }
+  } catch (e) {
+    print("Error getting location: $e");
+  }
+  return null; // Return null if the address cannot be converted to LatLng
 }
 
 Future<String> newPet(
@@ -443,7 +828,6 @@ Future<String> newPet(
     String? old,
     String? color,
     List<String>? imageUrls) async {
-  late String lastPetId;
   DocumentReference userDoc = await db.collection("pets").add({
     "name": name ?? "",
     "race": race ?? "",
@@ -456,6 +840,7 @@ Future<String> newPet(
     "rating": 0.0,
     "comments": ['muy buena mascota', 'linda mascota', 'muy cariñoso!'],
   });
+  late String lastPetId;
 
   lastPetId = userDoc.id;
 

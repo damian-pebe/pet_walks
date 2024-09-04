@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:petwalks_app/init_app/funcion.dart';
-import 'package:petwalks_app/pages/opciones/opciones.dart';
+import 'package:petwalks_app/init_app/function.dart';
+import 'package:petwalks_app/pages/opciones/options.dart';
 
 class Wrapper extends StatelessWidget {
   const Wrapper({super.key});

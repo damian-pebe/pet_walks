@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petwalks_app/init_app/ajustes/pets/pet_info.dart';
-import 'package:petwalks_app/init_app/funcion.dart';
+import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -12,6 +12,7 @@ import 'package:petwalks_app/widgets/date_time.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:petwalks_app/widgets/toast.dart';
+import 'package:petwalks_app/widgets/visibility.dart';
 
 class TravelTo extends StatefulWidget {
   final LatLng geoPoint;
@@ -28,8 +29,7 @@ class _TravelToState extends State<TravelTo> {
   String payMethod = 'Efectivo';
   String walkWFriends = 'Si';
   List<String> selectedPets = [];
-  TextEditingController descriptionController =
-      TextEditingController(text: "1");
+  TextEditingController descriptionController = TextEditingController(text: "");
   late LatLng homelatlng;
 
   Map<String, dynamic> showData = {};
@@ -37,11 +37,38 @@ class _TravelToState extends State<TravelTo> {
   late List<String> list = [];
   Map<String, bool> checkboxStates = {};
 
-//dateTime
-  late var endDate;
-  late var startDate;
-  late var selectedDates;
-  late String mode;
+  bool mascotas = true;
+  bool domicilio = true;
+  bool fechas = true;
+  bool horario = true;
+  bool _isLoading = false;
+
+  late DateTime endDate;
+  late DateTime startDate;
+  late List<DateTime> selectedDates;
+
+  String mode = '';
+  TimeOfDay? _selectedTime;
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime ?? TimeOfDay.now(),
+    );
+    if (picked != null && picked != _selectedTime) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+    _saveTime();
+  }
+
+  void _saveTime() {
+    if (_selectedTime != null) {
+      String formattedTime =
+          "${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}";
+      print(formattedTime.toString());
+    }
+  }
 
   String? email;
   Future<void> fetchUserEmail() async {
@@ -109,7 +136,7 @@ class _TravelToState extends State<TravelTo> {
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: FutureBuilder<List<String>>(
@@ -213,7 +240,7 @@ class _TravelToState extends State<TravelTo> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Divider(
                     color: Colors.black.withOpacity(0.5),
                     thickness: 2,
@@ -244,7 +271,7 @@ class _TravelToState extends State<TravelTo> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                 ],
               ),
             );
@@ -269,7 +296,7 @@ class _TravelToState extends State<TravelTo> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Stack(children: [
-                  titleW(title: 'Solicitar viaje'),
+                  const titleW(title: 'Viaje'),
                   Positioned(
                       left: 30,
                       top: 70,
@@ -277,152 +304,130 @@ class _TravelToState extends State<TravelTo> {
                         children: [
                           IconButton(
                             onPressed: () => Navigator.pop(context),
-                            icon: Icon(Icons.arrow_back_ios,
+                            icon: const Icon(Icons.arrow_back_ios,
                                 size: 30, color: Colors.black),
                           ),
-                          Text(
+                          const Text(
                             'Regresar',
                             style: TextStyle(fontSize: 10),
                           )
                         ],
                       )),
                 ]),
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 16.0,
-                          horizontal: 24.0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: 2.0,
+                    Column(
+                      children: [
+                        OutlinedButton(
+                          onPressed: () async {
+                            var result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SelectableCalendar(),
+                                ));
+                            if (result != null) {
+                              if (result.containsKey('dates')) {
+                                selectedDates = result['dates'];
+                                mode = 'selectedDates';
+                              } else if (result.containsKey('start') &&
+                                  result.containsKey('end')) {
+                                startDate = result['start'];
+                                endDate = result['end'];
+                                mode = 'startEnd';
+                              }
+                            } else {
+                              print('result = null');
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20.0, horizontal: 20.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                              side: const BorderSide(
+                                  width: 2.0, color: Colors.black),
+                            ),
+                            backgroundColor: Colors.grey[200],
                           ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Text(
-                          'Mostrar solicitud por: ${timeShowController.text} hrs\n(Max: 8 horas)',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black,
-                            letterSpacing: 1.2,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Colors.grey,
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                FontAwesomeIcons.calendarCheck,
+                                size: 25,
+                                color: Colors.black,
                               ),
                             ],
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Fecha/s',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16.0,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        VisibilityW(
+                            boolean: fechas,
+                            string: 'Falta seleccionar fecha/s')
+                      ],
                     ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      flex: 1,
-                      child: TextField(
-                          onChanged: (_) {
-                            setState(() {});
-                          },
-                          onEditingComplete: () {
-                            String x = timeShowController.text;
-                            if (!['1', '2', '3', '4', '5', '6', '7', '8']
-                                .contains(x)) {
-                              setState(() {
-                                timeShowController.text = '8';
-                              });
-                            } else if (x == '0' || x == '') {
-                              setState(() {
-                                timeShowController.text = '1';
-                              });
+                    const SizedBox(
+                      width: 60,
+                    ),
+                    Column(
+                      children: [
+                        OutlinedButton(
+                          onPressed: () async {
+                            if (mode != '') {
+                              _selectTime();
                             } else {
-                              setState(() {
-                                timeShowController.text = '1';
-                              });
+                              toastF('Primero seleccione la/s fechas');
                             }
                           },
-                          keyboardType: TextInputType.number,
-                          controller: timeShowController,
-                          decoration: StyleTextField('Tiempo')),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      alignment: Alignment.bottomLeft,
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 24.0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        border: Border.all(color: Colors.grey, width: 2.0),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: Text(
-                        'Metodo de pago: ',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.black,
-                          letterSpacing: 1.2,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(1.0, 1.0),
-                              blurRadius: 2.0,
-                              color: Colors.grey,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20.0, horizontal: 20.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                              side: const BorderSide(
+                                  width: 2.0, color: Colors.black),
                             ),
-                          ],
+                            backgroundColor: Colors.grey[200],
+                          ),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.av_timer,
+                                size: 28,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          payMethod = 'Efectivo';
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: payMethod == 'Efectivo'
-                              ? Colors.black
-                              : Color.fromRGBO(250, 244, 229, .65),
-                          width: 2,
+                        const SizedBox(height: 5),
+                        Text(
+                          'Horario',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16.0,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
-                      ),
-                      child: Icon(Icons.attach_money_outlined,
-                          color: payMethod == 'Efectivo'
-                              ? Colors.black
-                              : Colors.black),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          payMethod = 'Tarjeta';
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: payMethod == 'Tarjeta'
-                              ? Colors.black
-                              : Color.fromRGBO(250, 244, 229, .65),
-                          width: 2,
-                        ),
-                      ),
-                      child: Icon(Icons.credit_card_sharp,
-                          color: payMethod == 'Tarjeta'
-                              ? Colors.black
-                              : Colors.black),
+                        VisibilityW(
+                            boolean: horario,
+                            string: 'Falta seleccionar horario')
+                      ],
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -435,7 +440,7 @@ class _TravelToState extends State<TravelTo> {
                         border: Border.all(color: Colors.grey, width: 2.0),
                         borderRadius: BorderRadius.circular(15.0),
                       ),
-                      child: Text(
+                      child: const Text(
                         '¿Paseo con \nmas mascotas?: ',
                         style: TextStyle(
                           fontSize: 16.0,
@@ -495,7 +500,7 @@ class _TravelToState extends State<TravelTo> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Container(
                   width: 250,
                   child: TextField(
@@ -504,10 +509,18 @@ class _TravelToState extends State<TravelTo> {
                       keyboardType: TextInputType.multiline,
                       decoration: StyleTextField('Descripcion')),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
                 OutlinedButton(
                   onPressed: () => details(),
-                  style: customOutlinedButtonStyle(),
+                  style: OutlinedButton.styleFrom(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: BorderSide(width: 2.0, color: Colors.black),
+                    ),
+                    backgroundColor: Colors.grey[200],
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -519,8 +532,8 @@ class _TravelToState extends State<TravelTo> {
                           fontStyle: FontStyle.italic,
                         ),
                       ),
-                      SizedBox(width: 10),
-                      Icon(
+                      const SizedBox(width: 10),
+                      const Icon(
                         Icons.list,
                         size: 25,
                         color: Colors.black,
@@ -528,7 +541,9 @@ class _TravelToState extends State<TravelTo> {
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
+                VisibilityW(
+                    boolean: mascotas, string: 'Falta seleccionar mascota/s'),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -547,7 +562,6 @@ class _TravelToState extends State<TravelTo> {
                           if (result != null) {
                             domicilio = result['domicilio'];
                             homelatlng = result['position'];
-                            print('\nDOMICILIO: ' + domicilio);
                           }
                           setState(() {
                             homeController.text = domicilio.toString();
@@ -557,12 +571,12 @@ class _TravelToState extends State<TravelTo> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               FontAwesomeIcons.home,
                               size: 25,
                               color: Colors.black,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 5,
                             ),
                             Text(
@@ -593,7 +607,6 @@ class _TravelToState extends State<TravelTo> {
 
                           if (result != null) {
                             domicilio = result['domicilio'];
-                            print('\nDOMICILIO: ' + domicilio);
                           }
                           setState(() {
                             homeController.text = domicilio.toString();
@@ -611,7 +624,7 @@ class _TravelToState extends State<TravelTo> {
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
-                            Icon(
+                            const Icon(
                               Icons.edit,
                               size: 25,
                               color: Colors.black,
@@ -620,167 +633,312 @@ class _TravelToState extends State<TravelTo> {
                         )),
                   ],
                 ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 24.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 2.0,
+                    ),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  child: Text(
+                    "Domicilio: ${homeController.text}",
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                      letterSpacing: 1.2,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1.0, 1.0),
+                          blurRadius: 2.0,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                VisibilityW(
+                    boolean: domicilio, string: 'Falta seleccionar domicilio'),
+                const SizedBox(height: 10),
                 Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      children: [
-                        OutlinedButton(
-                          onPressed: () async {
-                            var result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SelectableCalendar(),
-                                ));
-                            if (result != null) {
-                              if (result.containsKey('dates')) {
-                                selectedDates = result['dates'];
-                                mode = 'selectedDates';
-                              } else if (result.containsKey('start') &&
-                                  result.containsKey('end')) {
-                                startDate = result['start'];
-                                endDate = result['end'];
-                                mode = 'startEnd';
-                              }
-                            }
-                          },
-                          style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 20.0, horizontal: 20.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              side: BorderSide(width: 2.0, color: Colors.black),
+                    Container(
+                      alignment: Alignment.bottomLeft,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16.0, horizontal: 24.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        border: Border.all(color: Colors.grey, width: 2.0),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: const Text(
+                        'Metodo de pago: ',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.black,
+                          letterSpacing: 1.2,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Colors.grey,
                             ),
-                            backgroundColor: Colors.grey[200],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                FontAwesomeIcons.calendarCheck,
-                                size: 25,
-                                color: Colors.black,
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
-                        SizedBox(height: 5),
-                        Text(
-                          'Fecha/s',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 16.0,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                    SizedBox(
-                      width: 60,
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          payMethod = 'Efectivo';
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: payMethod == 'Efectivo'
+                              ? Colors.black
+                              : Color.fromRGBO(250, 244, 229, .65),
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(Icons.attach_money_outlined,
+                          color: payMethod == 'Efectivo'
+                              ? Colors.black
+                              : Colors.black),
                     ),
-                    Column(
-                      children: [
-                        OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 20.0, horizontal: 20.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              side: BorderSide(width: 2.0, color: Colors.black),
-                            ),
-                            backgroundColor: Colors.grey[200],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.av_timer,
-                                size: 28,
-                                color: Colors.black,
-                              ),
-                            ],
-                          ),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          payMethod = 'Tarjeta';
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: payMethod == 'Tarjeta'
+                              ? Colors.black
+                              : Color.fromRGBO(250, 244, 229, .65),
+                          width: 2,
                         ),
-                        SizedBox(height: 5),
-                        Text(
-                          'Horario',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 16.0,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
+                      ),
+                      child: Icon(Icons.credit_card_sharp,
+                          color: payMethod == 'Tarjeta'
+                              ? Colors.black
+                              : Colors.black),
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
-                SizedBox(height: 10),
-                OutlinedButton(
-                  onPressed: () {
-                    DateTime date = DateTime.now();
-                    saveTime() {
-                      date.add(Duration(hours: timeShowController as int));
-                      print(date);
-                    }
-
-                    saveTime();
-                    save() async {
-                      await newProgramWalk(
-                          date,
-                          timeShowController.text,
-                          payMethod,
-                          walkWFriends,
-                          '',
-                          widget.address, //address from the place to go
-                          widget.geoPoint, //travel to this place
-                          homeController.text,
-                          homelatlng,
-                          descriptionController.text,
-                          selectedPets,
-                          selectedDates,
-                          startDate,
-                          endDate,
-                          mode);
-                    }
-
-                    save();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Funcion(),
-                      ),
-                    );
-                  },
-                  style: customOutlinedButtonStyle(),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        FontAwesomeIcons.dog,
-                        size: 25,
-                        color: Colors.black,
-                      ),
-                      SizedBox(width: 20),
-                      Text(
-                        'Solicitar paseo',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 22.0,
-                          fontStyle: FontStyle.italic,
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 16.0,
+                          horizontal: 24.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          border: Border.all(
+                            color: Colors.grey,
+                            width: 2.0,
+                          ),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Text(
+                          'Mostrar solicitud por: ${timeShowController.text} hrs\n(Max: 8 horas)',
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.black,
+                            letterSpacing: 1.2,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1.0, 1.0),
+                                blurRadius: 2.0,
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      SizedBox(width: 15),
-                      Icon(
-                        FontAwesomeIcons.bone,
-                        size: 25,
-                        color: Colors.black,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                        flex: 1,
+                        child: TextField(
+                            onChanged: (_) {
+                              setState(() {});
+                            },
+                            onEditingComplete: () {
+                              String x = timeShowController.text;
+                              if (!['1', '2', '3', '4', '5', '6', '7', '8']
+                                  .contains(x)) {
+                                setState(() {
+                                  timeShowController.text = '8';
+                                });
+                              } else if (x == '0' || x == '') {
+                                setState(() {
+                                  timeShowController.text = '1';
+                                });
+                              } else {
+                                setState(() {
+                                  timeShowController.text = '1';
+                                });
+                              }
+                            },
+                            keyboardType: TextInputType.number,
+                            controller: timeShowController,
+                            decoration: StyleTextField('Tiempo'))),
+                  ],
                 ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          DateTime date = DateTime.now();
+                          saveTime() {
+                            date.add(
+                                Duration(hours: timeShowController as int));
+                            print(date);
+                          }
+
+                          bool pass() {
+                            if (selectedPets.isEmpty) {
+                              mascotas = false;
+                            } else {
+                              mascotas = true;
+                            }
+                            if (homeController.text.isEmpty) {
+                              domicilio = false;
+                            } else {
+                              domicilio = true;
+                            }
+                            if (mode == '') {
+                              fechas = false;
+                            } else {
+                              fechas = true;
+                            }
+                            if (_selectedTime == null) {
+                              horario = false;
+                            } else {
+                              horario = true;
+                            }
+                            setState(() {});
+
+                            return mascotas && domicilio && fechas && horario;
+                          }
+
+                          updateTimes() {
+                            if (mode == 'startEnd') {
+                              startDate = DateTime(
+                                startDate.year,
+                                startDate.month,
+                                startDate.day,
+                                _selectedTime!.hour,
+                                _selectedTime!.minute,
+                              );
+                              endDate = DateTime(
+                                endDate.year,
+                                endDate.month,
+                                endDate.day,
+                                _selectedTime!.hour,
+                                _selectedTime!.minute,
+                              );
+                              print('startDate: $startDate, endDate: $endDate');
+                            } else {
+                              // mode == selectedDates
+                              for (var element in selectedDates) {
+                                element = DateTime(
+                                  element.year,
+                                  element.month,
+                                  element.day,
+                                  _selectedTime!.hour,
+                                  _selectedTime!.minute,
+                                );
+                              }
+                            }
+                          }
+
+                          save() async {
+                            String lastWalkId = await newProgramWalk(
+                                date,
+                                timeShowController.text,
+                                payMethod,
+                                walkWFriends,
+                                '',
+                                widget.address, //address from the place to go
+                                widget.geoPoint, //travel to this place
+                                homeController.text,
+                                homelatlng,
+                                descriptionController.text,
+                                selectedPets,
+                                selectedDates,
+                                startDate,
+                                endDate,
+                                mode,
+                                'travel',
+                                email!);
+                            await addWalkToUser(email!, lastWalkId);
+                          }
+
+                          if (pass()) {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            updateTimes();
+                            saveTime();
+                            await save();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Funcion(),
+                              ),
+                            );
+                          } else {
+                            toastF('Falta llenar informacion del paseo');
+                          }
+
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        },
+                  style: customOutlinedButtonStyle(),
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              FontAwesomeIcons.dog,
+                              size: 25,
+                              color: Colors.black,
+                            ),
+                            SizedBox(width: 20),
+                            Text(
+                              'Solicitar paseo',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 22.0,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            SizedBox(width: 15),
+                            Icon(
+                              FontAwesomeIcons.bone,
+                              size: 25,
+                              color: Colors.black,
+                            ),
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 23),
               ],
             ),
           ),

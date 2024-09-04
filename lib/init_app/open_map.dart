@@ -70,7 +70,9 @@ class _OpenMap extends State<OpenMap> {
         }
       });
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     } catch (e) {
       print("Error fetching business data: $e");
     }
@@ -105,12 +107,13 @@ class _OpenMap extends State<OpenMap> {
   @override
   void initState() {
     super.initState();
-    _getBusiness();
     initialCameraPosition = const CameraPosition(
       target: LatLng(0, 0),
     );
     _checkLocationPermission();
-    initData();
+    initData().then((_) {
+      _getBusiness();
+    });
   }
 
   Future<void> _checkLocationPermission() async {
@@ -130,10 +133,12 @@ class _OpenMap extends State<OpenMap> {
     try {
       geo.Position position = await geo.Geolocator.getCurrentPosition(
           desiredAccuracy: geo.LocationAccuracy.high);
-      setState(() {
-        _center = LatLng(position.latitude, position.longitude);
-        _isPermissionGranted = true;
-      });
+      if (mounted) {
+        setState(() {
+          _center = LatLng(position.latitude, position.longitude);
+          _isPermissionGranted = true;
+        });
+      }
     } catch (e) {
       print("ERROR CON UBICACION: $e");
     }

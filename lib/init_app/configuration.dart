@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/init_app/ajustes/edit_user.dart';
 import 'package:petwalks_app/init_app/ajustes/pets.dart';
-import 'package:petwalks_app/pages/opciones/opciones.dart';
+import 'package:petwalks_app/pages/opciones/options.dart';
 import 'package:petwalks_app/services/auth_service.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
@@ -54,7 +54,7 @@ class _AjustesState extends State<Ajustes> {
         home: Scaffold(
           body: Column(
             children: [
-              titleW(title: 'Ajustes'),
+              const titleW(title: 'Ajustes'),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 26.0),
                 child: Center(
@@ -70,7 +70,7 @@ class _AjustesState extends State<Ajustes> {
                             padding: EdgeInsets.symmetric(
                                 vertical: 16.0, horizontal: 24.0),
                             decoration: BoxDecoration(
-                              color: Colors.grey[200],
+                              color: Colors.yellow[100],
                               border: Border.all(
                                 color: Colors.grey,
                                 width: 1.0,
@@ -83,7 +83,7 @@ class _AjustesState extends State<Ajustes> {
                                   "Idioma ",
                                   style: TextStyle(
                                     fontSize: 16.0,
-                                    color: Colors.grey[600],
+                                    color: Colors.black,
                                     letterSpacing: 1.2,
                                     shadows: [
                                       Shadow(
@@ -129,7 +129,7 @@ class _AjustesState extends State<Ajustes> {
                                 height: 30,
                               ),
                             ),
-                            style: customOutlinedButtonStyle(),
+                            style: customOutlinedButtonStyleYellow(),
                           ),
                         ],
                       ),
@@ -141,15 +141,15 @@ class _AjustesState extends State<Ajustes> {
                                   builder: (context) => const EditUser(),
                                 ),
                               ),
-                          style: customOutlinedButtonStyle(),
-                          child: Row(
+                          style: customOutlinedButtonStyleYellow(),
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Editar perfil',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -172,15 +172,15 @@ class _AjustesState extends State<Ajustes> {
                                   builder: (context) => const Mascotas(),
                                 ),
                               ),
-                          style: customOutlinedButtonStyle(),
-                          child: Row(
+                          style: customOutlinedButtonStyleYellow(),
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Administrar mascotas ',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -195,18 +195,18 @@ class _AjustesState extends State<Ajustes> {
                               ),
                             ],
                           )),
-                      EmptyBox(w: 0, h: 30),
+                      const EmptyBox(w: 0, h: 30),
                       OutlinedButton(
                           onPressed: () async {},
-                          style: customOutlinedButtonStyle(),
-                          child: Row(
+                          style: customOutlinedButtonStyleYellow(),
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Tutorial de uso',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -221,18 +221,18 @@ class _AjustesState extends State<Ajustes> {
                               ),
                             ],
                           )),
-                      EmptyBox(w: 0, h: 30),
+                      const EmptyBox(w: 0, h: 30),
                       OutlinedButton(
                           onPressed: () async {},
-                          style: customOutlinedButtonStyle(),
-                          child: Row(
+                          style: customOutlinedButtonStyleYellow(),
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Sobre nosotros',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -247,18 +247,18 @@ class _AjustesState extends State<Ajustes> {
                               ),
                             ],
                           )),
-                      EmptyBox(w: 0, h: 30),
+                      const EmptyBox(w: 0, h: 30),
                       OutlinedButton(
                           onPressed: () async {},
-                          style: customOutlinedButtonStyle(),
-                          child: Row(
+                          style: customOutlinedButtonStyleYellow(),
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Sugerencias',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -273,7 +273,7 @@ class _AjustesState extends State<Ajustes> {
                               ),
                             ],
                           )),
-                      EmptyBox(w: 0, h: 30),
+                      const EmptyBox(w: 0, h: 30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [

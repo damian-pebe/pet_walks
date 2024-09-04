@@ -22,6 +22,8 @@ class EditInfoPet extends StatefulWidget {
 }
 
 class _EditInfoPet extends State<EditInfoPet> {
+  bool _isLoading = false;
+
   void showCommentsDialog(BuildContext context, List<dynamic> comments) {
     showGeneralDialog(
       context: context,
@@ -162,22 +164,22 @@ class _EditInfoPet extends State<EditInfoPet> {
                             TextField(
                                 keyboardType: TextInputType.name,
                                 controller: raceController,
-                                decoration: StyleTextField('Race')),
+                                decoration: StyleTextField('Raza')),
                             const EmptyBox(h: 20),
                             TextField(
                                 keyboardType: TextInputType.number,
                                 controller: sizeController,
-                                decoration: StyleTextField('Size')),
+                                decoration: StyleTextField('Tamaño(cm)')),
                             const EmptyBox(h: 20),
                             TextField(
                                 keyboardType: TextInputType.multiline,
                                 controller: descriptionController,
-                                decoration: StyleTextField('Description')),
+                                decoration: StyleTextField('Descripcion')),
                             const EmptyBox(h: 20),
                             TextField(
                                 keyboardType: TextInputType.number,
                                 controller: oldController,
-                                decoration: StyleTextField('Old')),
+                                decoration: StyleTextField('Edad(años)')),
                             const EmptyBox(h: 20),
                             TextField(
                                 keyboardType: TextInputType.name,
@@ -189,59 +191,77 @@ class _EditInfoPet extends State<EditInfoPet> {
               ),
               Divider(),
               OutlinedButton(
-                  onPressed: () {
-                    if (nameController.text.isEmpty) {
-                      return;
-                    }
-                    if (data.isEmpty) {
-                      return;
-                    }
-                    updatePet(
-                        widget.id,
-                        nameController.text,
-                        raceController.text,
-                        sizeController.text,
-                        descriptionController.text,
-                        oldController.text,
-                        colorController.text,
-                        data);
-                    final updatedPetData = {
-                      'name': nameController.text,
-                      'race': raceController.text,
-                      'size': sizeController.text,
-                      'description': descriptionController.text,
-                      'old': oldController.text,
-                      'color': colorController.text,
-                      'imageUrls': data,
-                      'rating': widget.petData['rating'],
-                      'comments': widget.petData['comments'],
-                    };
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        if (nameController.text.isEmpty || data.isEmpty) {
+                          return;
+                        }
 
-                    toastF('Se ha actualizado la informacion');
-                    Navigator.pop(context, updatedPetData);
-                  },
-                  style: customOutlinedButtonStyle(),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.update,
-                        size: 30,
-                        color: Colors.black,
-                      ),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      Text(
-                        'Actualizar',
-                        style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.bold,
+                        setState(() {
+                          _isLoading = true;
+                        });
+
+                        try {
+                          await updatePet(
+                            widget.id,
+                            nameController.text,
+                            raceController.text,
+                            sizeController.text,
+                            descriptionController.text,
+                            oldController.text,
+                            colorController.text,
+                            data,
+                          );
+
+                          final updatedPetData = {
+                            'name': nameController.text,
+                            'race': raceController.text,
+                            'size': sizeController.text,
+                            'description': descriptionController.text,
+                            'old': oldController.text,
+                            'color': colorController.text,
+                            'imageUrls': data,
+                            'rating': widget.petData['rating'],
+                            'comments': widget.petData['comments'],
+                          };
+
+                          toastF('Se ha actualizado la informacion');
+                          Navigator.pop(context, updatedPetData);
+                        } catch (e) {
+                          toastF('Error al actualizar la informacion');
+                        } finally {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+                      },
+                style: customOutlinedButtonStyle(),
+                child: _isLoading
+                    ? CircularProgressIndicator()
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.update,
+                            size: 30,
                             color: Colors.black,
-                            fontSize: 20),
+                          ),
+                          SizedBox(
+                            width: 30,
+                          ),
+                          Text(
+                            'Actualizar',
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  )),
+              ),
             ],
           ),
         ),

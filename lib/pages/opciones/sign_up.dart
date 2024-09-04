@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:petwalks_app/init_app/funcion.dart';
+import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -280,7 +280,27 @@ class _Sign_UpState extends State<Sign_Up> {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                titleW(title: 'Registrarme'),
+                Stack(
+                  children: [
+                    const titleW(title: 'Registrarme'),
+                    Positioned(
+                        left: 30,
+                        top: 70,
+                        child: Column(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(Icons.arrow_back_ios,
+                                  size: 30, color: Colors.black),
+                            ),
+                            const Text(
+                              'Regresar',
+                              style: TextStyle(fontSize: 10),
+                            )
+                          ],
+                        )),
+                  ],
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Column(

@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:petwalks_app/init_app/funcion.dart';
-import 'package:petwalks_app/pages/opciones/registro.dart';
+import 'package:petwalks_app/init_app/function.dart';
+import 'package:petwalks_app/pages/opciones/sign_up.dart';
 import 'package:petwalks_app/services/auth_service.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
@@ -145,7 +145,27 @@ class _LogInState extends State<LogIn> {
           body: SingleChildScrollView(
               child: Column(
             children: [
-              titleW(title: 'Iniciar sesion'),
+              Stack(
+                children: [
+                  const titleW(title: 'Iniciar sesion'),
+                  Positioned(
+                      left: 30,
+                      top: 70,
+                      child: Column(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.arrow_back_ios,
+                                size: 30, color: Colors.black),
+                          ),
+                          const Text(
+                            'Regresar',
+                            style: TextStyle(fontSize: 10),
+                          )
+                        ],
+                      )),
+                ],
+              ),
               Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: 30.0, vertical: 5.0),

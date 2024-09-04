@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:petwalks_app/init_app/funcion.dart';
+import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/login.dart';
 import 'package:petwalks_app/services/auth_service.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
-import 'registro.dart';
+import 'sign_up.dart';
 
 class Opciones extends StatefulWidget {
   const Opciones({super.key});

@@ -6,7 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:petwalks_app/init_app/funcion.dart';
+import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -22,6 +22,7 @@ class AgregarEmpresa extends StatefulWidget {
 }
 
 class _AgregarEmpresaState extends State<AgregarEmpresa> {
+  bool _isLoading = false;
   TextEditingController nameController = TextEditingController(text: "");
   final TextEditingController _categoryController =
       TextEditingController(text: "");
@@ -42,12 +43,10 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
   Future<void> _pickImages() async {
     final pickedFiles = await ImagePicker().pickMultiImage(imageQuality: 80);
 
-    if (pickedFiles != null) {
-      setState(() {
-        _imageFiles =
-            pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
-      });
-    }
+    setState(() {
+      _imageFiles =
+          pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
+    });
   }
 
   Future<void> _uploadImages() async {
@@ -246,10 +245,10 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
     return true;
   }
 
-  bool _isName = true;
-  bool _isVerified = true;
-  bool _isHome = true;
-  final _isSame = true;
+  bool _isName = false;
+  bool _isVerified = false;
+  bool _isHome = false;
+  final _isSame = false;
 
   @override
   @override
@@ -263,23 +262,27 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
             child: Column(
               children: [
                 Stack(children: [
-                  titleW(title: 'Agregar empresa'),
-                  Positioned(
-                      left: 30,
-                      top: 70,
-                      child: Column(
-                        children: [
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: Icon(Icons.arrow_back_ios,
-                                size: 30, color: Colors.black),
-                          ),
-                          Text(
-                            'Regresar',
-                            style: TextStyle(fontSize: 10),
-                          )
-                        ],
-                      )),
+                  Stack(
+                    children: [
+                      const titleW(title: 'Agregar empresa'),
+                      Positioned(
+                          left: 10,
+                          top: 70,
+                          child: Column(
+                            children: [
+                              IconButton(
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(Icons.arrow_back_ios,
+                                    size: 30, color: Colors.black),
+                              ),
+                              const Text(
+                                'Regresar',
+                                style: TextStyle(fontSize: 10),
+                              )
+                            ],
+                          )),
+                    ],
+                  ),
                 ]),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -546,7 +549,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
+                          SizedBox(
                             width: 250,
                             child: TextField(
                                 controller: descriptionController,
@@ -554,7 +557,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                 keyboardType: TextInputType.multiline,
                                 decoration: StyleTextField('Descripcion')),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 30,
                           ),
                         ],
@@ -563,64 +566,83 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                         height: 30,
                       ),
                       OutlinedButton(
-                          onPressed: () {
-                            if (!verifyFields()) {
-                              if (!verifyFieldsName()) {
-                                _isName = false;
-                                setState(() {});
-                              } else {
-                                _isName = true;
-                                setState(() {});
-                              }
-                            } else {
-                              _isName = true;
-                              uploadImages() async {
-                                await _uploadImages();
-                              }
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
+                                if (!verifyFields()) {
+                                  if (!verifyFieldsName()) {
+                                    setState(() {
+                                      _isName = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _isName = true;
+                                    });
+                                  }
+                                } else {
+                                  setState(() {
+                                    _isName = true;
+                                    _isLoading = true;
+                                  });
 
-                              save() async {
-                                await newBusiness(
-                                    nameController.text,
-                                    categoryController,
-                                    phoneController.text,
-                                    homeController.text,
-                                    homelatlng,
-                                    descriptionController.text,
-                                    _downloadUrls);
-                              }
+                                  Future<void> uploadImages() async {
+                                    await _uploadImages();
+                                  }
 
-                              uploadImages();
-                              save();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const Funcion(),
-                                ),
-                              );
-                            }
-                          },
-                          style: customOutlinedButtonStyle(),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add_business_sharp,
-                                size: 30,
-                                color: Colors.black,
-                              ),
-                              SizedBox(
-                                width: 30,
-                              ),
-                              Text(
-                                'Agregar empresa',
-                                style: TextStyle(
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold,
+                                  Future<void> save() async {
+                                    String lastBusinessId = await newBusiness(
+                                      nameController.text,
+                                      categoryController,
+                                      phoneController.text,
+                                      homeController.text,
+                                      homelatlng,
+                                      descriptionController.text,
+                                      _downloadUrls,
+                                    );
+                                    await addBusinessToUser(
+                                        email!, lastBusinessId);
+                                  }
+
+                                  await uploadImages();
+                                  await save();
+
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const Funcion(),
+                                    ),
+                                  );
+                                }
+                              },
+                        style: customOutlinedButtonStyle(),
+                        child: _isLoading
+                            ? CircularProgressIndicator()
+                            : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_business_sharp,
+                                    size: 30,
                                     color: Colors.black,
-                                    fontSize: 20),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  Text(
+                                    'Agregar empresa',
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                        fontSize: 20),
+                                  ),
+                                ],
                               ),
-                            ],
-                          )),
+                      ),
                     ],
                   ),
                 ),

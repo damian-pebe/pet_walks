@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:petwalks_app/init_app/funcion.dart';
+import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -21,6 +21,7 @@ class EditUser extends StatefulWidget {
 }
 
 class _EditUserState extends State<EditUser> {
+  bool _isLoading = false;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -156,7 +157,7 @@ class _EditUserState extends State<EditUser> {
       barrierColor: Colors.black.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Row(
+          title: const Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -203,7 +204,7 @@ class _EditUserState extends State<EditUser> {
                       Navigator.pop(context, verificationModule);
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           vertical: 16.0, horizontal: 24.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
@@ -211,7 +212,7 @@ class _EditUserState extends State<EditUser> {
                       ),
                       backgroundColor: Colors.grey[200],
                     ),
-                    child: Column(
+                    child: const Column(
                       children: [
                         Icon(
                           Icons.verified_outlined,
@@ -227,10 +228,10 @@ class _EditUserState extends State<EditUser> {
                 )
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Visibility(
               visible: !_isSame,
-              child: Text(
+              child: const Text(
                 "* El token enviado no coincide",
                 style: TextStyle(color: Colors.red, fontSize: 10),
               ),
@@ -291,7 +292,27 @@ class _EditUserState extends State<EditUser> {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                titleW(title: 'Editar informacion'),
+                Stack(
+                  children: [
+                    const titleW(title: 'Editar'),
+                    Positioned(
+                        left: 30,
+                        top: 70,
+                        child: Column(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: Icon(Icons.arrow_back_ios,
+                                  size: 30, color: Colors.black),
+                            ),
+                            Text(
+                              'Regresar',
+                              style: TextStyle(fontSize: 10),
+                            )
+                          ],
+                        )),
+                  ],
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Column(
@@ -583,90 +604,118 @@ class _EditUserState extends State<EditUser> {
                         height: 10,
                       ),
                       OutlinedButton(
-                          onPressed: () {
-                            if (!verifyFields()) {
-                              if (!verifyFieldsName()) {
-                                _isName = false;
-                                setState(() {});
-                              } else {
-                                _isName = true;
-                                setState(() {});
-                              }
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
+                                setState(() {
+                                  _isLoading = true;
+                                });
 
-                              if (!isVerified) {
-                                _isVerified = false;
-                                setState(() {});
-                              } else {
-                                _isVerified = true;
-                                setState(() {});
-                              }
+                                if (!verifyFields()) {
+                                  if (!verifyFieldsName()) {
+                                    setState(() {
+                                      _isName = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _isName = true;
+                                    });
+                                  }
 
-                              if (!verifyFieldsHome()) {
-                                _isHome = false;
-                                setState(() {});
-                              } else {
-                                _isHome = true;
-                                setState(() {});
-                              }
-                            } else {
-                              _isName = true;
-                              _isVerified = true;
-                              _isHome = true;
-                              uploadImage() async {
-                                await _uploadImage();
-                              }
+                                  if (!isVerified) {
+                                    setState(() {
+                                      _isVerified = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _isVerified = true;
+                                    });
+                                  }
 
-                              save() async {
-                                await modifyUser(
-                                    nameController.text,
-                                    emailController.text,
-                                    phoneController.text,
-                                    homeController.text,
-                                    _downloadUrl);
-                              }
+                                  if (!verifyFieldsHome()) {
+                                    setState(() {
+                                      _isHome = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _isHome = true;
+                                    });
+                                  }
 
-                              uploadImage();
-                              save();
-                              toastF('Datos modificados con exito');
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const Funcion(),
-                                ),
-                              );
-                            }
-                          },
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 24.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              side: const BorderSide(
-                                  width: 2.0, color: Colors.black),
-                            ),
-                            backgroundColor: Colors.grey[200],
+                                  // Reset loading state if fields are not verified
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                } else {
+                                  _isName = true;
+                                  _isVerified = true;
+                                  _isHome = true;
+
+                                  // Define and run asynchronous methods
+                                  Future<void> uploadImage() async {
+                                    await _uploadImage();
+                                  }
+
+                                  Future<void> save() async {
+                                    await modifyUser(
+                                      nameController.text,
+                                      emailController.text,
+                                      phoneController.text,
+                                      homeController.text,
+                                      _downloadUrl,
+                                    );
+                                  }
+
+                                  await uploadImage();
+                                  await save();
+
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+
+                                  toastF('Datos modificados con exito');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const Funcion(),
+                                    ),
+                                  );
+                                }
+                              },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0, horizontal: 24.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                            side: const BorderSide(
+                                width: 2.0, color: Colors.black),
                           ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                FontAwesomeIcons.signInAlt,
-                                size: 30,
-                                color: Colors.black,
-                              ),
-                              SizedBox(
-                                width: 30,
-                              ),
-                              Text(
-                                'Guardar cambios',
-                                style: TextStyle(
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold,
+                          backgroundColor: Colors.grey[200],
+                        ),
+                        child: _isLoading
+                            ? CircularProgressIndicator()
+                            : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    FontAwesomeIcons.signInAlt,
+                                    size: 30,
                                     color: Colors.black,
-                                    fontSize: 20),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  Text(
+                                    'Guardar cambios',
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                        fontSize: 20),
+                                  ),
+                                ],
                               ),
-                            ],
-                          )),
+                      ),
                       SizedBox(
                         height: 10,
                       ),
