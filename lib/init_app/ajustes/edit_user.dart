@@ -75,21 +75,23 @@ class _EditUserState extends State<EditUser> {
     Set<Map<String, dynamic>> userData = await userService.getUser(email);
     print("Fetched User Data: $userData");
 
-    if (userData.isNotEmpty) {
-      var user = userData.first;
-      setState(() {
-        nameController.text = user['name'] ?? '';
-        emailController.text = user['email'] ?? email;
-        phoneController.text = user['phone'] ?? '';
-        homeController.text = user['address'] ?? '';
-      });
-    } else {
-      setState(() {
-        nameController.text = '';
-        emailController.text = email;
-        phoneController.text = '';
-        homeController.text = '';
-      });
+    if (mounted) {
+      if (userData.isNotEmpty) {
+        var user = userData.first;
+        setState(() {
+          nameController.text = user['name'] ?? '';
+          emailController.text = user['email'] ?? email;
+          phoneController.text = user['phone'] ?? '';
+          homeController.text = user['address'] ?? '';
+        });
+      } else {
+        setState(() {
+          nameController.text = '';
+          emailController.text = email;
+          phoneController.text = '';
+          homeController.text = '';
+        });
+      }
     }
 
     print(
@@ -693,7 +695,7 @@ class _EditUserState extends State<EditUser> {
                           backgroundColor: Colors.grey[200],
                         ),
                         child: _isLoading
-                            ? CircularProgressIndicator()
+                            ? const CircularProgressIndicator()
                             : const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [

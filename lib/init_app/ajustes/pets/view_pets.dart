@@ -18,7 +18,7 @@ class _ViewPetsState extends State<ViewPets> {
 
   void _fetchBuilderInfo() async {
     list = await getPets(email!);
-    showData = await fetchBuilderInfo(email!, list);
+    showData = await fetchBuilderInfo(list);
     setState(() {});
   }
 

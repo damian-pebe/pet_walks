@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:petwalks_app/init_app/servicios/markers_details/walk_details.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -90,8 +91,7 @@ Future<Map<String, dynamic>> getInfoPets(String email, String? idPet) async {
   }
 }
 
-Future<Map<String, dynamic>> fetchBuilderInfo(
-    String email, List<String>? idPets) async {
+Future<Map<String, dynamic>> fetchBuilderInfo(List<String>? idPets) async {
   Map<String, dynamic> allPetsData = {};
 
   if (idPets != null && idPets.isNotEmpty) {
@@ -123,8 +123,7 @@ Future<Map<String, dynamic>> fetchBuilderInfo(
   return allPetsData;
 }
 
-Future<Map<String, dynamic>> fetchBuilderInfos(
-    String email, List<String>? idPets) async {
+Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
   Map<String, dynamic> allPetsData = {};
 
   if (idPets != null && idPets.isNotEmpty) {
@@ -174,10 +173,11 @@ Future<void> newUser(
       "idBusiness": [],
       "idPost": [],
       "idWalks": [],
-      "idWalksDone": [],
+      "idHistory": [],
       "profilePhoto": '',
       "activeServices": ['walk', 'request', 'business'],
-      "languaje": 'spanish'
+      "languaje": 'spanish',
+      "rating": 0
     });
   }
 }
@@ -249,6 +249,7 @@ Future<void> deletePost(String idToDelete) async {
 }
 
 Future<void> checkArrayDeletedPosts() async {
+  String email = await fetchUserEmail();
   var userDoc =
       await db.collection("users").where("email", isEqualTo: email).get();
   CollectionReference collectionReferencePosts = db.collection('post');
@@ -456,7 +457,7 @@ Future<String> newWalk(
     String? type,
     String ownerEmail) async {
   int timeWalkingInt = int.parse(timeWalking!);
-  int price = getPriceWalk(timeWalkingInt);
+  int price = getPriceWalk(timeWalkingInt, selectedPets!);
 
   DocumentReference userDoc = await db.collection("walks").add({
     "timeShow": timeShow,
@@ -467,13 +468,17 @@ Future<String> newWalk(
     "address": place ?? "",
     "position": GeoPoint(position.latitude, position.longitude),
     "description": description ?? "",
-    "selectedPets": selectedPets ?? [],
+    "selectedPets": selectedPets,
     "mode": '',
     "type": type ?? '',
     "price": price,
     "ownerEmail": ownerEmail
   });
   String lastWalkId = userDoc.id;
+
+  await db.collection("walks").doc(lastWalkId).update({
+    "id": lastWalkId,
+  });
 
   return lastWalkId;
 }
@@ -500,7 +505,7 @@ Future<String> newProgramWalk(
   int? price;
   if (timeWalking != '') {
     int timeWalkingInt = int.parse(timeWalking!);
-    price = getPriceWalk(timeWalkingInt);
+    price = getPriceWalk(timeWalkingInt, selectedPets!);
   } else {
     price = getPriceTravel(travelToPosition);
   }
@@ -527,10 +532,25 @@ Future<String> newProgramWalk(
   });
   String lastWalkId = userDoc.id;
 
+  await db.collection("walks").doc(lastWalkId).update({
+    "id": lastWalkId,
+  });
   return lastWalkId;
 }
 
-int getPriceWalk(int time) {
+int getPriceWalk(int time, List<String> pets) {
+  int numPets = pets.length;
+  int price = (numPets - 1) * 20;
+  if (time == 15) {
+    return (50 * numPets) - price;
+  }
+  if (time == 30) {
+    return (80 * numPets) - price;
+  }
+  if (time == 45) {
+    return (120 * numPets) - price;
+  }
+
   return 0;
 }
 
@@ -538,44 +558,54 @@ int getPriceTravel(LatLng goTo) {
   return 0;
 }
 
-Future<String> newHistoryWalk(
-  //ill see what to add
-  DateTime? timeShow, //for the script as well
-  String? timeShowController, //for the script as well
-  String? payMethod,
-  String? walkWFriends,
-  String? timeWalking,
-  String? travelTo,
-  LatLng travelToPosition,
-  String? place,
-  LatLng position,
-  String? description,
-  List<String>? selectedPets,
-  //this fields are gonna be checked to return the walk or not
-  List<DateTime>? dateTime,
-  DateTime? startDate,
-  DateTime? endDate,
-  String? mode,
-  String? type,
+Future<String> newPreHistory(
+  String idWalk,
+  String emailOwner,
+  String emailWalker,
+  String? idBusiness,
 ) async {
-  DocumentReference userDoc = await db.collection("walks").add({
-    "timeShow": timeShow ?? "",
-    "timeShowController": timeShowController ?? "",
-    "payMethod": payMethod ?? "",
-    "walkWFriends": walkWFriends ?? "",
-    "timeWalking": timeWalking ?? "",
-    "travelTo": travelTo ?? "",
-    "travelToPosition":
-        GeoPoint(travelToPosition.latitude, travelToPosition.longitude),
-    "address": place ?? "",
-    "position": GeoPoint(position.latitude, position.longitude),
-    "description": description ?? "",
-    "selectedPets": selectedPets ?? [],
-    "dateTime": dateTime ?? [],
-    "startDate": startDate ?? [],
-    "endDate": endDate ?? [],
-    "mode": mode ?? '',
-    "type": type ?? ''
+  DocumentReference userDoc = await db.collection("preHistory").add({
+    "idWalk": idWalk,
+    "emailOwner": emailOwner,
+    "emailWalker": emailWalker,
+    "position": idBusiness ?? "",
+  });
+  String lastWalkId = userDoc.id;
+
+  return lastWalkId;
+}
+
+Future<String> newStartWalk(
+  String idWalk,
+  String emailOwner,
+  String emailWalker,
+  String? idBusiness,
+) async {
+  DocumentReference userDoc = await db.collection("startWalkHistory").add({
+    "idWalk": idWalk,
+    "emailOwner": emailOwner,
+    "emailWalker": emailWalker,
+    "position": idBusiness ?? "",
+    //staatus to start walk
+    "ownerStatus": '', //'ready' or ''
+    "walkerStatus": '' //'ready' or ''
+  });
+  String lastWalkId = userDoc.id;
+
+  return lastWalkId;
+}
+
+Future<String> newHistoryWalk(
+  String idWalk,
+  String emailOwner,
+  String emailWalker,
+  String? idBusiness,
+) async {
+  DocumentReference userDoc = await db.collection("history").add({
+    "idWalk": idWalk,
+    "emailOwner": emailOwner,
+    "emailWalker": emailWalker,
+    "position": idBusiness ?? "",
   });
   String lastWalkId = userDoc.id;
 
@@ -587,10 +617,12 @@ Future<Set<Map<String, dynamic>>> getHistory(List<String> listOfHistory) async {
   CollectionReference collectionReferenceHistory = db.collection('history');
 
   for (String id in listOfHistory) {
-    DocumentSnapshot docSnapshot =
-        await collectionReferenceHistory.doc(id).get();
-    if (docSnapshot.exists) {
-      history.add(docSnapshot.data() as Map<String, dynamic>);
+    if (id.isNotEmpty) {
+      DocumentSnapshot docSnapshot =
+          await collectionReferenceHistory.doc(id).get();
+      if (docSnapshot.exists) {
+        history.add(docSnapshot.data() as Map<String, dynamic>);
+      }
     }
   }
 
@@ -867,8 +899,8 @@ Future<void> deletePet(String id, String email) async {
   }
 }
 
-String? email;
 Future<String> fetchUserEmail() async {
+  String? email;
   User? user = FirebaseAuth.instance.currentUser;
   if (user != null) {
     email = user.email;
@@ -876,4 +908,130 @@ Future<String> fetchUserEmail() async {
     print('Error getting email from user');
   }
   return email ?? 'Error fetching the email';
+}
+
+//REQUESTS
+Future<List<DocumentSnapshot>> fetchPendingRequests(String emailOwner) async {
+  QuerySnapshot snapshot = await FirebaseFirestore.instance
+      .collection('preHistory')
+      .where('emailOwner', isEqualTo: emailOwner)
+      .get();
+  return snapshot.docs;
+}
+
+Future<List<DocumentSnapshot>> fetchPendingRequestStart(String email) async {
+  QuerySnapshot emailOwnerSnapshot = await FirebaseFirestore.instance
+      .collection('startWalkHistory')
+      .where('emailOwner', isEqualTo: email)
+      .get();
+  QuerySnapshot emailWalkerSnapshot = await FirebaseFirestore.instance
+      .collection('startWalkHistory')
+      .where('emailWalker', isEqualTo: email)
+      .get();
+  List<DocumentSnapshot> combinedDocs = [];
+  combinedDocs.addAll(emailOwnerSnapshot.docs);
+  for (var doc in emailWalkerSnapshot.docs) {
+    combinedDocs.add(doc);
+  }
+  return combinedDocs;
+}
+
+// Future<String> findMatchingWalkId(String idWalk) async {
+//   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+//       .collection('walks')
+//       .doc(id)
+//       .get();
+
+//   return querySnapshot.docs.first.id;
+// }
+
+Future<String?> findMatchingBusinessId(String address) async {
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('business')
+      .where('address', isEqualTo: address)
+      .get();
+
+  if (querySnapshot.docs.isNotEmpty) {
+    return querySnapshot.docs.first.id;
+  } else {
+    return null;
+  }
+}
+
+Future<String> findMatchingUserId(String email) async {
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .where('email', isEqualTo: email)
+      .get();
+
+  return querySnapshot.docs.first.id;
+}
+
+Future<Map<String, dynamic>> manageStartWalk(String id) async {
+  DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+      .collection('startWalkHistory')
+      .doc(id)
+      .get();
+
+  if (docSnapshot.exists) {
+    final data = docSnapshot.data() as Map<String, dynamic>;
+
+    return {
+      'idWalk': data['idWalk'] ?? '',
+      'emailOwner': data['emailOwner'] ?? '',
+      'emailWalker': data['emailWalker'] ?? '',
+      'idBusiness': data['idBusiness'] ?? '',
+    };
+  } else {
+    return {};
+  }
+}
+
+Future<void> updateOwner(bool bool, String id) async {
+  String status = bool ? 'ready' : '';
+
+  await db.collection("startWalkHistory").doc(id).update({
+    "ownerStatus": status,
+  });
+}
+
+Future<void> updateWalker(bool bool, String id) async {
+  String status = bool ? 'ready' : '';
+  await db.collection("startWalkHistory").doc(id).update({
+    "walkerStatus": status,
+  });
+}
+
+Future<bool> getOwnerStatus(String id) async {
+  DocumentSnapshot doc = await db.collection("startWalkHistory").doc(id).get();
+
+  final data = doc.data() as Map<String, dynamic>;
+  if (data['ownerStatus'] == 'ready') {
+    return true;
+  }
+
+  return false;
+}
+
+Future<bool> getWalkerStatus(String id) async {
+  DocumentSnapshot doc = await db.collection("startWalkHistory").doc(id).get();
+
+  final data = doc.data() as Map<String, dynamic>;
+  if (data['walkerStatus'] == 'ready') {
+    return true;
+  }
+
+  return false;
+}
+
+Future<void> deletePreHistory(requestId) async {
+  CollectionReference collectionReferencePosts = db.collection('preHistory');
+  await collectionReferencePosts.doc(requestId).delete();
+}
+
+Future<void> deleteStartHistory(String requestId) async {
+  await FirebaseFirestore.instance
+      .collection('startWalkHistory')
+      .doc(requestId)
+      .delete();
 }

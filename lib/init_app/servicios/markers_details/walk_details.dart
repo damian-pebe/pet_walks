@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
@@ -9,6 +8,7 @@ import 'package:petwalks_app/widgets/decorations.dart';
 
 class WalkDetails extends StatefulWidget {
   final String payMethod;
+  final int price;
   final String walkWFriends;
   final String timeWalking;
   final String place;
@@ -16,9 +16,12 @@ class WalkDetails extends StatefulWidget {
   final List<String> selectedPets;
   final String travelTo;
   final GeoPoint travelToPosition;
+  final String ownerEmail;
+  final String id;
 
   const WalkDetails({
     required this.payMethod,
+    required this.price,
     required this.walkWFriends,
     required this.timeWalking,
     required this.place,
@@ -26,6 +29,8 @@ class WalkDetails extends StatefulWidget {
     required this.selectedPets,
     required this.travelTo,
     required this.travelToPosition,
+    required this.ownerEmail,
+    required this.id,
     Key? key,
   }) : super(key: key);
 
@@ -34,34 +39,33 @@ class WalkDetails extends StatefulWidget {
 }
 
 class _WalkDetailsState extends State<WalkDetails> {
+  bool _isLoading = false;
   Map<String, dynamic> showData = {};
   Map<String, dynamic> showDatas = {};
 
   late List<String> idPets;
-  String? email;
+
+  late String email;
+  void _email() async {
+    email = await fetchUserEmail();
+    _fetchBuilderInfo();
+  }
 
   @override
   void initState() {
     super.initState();
     idPets = List<String>.from(widget.selectedPets);
-    fetchUserEmail();
+    _email();
   }
 
   void _fetchBuilderInfo() async {
-    showData = await fetchBuilderInfo(email!, idPets);
-    showDatas = await fetchBuilderInfos(email!, idPets);
+    showData = await fetchBuilderInfo(idPets);
+    showDatas = await fetchBuilderInfos(idPets);
+    print('idpets: ${idPets}');
     if (idPets.isNotEmpty) {
       getInfoFirstCarrousel();
     }
     setState(() {});
-  }
-
-  Future<void> fetchUserEmail() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      email = user.email;
-      _fetchBuilderInfo();
-    }
   }
 
   Future<List<String>> _array() async {
@@ -111,7 +115,7 @@ class _WalkDetailsState extends State<WalkDetails> {
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
-      heightFactor: 0.7,
+      heightFactor: 0.75,
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: const BoxDecoration(
@@ -238,11 +242,16 @@ class _WalkDetailsState extends State<WalkDetails> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("Pago"),
-                        Icon(
-                          widget.payMethod == 'Efectivo'
-                              ? Icons.attach_money_outlined
-                              : Icons.credit_card_sharp,
-                          size: 20,
+                        Row(
+                          children: [
+                            Icon(
+                              widget.payMethod == 'Efectivo'
+                                  ? Icons.attach_money_outlined
+                                  : Icons.credit_card_sharp,
+                              size: 20,
+                            ),
+                            Text(widget.price.toString()),
+                          ],
                         ),
                       ],
                     ),
@@ -302,29 +311,47 @@ class _WalkDetailsState extends State<WalkDetails> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        // String idWalk = await findMatchingWalkId(widget.id);
+                        String? idBusiness =
+                            await findMatchingBusinessId(widget.travelTo);
+                        // String idOwner =
+                        //     await findMatchingUserId();
+                        // String idWalker = await findMatchingUserId();
+                        await newPreHistory(
+                            widget.id, widget.ownerEmail, email, idBusiness);
+
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      },
                       style: customOutlinedButtonStyle(),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Icon(
-                            Icons.flight,
-                            size: 20,
-                            color: Colors.black,
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            "Solicitar viaje",
-                            style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontSize: 18),
-                          ),
-                        ],
-                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Icon(
+                                  Icons.flight,
+                                  size: 20,
+                                  color: Colors.black,
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  "Solicitar viaje",
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                      fontSize: 18),
+                                ),
+                              ],
+                            ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -352,7 +379,7 @@ class _WalkDetailsState extends State<WalkDetails> {
   void showDescriptionDialog(BuildContext context, String description) {
     showDialog(
       context: context,
-      barrierDismissible: true, // Allow dismiss by tapping outside
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return Align(
           alignment: Alignment.bottomCenter,
@@ -361,7 +388,7 @@ class _WalkDetailsState extends State<WalkDetails> {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.black87,
                   borderRadius: BorderRadius.circular(8.0),
@@ -370,14 +397,14 @@ class _WalkDetailsState extends State<WalkDetails> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Descripcion:',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    SizedBox(height: 8.0),
+                    const SizedBox(height: 8.0),
                     Text(
                       description,
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                       textAlign: TextAlign.center,
                     ),
                   ],

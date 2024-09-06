@@ -18,6 +18,17 @@ class AddPost extends StatefulWidget {
 }
 
 class _AddPostState extends State<AddPost> {
+  late String email;
+  _email() async {
+    email = await fetchUserEmail();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _email();
+  }
+
   TextEditingController descriptionController = TextEditingController(text: "");
 
   List<File> _imageFiles = [];
@@ -209,7 +220,7 @@ class _AddPostState extends State<AddPost> {
                                               _downloadUrls,
                                               type);
                                           await addPostToUser(
-                                              email!, lastPostId);
+                                              email, lastPostId);
                                         }
 
                                         await save();

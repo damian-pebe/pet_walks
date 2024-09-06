@@ -22,6 +22,17 @@ class AgregarEmpresa extends StatefulWidget {
 }
 
 class _AgregarEmpresaState extends State<AgregarEmpresa> {
+  late String email;
+  _email() async {
+    email = await fetchUserEmail();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _email();
+  }
+
   bool _isLoading = false;
   TextEditingController nameController = TextEditingController(text: "");
   final TextEditingController _categoryController =
@@ -600,7 +611,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                       _downloadUrls,
                                     );
                                     await addBusinessToUser(
-                                        email!, lastBusinessId);
+                                        email, lastBusinessId);
                                   }
 
                                   await uploadImages();

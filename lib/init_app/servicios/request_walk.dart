@@ -51,7 +51,7 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
 
   void _fetchBuilderInfo() async {
     list = await getPets(email!);
-    showData = await fetchBuilderInfo(email!, list);
+    showData = await fetchBuilderInfo(list);
     setState(() {});
 
     List<String> petIds = await getPets(email!);

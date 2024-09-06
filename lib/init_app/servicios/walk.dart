@@ -46,17 +46,20 @@ class _PasearState extends State<Pasear> {
               ),
               onTap: () {
                 _showBottomSheet(
-                  timeWalking: marker['timeWalking'] ?? 'Unknown',
-                  payMethod: marker['payMethod'] ?? 'Unknown',
-                  walkWFriends: marker['walkWFriends'] ?? 'Unknown',
-                  place: marker['address'] ?? 'Unknown',
-                  selectedPets: List<String>.from(marker['selectedPets'] ?? []),
-                  description:
-                      marker['description'] ?? 'No description available',
-                  travelTo: marker['travelTo'] ?? '',
-                  travelToPosition:
-                      marker['travelToPosition'] ?? const GeoPoint(0, 0),
-                );
+                    timeWalking: marker['timeWalking'] ?? 'Unknown',
+                    payMethod: marker['payMethod'] ?? 'Unknown',
+                    price: marker['price'] ?? 'Unknown',
+                    walkWFriends: marker['walkWFriends'] ?? 'Unknown',
+                    place: marker['address'] ?? 'Unknown',
+                    selectedPets:
+                        List<String>.from(marker['selectedPets'] ?? []),
+                    description:
+                        marker['description'] ?? 'No description available',
+                    travelTo: marker['travelTo'] ?? '',
+                    travelToPosition:
+                        marker['travelToPosition'] ?? const GeoPoint(0, 0),
+                    email: marker['ownerEmail'],
+                    id: marker['id']);
               },
             ));
           } else {
@@ -75,6 +78,7 @@ class _PasearState extends State<Pasear> {
 
   void _showBottomSheet({
     required payMethod,
+    required price,
     required walkWFriends,
     required timeWalking,
     required place,
@@ -82,6 +86,8 @@ class _PasearState extends State<Pasear> {
     required selectedPets,
     required travelTo,
     required travelToPosition,
+    required email,
+    required id,
   }) {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -91,13 +97,16 @@ class _PasearState extends State<Pasear> {
 
         return WalkDetails(
             payMethod: payMethod,
+            price: price,
             walkWFriends: walkWFriends,
             timeWalking: timeWalking,
             place: place,
             description: description,
             selectedPets: selectedPets,
             travelTo: travelTo,
-            travelToPosition: travelToPosition);
+            travelToPosition: travelToPosition,
+            ownerEmail: email,
+            id: id);
       },
     );
   }
