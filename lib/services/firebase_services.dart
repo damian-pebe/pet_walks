@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:petwalks_app/init_app/servicios/markers_details/walk_details.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -86,39 +85,31 @@ Future<Map<String, dynamic>> getInfoPets(String email, String? idPet) async {
     Map<String, dynamic> data = petDoc.data()!;
     return data;
   } else {
-    print("pet: ${idPet} not found");
     return {};
   }
 }
 
-Future<Map<String, dynamic>> fetchBuilderInfo(List<String>? idPets) async {
+Future<Map<String, dynamic>> fetchBuilderInfo(List<String> idPets) async {
   Map<String, dynamic> allPetsData = {};
 
-  if (idPets != null && idPets.isNotEmpty) {
-    for (var element in idPets) {
-      var petDoc = await db.collection("pets").doc(element).get();
+  for (var element in idPets) {
+    var petDoc = await db.collection("pets").doc(element).get();
 
-      if (petDoc.exists) {
-        Map<String, dynamic>? data = petDoc.data();
-        if (data != null) {
-          String? imageUrl = (data['imageUrls'] as List<dynamic>?)?.firstOrNull;
-          String? name = data['name'] as String?;
-          List<dynamic>? imageUrls = data['imageUrls'];
+    if (petDoc.exists) {
+      Map<String, dynamic>? data = petDoc.data();
+      if (data != null) {
+        String? imageUrl = (data['imageUrls'] as List<dynamic>?)?.firstOrNull;
+        String? name = data['name'] as String?;
+        List<dynamic>? imageUrls = data['imageUrls'];
 
-          print(
-              'Fetched Data: ImageUrl: $imageUrl, Name: $name, ImageUrls: $imageUrls');
-
-          allPetsData[element] = {
-            'imageUrl': imageUrl,
-            'name': name,
-            'imageUrls': imageUrls,
-            'id': element,
-          };
-        }
-      } else {
-        print("Pet with ID: $element not found");
+        allPetsData[element] = {
+          'imageUrl': imageUrl,
+          'name': name,
+          'imageUrls': imageUrls,
+          'id': element,
+        };
       }
-    }
+    } else {}
   }
   return allPetsData;
 }
@@ -580,12 +571,36 @@ Future<String> newStartWalk(
   String emailOwner,
   String emailWalker,
   String? idBusiness,
+  String idHistory,
 ) async {
   DocumentReference userDoc = await db.collection("startWalkHistory").add({
     "idWalk": idWalk,
     "emailOwner": emailOwner,
     "emailWalker": emailWalker,
     "position": idBusiness ?? "",
+    "idHistory": idHistory,
+    //staatus to start walk
+    "ownerStatus": '', //'ready' or ''
+    "walkerStatus": '' //'ready' or ''
+  });
+  String lastWalkId = userDoc.id;
+
+  return lastWalkId;
+}
+
+Future<String> newEndWalk(
+  String idWalk,
+  String emailOwner,
+  String emailWalker,
+  String? idBusiness,
+  String idHistory,
+) async {
+  DocumentReference userDoc = await db.collection("endWalkHistory").add({
+    "idWalk": idWalk,
+    "emailOwner": emailOwner,
+    "emailWalker": emailWalker,
+    "position": idBusiness ?? "",
+    "idHistory": idHistory,
     //staatus to start walk
     "ownerStatus": '', //'ready' or ''
     "walkerStatus": '' //'ready' or ''
@@ -606,10 +621,10 @@ Future<String> newHistoryWalk(
     "emailOwner": emailOwner,
     "emailWalker": emailWalker,
     "position": idBusiness ?? "",
+    "status": 'awaiting' // 'awaiting', 'walking', 'done'
   });
-  String lastWalkId = userDoc.id;
 
-  return lastWalkId;
+  return userDoc.id;
 }
 
 Future<Set<Map<String, dynamic>>> getHistory(List<String> listOfHistory) async {
@@ -640,68 +655,6 @@ Future<Set<Map<String, dynamic>>> getBusiness() async {
 
   return business;
 }
-
-// Future<Set<Map<String, dynamic>>> getWalks() async {
-//   Set<Map<String, dynamic>> walks = {};
-//   CollectionReference collectionReferenceWalks = db.collection('walks');
-//   QuerySnapshot queryWalks = await collectionReferenceWalks.get();
-
-//   DateTime now = DateTime.now();
-//   for (var element in queryWalks.docs) {
-//     var data = element.data() as Map<String, dynamic>?;
-//     if (data != null) {
-//       String? mode = data['mode'] as String?;
-//       Timestamp? timeShowTimestamp = data['timeShow'] as Timestamp?;
-//       DateTime? timeShow = timeShowTimestamp?.toDate();
-
-//       if (mode == '') {
-//         if (timeShow != null && !timeShow.isAfter(now)) {
-//           walks.add(data);
-//         }
-//       } else if (mode == 'selectedDates') {
-//         List<Timestamp>? listTimestamps = data['dateTime'] as List<Timestamp>?;
-//         List<DateTime>? list =
-//             listTimestamps?.map((ts) => ts.toDate()).toList();
-//         if (list != null) {
-//           for (var elementInto in list) {
-//             if (elementInto.isAfter(now)) {
-//               int? timeShowController = data['timeShowController'] as int?;
-//               if (timeShowController != null) {
-//                 DateTime dateFuture =
-//                     now.add(Duration(hours: timeShowController));
-//                 if (elementInto.isBefore(dateFuture)) {
-//                   walks.add(data);
-//                   break;
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       } else if (mode == 'startEnd') {
-//         List<Timestamp>? listTimestamps = data['dateTime'] as List<Timestamp>?;
-//         List<DateTime>? list =
-//             listTimestamps?.map((ts) => ts.toDate()).toList();
-//         if (list != null) {
-//           for (var elementInto in list) {
-//             if (elementInto.isAfter(now)) {
-//               int? timeShowController = data['timeShowController'] as int?;
-//               if (timeShowController != null) {
-//                 DateTime dateFuture =
-//                     now.add(Duration(hours: timeShowController));
-//                 if (elementInto.isBefore(dateFuture)) {
-//                   walks.add(data);
-//                   break;
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-
-//   return walks;
-// }
 
 Future<Set<Map<String, dynamic>>> getWalks() async {
   Set<Map<String, dynamic>> walks = {};
@@ -790,6 +743,17 @@ Future<Set<Map<String, dynamic>>> getWalks() async {
   return walks;
 }
 
+Future<Map<String, dynamic>> getInfoWalk(String idWalk) async {
+  var petDoc = await db.collection("walks").doc(idWalk).get();
+
+  if (petDoc.exists) {
+    Map<String, dynamic>? data = petDoc.data();
+    return data!;
+  }
+
+  return {};
+}
+
 List<DateTime> getArrayOfDateTime(Map<String, dynamic> data) {
   List<DateTime> list = [];
 
@@ -814,7 +778,7 @@ List<DateTime> getArrayOfDateTime(Map<String, dynamic> data) {
 Future<String> newPost(
     String? description, List<String?> imageUrls, String? type) async {
   DateTime now = DateTime.now();
-  DateTime futureDate = now.add(Duration(days: 7));
+  DateTime futureDate = now.add(const Duration(days: 7));
 
   var address;
   String _email = await fetchUserEmail();
@@ -924,15 +888,66 @@ Future<List<DocumentSnapshot>> fetchPendingRequestStart(String email) async {
       .collection('startWalkHistory')
       .where('emailOwner', isEqualTo: email)
       .get();
+
   QuerySnapshot emailWalkerSnapshot = await FirebaseFirestore.instance
       .collection('startWalkHistory')
       .where('emailWalker', isEqualTo: email)
       .get();
-  List<DocumentSnapshot> combinedDocs = [];
-  combinedDocs.addAll(emailOwnerSnapshot.docs);
-  for (var doc in emailWalkerSnapshot.docs) {
-    combinedDocs.add(doc);
+
+  Set<DocumentSnapshot> combinedDocsSet = {};
+
+  combinedDocsSet.addAll(emailOwnerSnapshot.docs);
+
+  combinedDocsSet.addAll(emailWalkerSnapshot.docs);
+
+  List<DocumentSnapshot> combinedDocs = combinedDocsSet.toList();
+
+  return combinedDocs;
+}
+
+Future<List<String>> fetchHistoryIds(String email) async {
+  QuerySnapshot emailOwnerSnapshot = await FirebaseFirestore.instance
+      .collection('history')
+      .where('emailOwner', isEqualTo: email)
+      .get();
+
+  QuerySnapshot emailWalkerSnapshot = await FirebaseFirestore.instance
+      .collection('history')
+      .where('emailWalker', isEqualTo: email)
+      .get();
+
+  Set<String> docIds = {};
+
+  for (var doc in emailOwnerSnapshot.docs) {
+    docIds.add(doc.id);
   }
+
+  for (var doc in emailWalkerSnapshot.docs) {
+    docIds.add(doc.id);
+  }
+
+  return docIds.toList();
+}
+
+Future<List<DocumentSnapshot>> fetchPendingRequestEnd(String email) async {
+  QuerySnapshot emailOwnerSnapshot = await FirebaseFirestore.instance
+      .collection('endWalkHistory')
+      .where('emailOwner', isEqualTo: email)
+      .get();
+
+  QuerySnapshot emailWalkerSnapshot = await FirebaseFirestore.instance
+      .collection('endWalkHistory')
+      .where('emailWalker', isEqualTo: email)
+      .get();
+
+  Set<DocumentSnapshot> combinedDocsSet = {};
+
+  combinedDocsSet.addAll(emailOwnerSnapshot.docs);
+
+  combinedDocsSet.addAll(emailWalkerSnapshot.docs);
+
+  List<DocumentSnapshot> combinedDocs = combinedDocsSet.toList();
+
   return combinedDocs;
 }
 
@@ -981,29 +996,72 @@ Future<Map<String, dynamic>> manageStartWalk(String id) async {
       'emailOwner': data['emailOwner'] ?? '',
       'emailWalker': data['emailWalker'] ?? '',
       'idBusiness': data['idBusiness'] ?? '',
+      'idHistory': data['idHistory']
     };
   } else {
     return {};
   }
 }
 
-Future<void> updateOwner(bool bool, String id) async {
-  String status = bool ? 'ready' : '';
+Future<Map<String, dynamic>> manageEndWalk(String id) async {
+  DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+      .collection('endWalkHistory')
+      .doc(id)
+      .get();
 
-  await db.collection("startWalkHistory").doc(id).update({
+  if (docSnapshot.exists) {
+    final data = docSnapshot.data() as Map<String, dynamic>;
+
+    return {
+      'idWalk': data['idWalk'] ?? '',
+      'emailOwner': data['emailOwner'] ?? '',
+      'emailWalker': data['emailWalker'] ?? '',
+      'idBusiness': data['idBusiness'] ?? '',
+    };
+  } else {
+    return {};
+  }
+}
+
+Future<Map<String, dynamic>> managePreHistory(String id) async {
+  DocumentSnapshot docSnapshot =
+      await FirebaseFirestore.instance.collection('preHistory').doc(id).get();
+
+  if (docSnapshot.exists) {
+    final data = docSnapshot.data() as Map<String, dynamic>;
+
+    return {
+      'idWalk': data['idWalk'] ?? '',
+      'emailOwner': data['emailOwner'] ?? '',
+      'emailWalker': data['emailWalker'] ?? '',
+      'idBusiness': data['idBusiness'] ?? '',
+    };
+  } else {
+    return {};
+  }
+}
+
+Future<void> updateOwner(bool bool, String id, bool col) async {
+  String status = bool ? 'ready' : '';
+  String collection = col ? "startWalkHistory" : "endWalkHistory";
+  await db.collection(collection).doc(id).update({
     "ownerStatus": status,
   });
 }
 
-Future<void> updateWalker(bool bool, String id) async {
+Future<void> updateWalker(bool bool, String id, bool col) async {
   String status = bool ? 'ready' : '';
-  await db.collection("startWalkHistory").doc(id).update({
+  String collection = col ? "startWalkHistory" : "endWalkHistory";
+
+  await db.collection(collection).doc(id).update({
     "walkerStatus": status,
   });
 }
 
-Future<bool> getOwnerStatus(String id) async {
-  DocumentSnapshot doc = await db.collection("startWalkHistory").doc(id).get();
+Future<bool> getOwnerStatus(String id, bool col) async {
+  String collection = col ? "startWalkHistory" : "endWalkHistory";
+
+  DocumentSnapshot doc = await db.collection(collection).doc(id).get();
 
   final data = doc.data() as Map<String, dynamic>;
   if (data['ownerStatus'] == 'ready') {
@@ -1013,8 +1071,10 @@ Future<bool> getOwnerStatus(String id) async {
   return false;
 }
 
-Future<bool> getWalkerStatus(String id) async {
-  DocumentSnapshot doc = await db.collection("startWalkHistory").doc(id).get();
+Future<bool> getWalkerStatus(String id, bool col) async {
+  String collection = col ? "startWalkHistory" : "endWalkHistory";
+
+  DocumentSnapshot doc = await db.collection(collection).doc(id).get();
 
   final data = doc.data() as Map<String, dynamic>;
   if (data['walkerStatus'] == 'ready') {
@@ -1029,9 +1089,30 @@ Future<void> deletePreHistory(requestId) async {
   await collectionReferencePosts.doc(requestId).delete();
 }
 
-Future<void> deleteStartHistory(String requestId) async {
+Future<void> deleteStartHistory(String requestId, bool col) async {
+  String collection = col ? "startWalkHistory" : "endWalkHistory";
+
   await FirebaseFirestore.instance
-      .collection('startWalkHistory')
+      .collection(collection)
       .doc(requestId)
       .delete();
+}
+
+Future<void> updateHistory(String id, String type) async {
+  await db.collection('history').doc(id).update({
+    "status": type,
+  });
+}
+
+Future<Map<String, dynamic>> getInfoCollectionWithId(
+    String id, String collection) async {
+  if (id == '') return {};
+  var doc = await db.collection(collection).doc(id).get();
+
+  if (doc.exists) {
+    Map<String, dynamic>? data = doc.data();
+    return data!;
+  }
+
+  return {};
 }

@@ -85,7 +85,7 @@ class _PendingRequestsNotificationsState
             color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 128, 196, 104).withOpacity(.8),
+                color: Color.fromARGB(255, 112, 69, 69).withOpacity(0.7),
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: const [
                   BoxShadow(
@@ -140,20 +140,28 @@ class _PendingRequestsNotificationsState
                     TextButton(
                         onPressed: () async {
                           Map<String, dynamic> manageStartWalkInfo =
-                              await manageStartWalk(requestId);
-
-                          newStartWalk(
+                              await managePreHistory(requestId);
+                          String id = await newHistoryWalk(
                             manageStartWalkInfo['idWalk'],
                             manageStartWalkInfo['emailOwner'],
                             manageStartWalkInfo['emailWalker'],
                             manageStartWalkInfo['idBusiness'],
                           );
+                          await newStartWalk(
+                              manageStartWalkInfo['idWalk'],
+                              manageStartWalkInfo['emailOwner'],
+                              manageStartWalkInfo['emailWalker'],
+                              manageStartWalkInfo['idBusiness'],
+                              id);
                           toastF('Aceptar');
                           setState(() {
                             for (var data in pendingRequestsData) {
                               deletePreHistory(data['requestId']);
                             }
                             pendingRequestsData.clear();
+                          });
+                          setState(() {
+                            _fetchAndShowNotifications(email!);
                           });
                         },
                         child: const Column(
@@ -177,11 +185,11 @@ class _PendingRequestsNotificationsState
                         child: const Column(
                           children: [
                             Icon(Icons.close,
-                                color: Color.fromARGB(255, 185, 50, 40)),
+                                color: Color.fromARGB(255, 239, 62, 49)),
                             Text(
                               'Denegar',
                               style: TextStyle(
-                                  color: Color.fromARGB(255, 185, 50, 40),
+                                  color: Color.fromARGB(255, 239, 62, 49),
                                   fontSize: 10),
                             )
                           ],

@@ -5,14 +5,14 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
-class StartWalkManagement extends StatefulWidget {
-  const StartWalkManagement({super.key});
+class EndWalkManagement extends StatefulWidget {
+  const EndWalkManagement({super.key});
 
   @override
-  State<StartWalkManagement> createState() => _StartWalkManagementState();
+  State<EndWalkManagement> createState() => _EndWalkManagementState();
 }
 
-class _StartWalkManagementState extends State<StartWalkManagement> {
+class _EndWalkManagementState extends State<EndWalkManagement> {
   String? email;
   Map<String, bool> _loadingStates = {};
   List<DocumentSnapshot> _pendingRequests = [];
@@ -34,7 +34,7 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
   }
 
   Future<void> _fetchPendingRequests() async {
-    final pendingRequests = await fetchPendingRequestStart(email!);
+    final pendingRequests = await fetchPendingRequestEnd(email!);
     if (mounted) {
       setState(() {
         _pendingRequests = pendingRequests;
@@ -85,8 +85,8 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                 color: Colors.transparent,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 153, 80, 190)
-                        .withOpacity(0.7),
+                    color:
+                        const Color.fromARGB(255, 52, 91, 146).withOpacity(0.7),
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: const [
                       BoxShadow(
@@ -103,7 +103,7 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Iniciar viaje con: $name',
+                        Text('Terminar viaje con: $name',
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 18)),
                         Row(
@@ -155,47 +155,42 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                     _loadingStates[requestId] = true;
                                   });
                                   try {
-                                    Map<String, dynamic> manageStartWalkInfo =
-                                        await manageStartWalk(requestId);
+                                    Map<String, dynamic> manageEndWalkInfo =
+                                        await manageEndWalk(requestId);
                                     bool owner =
-                                        manageStartWalkInfo['emailOwner'] ==
+                                        manageEndWalkInfo['emailOwner'] ==
                                             email;
 
                                     if (owner) {
-                                      updateOwner(true, requestId, true);
+                                      updateOwner(true, requestId, false);
                                       await Future.delayed(
                                           const Duration(seconds: 10));
                                       bool status = await getWalkerStatus(
-                                          requestId, true);
+                                          requestId, false);
                                       if (status) {
-                                        await newEndWalk(
-                                            manageStartWalkInfo['idWalk'],
-                                            manageStartWalkInfo['emailOwner'],
-                                            manageStartWalkInfo['emailWalker'],
-                                            manageStartWalkInfo['idBusiness'],
-                                            manageStartWalkInfo['idHistory']);
                                         updateHistory(
-                                            manageStartWalkInfo['idHistory'],
-                                            'walking');
-                                        toastF('walk started');
+                                            manageEndWalkInfo['idHistory'],
+                                            'done');
+
+                                        toastF('walk finished');
                                         await deleteStartHistory(
-                                            requestId, true);
+                                            requestId, false);
                                         setState(() {
                                           _fetchPendingRequests();
                                         });
                                       } else {
-                                        updateOwner(false, requestId, true);
+                                        updateOwner(false, requestId, false);
                                         toastF('both users need to be ready');
                                       }
                                     } else {
-                                      updateWalker(true, requestId, true);
+                                      updateWalker(true, requestId, false);
                                       await Future.delayed(
                                           const Duration(seconds: 10));
                                       if (await getOwnerStatus(
-                                          requestId, true)) {
+                                          requestId, false)) {
                                         toastF('walk started');
                                       } else {
-                                        updateWalker(false, requestId, true);
+                                        updateWalker(false, requestId, false);
                                         toastF('both users need to be ready');
                                       }
                                     }
@@ -208,7 +203,7 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                           child: _loadingStates[requestId] == true
                               ? const SpinKitFadingCube(
                                   color: Colors.white, size: 20.0)
-                              : const Text('Iniciar',
+                              : const Text('Terminar',
                                   style: TextStyle(color: Colors.white)),
                         ),
                       ],

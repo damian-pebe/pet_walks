@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petwalks_app/init_app/servicios/travel_to.dart';
+import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/comments_dialog.dart';
 
 class BusinessDetails extends StatelessWidget {
@@ -52,21 +53,11 @@ class BusinessDetails extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Container(
-                height: 200,
-                child: PageView.builder(
-                  itemCount: imageUrls.length,
-                  itemBuilder: (context, index) {
-                    return Image.network(
-                      imageUrls[index].isNotEmpty
-                          ? imageUrls[index]
-                          : 'https://via.placeholder.com/200',
-                      height: 200,
-                      fit: BoxFit.cover,
-                    );
-                  },
-                ),
-              ),
+              child: SizedBox(
+                  height: 200,
+                  child: PhotoCarousel(
+                    imageUrls: imageUrls.isNotEmpty ? imageUrls : [],
+                  )),
             ),
             SizedBox(height: 8.0),
             Text(

@@ -327,6 +327,8 @@ class _WalkDetailsState extends State<WalkDetails> {
                         setState(() {
                           _isLoading = false;
                         });
+                        Navigator.pop(context);
+                        Navigator.pop(context);
                       },
                       style: customOutlinedButtonStyle(),
                       child: _isLoading
