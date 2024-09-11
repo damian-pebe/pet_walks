@@ -46,7 +46,9 @@ class _OpenMap extends State<OpenMap> {
                 snippet: marker['description'] ?? 'No description available',
               ),
               onTap: () {
-                List<double> ratings = marker['rating'] ?? [];
+                List<double> ratings = (marker['rating'] as List<dynamic>)
+                    .map((e) => e is int ? e.toDouble() : e as double)
+                    .toList();
                 double rating = ratings.isNotEmpty
                     ? (ratings.reduce((a, b) => a + b) / ratings.length)
                     : 0.0;

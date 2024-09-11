@@ -198,7 +198,11 @@ class _EditInfoPet extends State<EditInfoPet> {
                             colorController.text,
                             data,
                           );
-                          List<double> ratings = widget.petData['rating'] ?? [];
+
+                          List<double> ratings = (widget.petData['rating']
+                                  as List<dynamic>)
+                              .map((e) => e is int ? e.toDouble() : e as double)
+                              .toList();
                           double rating = ratings.isNotEmpty
                               ? (ratings.reduce((a, b) => a + b) /
                                   ratings.length)

@@ -5,11 +5,13 @@ class CommentsDialog extends StatefulWidget {
   final List<dynamic> comments;
   final String collection;
   final String id;
+  final bool addNewComment;
 
   const CommentsDialog(
       {required this.comments,
       required this.collection,
       required this.id,
+      required this.addNewComment,
       super.key});
 
   @override
@@ -122,33 +124,34 @@ class _CommentsDialogState extends State<CommentsDialog> {
                   );
                 }),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _commentController,
-                      decoration: const InputDecoration(
-                        hintText: 'Escribe un comentario...',
-                        border: OutlineInputBorder(),
+              if (widget.addNewComment)
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _commentController,
+                        decoration: const InputDecoration(
+                          hintText: 'Escribe un comentario...',
+                          border: OutlineInputBorder(),
+                        ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon:
-                        Icon(Icons.send, color: Theme.of(context).primaryColor),
-                    onPressed: () {
-                      if (_commentController.text.isNotEmpty) {
-                        setState(() {
-                          widget.comments.add(_commentController.text);
-                        });
-                        _commentController.clear();
-                        addComment(email!, _commentController.toString(),
-                            widget.collection, widget.id);
-                      }
-                    },
-                  ),
-                ],
-              ),
+                    IconButton(
+                      icon: Icon(Icons.send,
+                          color: Theme.of(context).primaryColor),
+                      onPressed: () {
+                        if (_commentController.text.isNotEmpty) {
+                          setState(() {
+                            widget.comments.add(_commentController.text);
+                          });
+                          addComment(email!, _commentController.toString(),
+                              widget.collection, widget.id);
+                          _commentController.clear();
+                        }
+                      },
+                    ),
+                  ],
+                ),
               const SizedBox(height: 10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(

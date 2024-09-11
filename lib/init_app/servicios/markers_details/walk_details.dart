@@ -85,7 +85,10 @@ class _WalkDetailsState extends State<WalkDetails> {
   void getInfoFirstCarrousel() {
     var id = idPets[0];
     var temp = showDatas[id];
-    List<double> ratings = temp['rating'] ?? [];
+
+    List<double> ratings = (temp['rating'] as List<dynamic>)
+        .map((e) => e is int ? e.toDouble() : e as double)
+        .toList();
     double rating = ratings.isNotEmpty
         ? (ratings.reduce((a, b) => a + b) / ratings.length)
         : 0.0;
@@ -151,7 +154,7 @@ class _WalkDetailsState extends State<WalkDetails> {
                     TextButton(
                       onPressed: () {
                         showCommentsDialog(
-                            context, commentsPets, 'walks', widget.id);
+                            context, commentsPets, 'walks', widget.id, true);
                       },
                       child: const Text(
                         "Comentarios",

@@ -96,7 +96,8 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
                         children: [
                           TextButton(
                             onPressed: () {
-                              showCommentsDialog(context, comments, 'post', id);
+                              showCommentsDialog(
+                                  context, comments, 'post', id, true);
                             },
                             child: const Text(
                               "Comentarios",
@@ -239,7 +240,8 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
                         Center(
                           child: TextButton(
                             onPressed: () {
-                              showCommentsDialog(context, comments, 'post', id);
+                              showCommentsDialog(
+                                  context, comments, 'post', id, true);
                             },
                             child: const Text(
                               "Comentarios",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/rate_dialog.dart';
@@ -22,6 +23,21 @@ class ViewRequest extends StatefulWidget {
 }
 
 class _ViewRequestState extends State<ViewRequest> {
+  ValueNotifier<LatLng?> positionNotifier = ValueNotifier<LatLng?>(null);
+  ValueNotifier<LatLng?> businessNotifier = ValueNotifier<LatLng?>(null);
+
+  LatLng? position;
+  LatLng? business;
+  void _getLatLngFromAddressOwner(String address) async {
+    position = await getLatLngFromAddress(address);
+    positionNotifier.value = position;
+  }
+
+  void _getLatLngFromAddressBusiness(String address) async {
+    business = await getLatLngFromAddress(address);
+    businessNotifier.value = business;
+  }
+
   Future<Map<String, dynamic>>? _futureOwnerInfo;
   Future<Map<String, dynamic>>? _futureWalkerInfo;
   Future<Map<String, dynamic>>? _futureBusinessInfo;
@@ -38,11 +54,16 @@ class _ViewRequestState extends State<ViewRequest> {
     color: Colors.black,
     fontWeight: FontWeight.bold,
   );
+  String? email;
+  initEmail() async {
+    email = await fetchUserEmail();
+  }
 
   @override
   void initState() {
     super.initState();
     _refreshData();
+    initEmail();
   }
 
   String? idOwner;
@@ -64,48 +85,47 @@ class _ViewRequestState extends State<ViewRequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 163, 114, 96),
-      body: Column(
-        children: [
-          Stack(
-            children: [
-              const titleW(title: 'Informacion '),
-              Positioned(
-                  left: 30,
-                  top: 70,
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.arrow_back_ios,
-                            size: 30, color: Colors.black),
-                      ),
-                      const Text(
-                        'Regresar',
-                        style: TextStyle(fontSize: 10),
-                      )
-                    ],
-                  )),
-              Positioned(
-                  left: 310,
-                  top: 70,
-                  child: IconButton(
-                      onPressed: () => _refreshData,
-                      icon: const Column(
-                        children: [
-                          Icon(
-                            Icons.refresh,
-                            size: 30,
-                            color: Colors.black,
-                          ),
-                          Text('Actualizar')
-                        ],
-                      )))
-            ],
-          ),
-          const Divider(),
-          Flexible(
-            fit: FlexFit.loose,
-            child: FutureBuilder<Map<String, dynamic>>(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                const titleW(title: 'Informacion '),
+                Positioned(
+                    left: 30,
+                    top: 70,
+                    child: Column(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back_ios,
+                              size: 30, color: Colors.black),
+                        ),
+                        const Text(
+                          'Regresar',
+                          style: TextStyle(fontSize: 10),
+                        )
+                      ],
+                    )),
+                Positioned(
+                    left: 310,
+                    top: 70,
+                    child: IconButton(
+                        onPressed: () => _refreshData(),
+                        icon: const Column(
+                          children: [
+                            Icon(
+                              Icons.refresh,
+                              size: 30,
+                              color: Colors.black,
+                            ),
+                            Text('Actualizar')
+                          ],
+                        )))
+              ],
+            ),
+            const Divider(),
+            FutureBuilder<Map<String, dynamic>>(
               future: _futureWalkInfo,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -154,11 +174,11 @@ class _ViewRequestState extends State<ViewRequest> {
                         }
 
                         final pets = petsSnapshot.data!;
-                        print('info[selectedPets]: $pets');
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30.0),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: pets.map((pet) {
                               return Column(
                                 children: [
@@ -182,6 +202,9 @@ class _ViewRequestState extends State<ViewRequest> {
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold),
                                   ),
+                                  const SizedBox(
+                                    width: 10,
+                                  )
                                 ],
                               );
                             }).toList(),
@@ -193,281 +216,9 @@ class _ViewRequestState extends State<ViewRequest> {
                 );
               },
             ),
-          ),
-          const Divider(),
-          FutureBuilder<Map<String, dynamic>>(
-            future: _futureWalkerInfo,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Text('Error', style: _textStyle);
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Text('No data', style: _textStyle);
-              }
-              final info = snapshot.data!;
-              List<double> ratings = info['rating'] ?? [];
-              double rating = ratings.isNotEmpty
-                  ? (ratings.reduce((a, b) => a + b) / ratings.length)
-                  : 0.0;
-
-              return Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Paseador:', style: _textStyle),
-                              Text('Nombre: ${info['name'] ?? ''}',
-                                  style: _textStyle),
-                              Text('Telefono: ${info['phone'] ?? ''}',
-                                  style: _textStyle),
-                              Text('Ruta: ', style: _textStyle),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              toastF('rate user');
-                              showRatingPopup(context, rating, (newRating) {
-                                setState(() {});
-                                toastF('User rated: $newRating');
-                              });
-                            },
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                        rating > 0
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                    Icon(
-                                        rating > 1
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                    Icon(
-                                        rating > 2
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                    Icon(
-                                        rating > 3
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                    Icon(
-                                        rating > 4
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                  ],
-                                ),
-                                const SizedBox(width: 8.0),
-                                Text('${rating.toString()}/5',
-                                    style: _ratingStyle),
-                              ],
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              showCommentsDialog(
-                                context,
-                                info['comments'] ?? [],
-                                'users',
-                                idWalker!,
-                              );
-                            },
-                            child: const Text(
-                              "Comentarios",
-                              style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  fontSize: 18,
-                                  color: Colors.black),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text('This will be the onTimeTracking func',
-                          style: _textStyle),
-                      IconButton(
-                        onPressed: () {
-                          toastF('Denunciar');
-                        },
-                        icon: const Column(
-                          children: [
-                            Icon(
-                              Icons.report_problem,
-                              color: Colors.black,
-                            ),
-                            Text(
-                              'Denunciar',
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              );
-            },
-          ),
-          const Divider(),
-          FutureBuilder<Map<String, dynamic>>(
-            future: _futureOwnerInfo,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Text('Error', style: _textStyle);
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Text('No data', style: _textStyle);
-              }
-              final info = snapshot.data!;
-              List<double> ratings = info['rating'] ?? [];
-              double rating = ratings.isNotEmpty
-                  ? (ratings.reduce((a, b) => a + b) / ratings.length)
-                  : 0.0;
-
-              return Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text('Dueño:', style: _textStyle),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text('Nombre: ${info['name'] ?? ''}',
-                                style: _textStyle),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text('Telefono: ${info['phone'] ?? ''}',
-                                style: _textStyle),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () => toastF('rate user'),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                        rating > 0
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                    Icon(
-                                        rating > 1
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                    Icon(
-                                        rating > 2
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                    Icon(
-                                        rating > 3
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                    Icon(
-                                        rating > 4
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber,
-                                        size: 20),
-                                  ],
-                                ),
-                                const SizedBox(width: 8.0),
-                                Text('${rating.toString()}/5',
-                                    style: _ratingStyle),
-                              ],
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              showCommentsDialog(context,
-                                  info['comments'] ?? [], 'users', idOwner!);
-                            },
-                            child: const Text(
-                              "Comentarios",
-                              style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  fontSize: 18,
-                                  color: Colors.black),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: IconButton(
-                        onPressed: () {
-                          toastF('Denunciar');
-                        },
-                        icon: const Column(
-                          children: [
-                            Icon(Icons.report_problem, color: Colors.black),
-                            Text('Denunciar')
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              );
-            },
-          ),
-          const Divider(),
-          if (widget.idBusiness.isNotEmpty)
+            const Divider(),
             FutureBuilder<Map<String, dynamic>>(
-              future: _futureBusinessInfo,
+              future: _futureWalkerInfo,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -477,11 +228,489 @@ class _ViewRequestState extends State<ViewRequest> {
                   return Text('No data', style: _textStyle);
                 }
                 final info = snapshot.data!;
+                List<double> ratings = (info['rating'] as List<dynamic>)
+                    .map((e) => e is int ? e.toDouble() : e as double)
+                    .toList();
+                double rating = ratings.isNotEmpty
+                    ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                    : 0.0;
 
-                return Container();
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Paseador:', style: _textStyle),
+                                Text('Nombre: ${info['name'] ?? ''}',
+                                    style: _textStyle),
+                                Text('Telefono: ${info['phone'] ?? ''}',
+                                    style: _textStyle),
+                                Text('Ruta: ', style: _textStyle),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                if (email != widget.emailWalker) {
+                                  toastF('rate user');
+                                  showRatingPopup(context, rating, (newRating) {
+                                    setState(() {});
+                                    toastF('User rated: $newRating');
+                                  }, 'users', idWalker!);
+                                  setState(() {});
+                                } else {
+                                  toastF('this is you');
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                          rating > 0
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                      Icon(
+                                          rating > 1
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                      Icon(
+                                          rating > 2
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                      Icon(
+                                          rating > 3
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                      Icon(
+                                          rating > 4
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 8.0),
+                                  Text('${rating.toString()}/5',
+                                      style: _ratingStyle),
+                                ],
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                showCommentsDialog(
+                                    context,
+                                    info['comments'] ?? [],
+                                    'users',
+                                    idWalker!,
+                                    email != widget.emailWalker ? true : false);
+                              },
+                              child: const Text(
+                                "Comentarios",
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontSize: 18,
+                                    color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text('This will be the onTimeTracking func',
+                            style: _textStyle),
+                        IconButton(
+                          onPressed: () {
+                            toastF('Denunciar');
+                          },
+                          icon: const Icon(
+                            Icons.report_problem,
+                            color: Colors.black,
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                );
               },
             ),
-        ],
+            const Divider(),
+            FutureBuilder<Map<String, dynamic>>(
+              future: _futureOwnerInfo,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text('Error', style: _textStyle);
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Text('No data', style: _textStyle);
+                }
+                final info = snapshot.data!;
+                List<double> ratings = (info['rating'] as List<dynamic>)
+                    .map((e) => e is int ? e.toDouble() : e as double)
+                    .toList();
+                double rating = ratings.isNotEmpty
+                    ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                    : 0.0;
+
+                _getLatLngFromAddressOwner(info['address']);
+
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Text('Dueño:', style: _textStyle),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Text('Nombre: ${info['name'] ?? ''}',
+                                  style: _textStyle),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Text('Telefono: ${info['phone'] ?? ''}',
+                                  style: _textStyle),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                if (email != widget.emailOwner) {
+                                  toastF('rate user');
+                                  showRatingPopup(context, rating, (newRating) {
+                                    setState(() {});
+                                    toastF('User rated: $newRating');
+                                  }, 'users', idOwner!);
+                                  setState(() {});
+                                } else {
+                                  toastF('this is you');
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                          rating > 0
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                      Icon(
+                                          rating > 1
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                      Icon(
+                                          rating > 2
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                      Icon(
+                                          rating > 3
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                      Icon(
+                                          rating > 4
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 8.0),
+                                  Text('${rating.toString()}/5',
+                                      style: _ratingStyle),
+                                ],
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                showCommentsDialog(
+                                    context,
+                                    info['comments'] ?? [],
+                                    'users',
+                                    idOwner!,
+                                    email != widget.emailOwner ? true : false);
+                              },
+                              child: const Text(
+                                "Comentarios",
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontSize: 18,
+                                    color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ValueListenableBuilder<LatLng?>(
+                          valueListenable: positionNotifier,
+                          builder: (context, position, child) {
+                            if (position != null) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                  height: 200,
+                                  width: 300,
+                                  child: GoogleMap(
+                                    initialCameraPosition: CameraPosition(
+                                      target: position,
+                                      zoom: 15,
+                                    ),
+                                    markers: {
+                                      Marker(
+                                        markerId: const MarkerId('marker'),
+                                        position: position,
+                                      ),
+                                    },
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+                          },
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            toastF('Denunciar');
+                          },
+                          icon: const Icon(
+                            Icons.report_problem,
+                            color: Colors.black,
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                );
+              },
+            ),
+            const Divider(),
+            if (widget.idBusiness.isNotEmpty)
+              FutureBuilder<Map<String, dynamic>>(
+                future: _futureBusinessInfo,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Text('Error', style: _textStyle);
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Text('No data', style: _textStyle);
+                  }
+                  final info = snapshot.data!;
+                  List<double> ratings = (info['rating'] as List<dynamic>)
+                      .map((e) => e is int ? e.toDouble() : e as double)
+                      .toList();
+                  double rating = ratings.isNotEmpty
+                      ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                      : 0.0;
+
+                  _getLatLngFromAddressBusiness(info['address']);
+
+                  return Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text('Empresa:', style: _textStyle),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text('Nombre: ${info['name'] ?? ''}',
+                                    style: _textStyle),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text('Telefono: ${info['phone'] ?? ''}',
+                                    style: _textStyle),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  if (email != widget.emailWalker &&
+                                      email != widget.emailOwner) {
+                                    toastF('rate user');
+                                    showRatingPopup(context, rating,
+                                        (newRating) {
+                                      setState(() {});
+                                      toastF('User rated: $newRating');
+                                    }, 'business', widget.idBusiness);
+                                    setState(() {});
+                                  } else {
+                                    toastF('this is you');
+                                  }
+                                },
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                            rating > 0
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                            color: Colors.amber,
+                                            size: 20),
+                                        Icon(
+                                            rating > 1
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                            color: Colors.amber,
+                                            size: 20),
+                                        Icon(
+                                            rating > 2
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                            color: Colors.amber,
+                                            size: 20),
+                                        Icon(
+                                            rating > 3
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                            color: Colors.amber,
+                                            size: 20),
+                                        Icon(
+                                            rating > 4
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                            color: Colors.amber,
+                                            size: 20),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    Text('${rating.toString()}/5',
+                                        style: _ratingStyle),
+                                  ],
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  showCommentsDialog(
+                                      context,
+                                      info['comments'] ?? [],
+                                      'business',
+                                      widget.idBusiness,
+                                      email != widget.emailWalker &&
+                                              email != widget.emailOwner
+                                          ? true
+                                          : false);
+                                },
+                                child: const Text(
+                                  "Comentarios",
+                                  style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      fontSize: 18,
+                                      color: Colors.black),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ValueListenableBuilder<LatLng?>(
+                            valueListenable: businessNotifier,
+                            builder: (context, business, child) {
+                              if (business != null) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                    height: 200,
+                                    width: 300,
+                                    child: GoogleMap(
+                                      initialCameraPosition: CameraPosition(
+                                        target: business,
+                                        zoom: 15,
+                                      ),
+                                      markers: {
+                                        Marker(
+                                          markerId:
+                                              const MarkerId('Get pets here'),
+                                          position: business,
+                                        ),
+                                      },
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+                            },
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              toastF('Denunciar');
+                            },
+                            icon: const Icon(
+                              Icons.report_problem,
+                              color: Colors.black,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  );
+                },
+              ),
+            if (widget.idBusiness.isNotEmpty) const Divider(),
+          ],
+        ),
       ),
     );
   }

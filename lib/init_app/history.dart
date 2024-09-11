@@ -61,6 +61,7 @@ class _HistorialState extends State<Historial> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      setState(() {});
     }
   }
 
@@ -74,6 +75,7 @@ class _HistorialState extends State<Historial> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      setState(() {});
     }
   }
 
@@ -299,25 +301,24 @@ class _HistorialState extends State<Historial> {
                 Stack(
                   children: [
                     const titleW(title: 'Historial'),
-                    if (_currentPage == 0)
-                      Positioned(
-                          left: 330,
-                          top: 70,
-                          child: Column(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.arrow_forward_ios,
-                                    size: 30, color: Colors.black),
-                                onPressed: () => setState(() {
-                                  _onSwipeLeft();
-                                }),
-                              ),
-                              const Text(
-                                'Solicitudes',
-                                style: TextStyle(fontSize: 10),
-                              )
-                            ],
-                          )),
+                    Positioned(
+                        left: 330,
+                        top: 70,
+                        child: Column(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.swipe_right,
+                                  size: 30, color: Colors.black),
+                              onPressed: () => setState(() {
+                                _onSwipeLeft();
+                              }),
+                            ),
+                            const Text(
+                              'Solicitudes',
+                              style: TextStyle(fontSize: 10),
+                            )
+                          ],
+                        )),
                   ],
                 ),
                 Expanded(
@@ -541,7 +542,7 @@ class _HistorialState extends State<Historial> {
                               onPressed: () => setState(() {
                                 _onSwipeRight();
                               }),
-                              icon: const Icon(Icons.arrow_back_ios,
+                              icon: const Icon(Icons.swipe_left,
                                   size: 30, color: Colors.black),
                             ),
                             const Text(

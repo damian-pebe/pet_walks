@@ -94,8 +94,8 @@ class _BusinessDetailsState extends State<BusinessDetails> {
               children: [
                 TextButton(
                   onPressed: () {
-                    showCommentsDialog(
-                        context, widget.comments, 'business', id ?? 'null');
+                    showCommentsDialog(context, widget.comments, 'business',
+                        id ?? 'null', true);
                   },
                   child: const Text(
                     "Comentarios",

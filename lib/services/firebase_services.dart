@@ -178,6 +178,8 @@ Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
 
 Future<void> newUser(
     String? name, String email, String? phone, String? home) async {
+  List<double> rating = [0];
+
   var userDoc =
       await db.collection("users").where("email", isEqualTo: email).get();
   if (userDoc.docs.isEmpty) {
@@ -193,8 +195,8 @@ Future<void> newUser(
       "idHistory": [],
       "profilePhoto": '',
       "activeServices": ['walk', 'request', 'business'],
-      "languaje": 'spanish',
-      "rating": [0]
+      "language": true, //true == sp/ false == en
+      "rating": rating
     });
   }
 }
@@ -315,27 +317,39 @@ Future<void> updateServices(String email, List? services) async {
   }
 }
 
-Future<String> getLanguaje(String? email) async {
-  var userDoc =
-      await db.collection("users").where("email", isEqualTo: email).get();
+Future<bool> getLanguage() async {
+  String fetchedEmail = await fetchUserEmail();
+  var userDoc = await db
+      .collection("users")
+      .where("email", isEqualTo: fetchedEmail)
+      .get();
 
-  if (userDoc.docs.isNotEmpty) {
-    var user = userDoc.docs.first;
-    var languaje = user.data()['languaje'];
-    return languaje;
+  var user = userDoc.docs.first;
+
+  var languajeValue = user.data()['language'];
+
+  bool languaje;
+  if (languajeValue is String) {
+    languaje = languajeValue.toLowerCase() == 'true';
+  } else if (languajeValue is bool) {
+    languaje = languajeValue;
   } else {
-    return 'Error';
+    throw Exception('Unexpected type for languaje field');
   }
+
+  return languaje;
 }
 
-Future<void> updateLanguaje(String? email, String languaje) async {
-  var userDoc =
-      await db.collection("users").where("email", isEqualTo: email).get();
-  if (userDoc.docs.isNotEmpty) {
-    var user = userDoc.docs.first;
+Future<void> updateLanguage(bool lang) async {
+  String fetchedEmail = await fetchUserEmail();
 
-    await db.collection("users").doc(user.id).update({"languaje": languaje});
-  } else {}
+  var userDoc = await db
+      .collection("users")
+      .where("email", isEqualTo: fetchedEmail)
+      .get();
+
+  var user = userDoc.docs.first;
+  await db.collection("users").doc(user.id).update({"language": lang});
 }
 
 Future<void> modifyUser(String? name, String email, String? phone, String? home,
@@ -850,6 +864,8 @@ Future<String> newPet(
     String? old,
     String? color,
     List<String>? imageUrls) async {
+  List<double> rating = [0];
+
   DocumentReference userDoc = await db.collection("pets").add({
     "name": name ?? "",
     "race": race ?? "",
@@ -859,7 +875,7 @@ Future<String> newPet(
     "description": description ?? "",
     "imageUrls": imageUrls ?? [],
     //example
-    "rating": [0],
+    "rating": rating,
     "comments": ['muy buena mascota', 'linda mascota', 'muy cariñoso!'],
   });
   late String lastPetId;
@@ -1159,7 +1175,16 @@ Future<void> addComment(
 Future<void> addRateToUser(double rate, String collection, String id) async {
   var doc = await db.collection(collection).doc(id).get();
 
-  var ratingList = List<double>.from(doc['rating'] ?? []);
+  var ratingList = (doc['rating'] ?? []).map<double>((e) {
+    if (e is int) {
+      return e.toDouble();
+    } else if (e is double) {
+      return e;
+    } else {
+      throw Exception('Invalid type in rating list');
+    }
+  }).toList();
+
   ratingList.add(rate);
 
   await db.collection(collection).doc(id).update({"rating": ratingList});

@@ -43,7 +43,9 @@ class _InfoPetState extends State<InfoPet> {
 
   double rating = 0;
   ratingInit() {
-    List<double> ratings = widget.petData['rating'] ?? [];
+    List<double> ratings = (widget.petData['rating'] as List<dynamic>)
+        .map((e) => e is int ? e.toDouble() : e as double)
+        .toList();
     rating = ratings.isNotEmpty
         ? (ratings.reduce((a, b) => a + b) / ratings.length)
         : 0.0;
@@ -161,8 +163,12 @@ class _InfoPetState extends State<InfoPet> {
                       ),
                       TextButton(
                         onPressed: () {
-                          showCommentsDialog(context,
-                              widget.petData['comments'], 'pets', widget.id);
+                          showCommentsDialog(
+                              context,
+                              widget.petData['comments'],
+                              'pets',
+                              widget.id,
+                              false);
                         },
                         child: const Text(
                           "Comentarios",

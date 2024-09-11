@@ -75,7 +75,9 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
 
             final walkerDoc = snapshot.data!;
             final profilePhoto = walkerDoc['profilePhoto'] ?? '';
-            List<double> ratings = walkerDoc['rating'] ?? [];
+            List<double> ratings = (walkerDoc['rating'] as List<dynamic>)
+                .map((e) => e is int ? e.toDouble() : e as double)
+                .toList();
             double rating = ratings.isNotEmpty
                 ? (ratings.reduce((a, b) => a + b) / ratings.length)
                 : 0.0;
