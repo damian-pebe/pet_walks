@@ -72,25 +72,28 @@ class _WalkDetailsState extends State<WalkDetails> {
     return idPets;
   }
 
-  void updateInfoCarrousel(List<dynamic> _imageUrls,
-      List<dynamic> _commentsPets, double _rating, String _name) {
+  Future<void> updateInfoCarrousel(List<dynamic> imageUrls,
+      List<dynamic> commentsPets, double rating, String name) async {
     setState(() {
-      imageUrls = List<String>.from(_imageUrls);
-      commentsPets = List<String>.from(_commentsPets);
-      rating = _rating;
-      name = _name;
+      imageUrls = List<String>.from(imageUrls);
+      commentsPets = List<String>.from(commentsPets);
+      rating = rating;
+      name = name;
     });
   }
 
   void getInfoFirstCarrousel() {
     var id = idPets[0];
     var temp = showDatas[id];
-    List<dynamic> _imageUrls = temp['imageUrls'];
-    List<dynamic> _commentsPets = temp['comments'];
-    double _rating = temp['rating'];
-    String _name = temp['name'];
+    List<double> ratings = temp['rating'] ?? [];
+    double rating = ratings.isNotEmpty
+        ? (ratings.reduce((a, b) => a + b) / ratings.length)
+        : 0.0;
+    List<dynamic> imageUrls = temp['imageUrls'];
+    List<dynamic> commentsPets = temp['comments'];
+    String name = temp['name'];
 
-    updateInfoCarrousel(_imageUrls, _commentsPets, _rating, _name);
+    updateInfoCarrousel(imageUrls, commentsPets, rating, name);
   }
 
   List<String> imageUrls = [];

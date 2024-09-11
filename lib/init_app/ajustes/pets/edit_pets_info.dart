@@ -198,6 +198,11 @@ class _EditInfoPet extends State<EditInfoPet> {
                             colorController.text,
                             data,
                           );
+                          List<double> ratings = widget.petData['rating'] ?? [];
+                          double rating = ratings.isNotEmpty
+                              ? (ratings.reduce((a, b) => a + b) /
+                                  ratings.length)
+                              : 0.0;
 
                           final updatedPetData = {
                             'name': nameController.text,
@@ -207,7 +212,7 @@ class _EditInfoPet extends State<EditInfoPet> {
                             'old': oldController.text,
                             'color': colorController.text,
                             'imageUrls': data,
-                            'rating': widget.petData['rating'],
+                            'rating': rating,
                             'comments': widget.petData['comments'],
                           };
 

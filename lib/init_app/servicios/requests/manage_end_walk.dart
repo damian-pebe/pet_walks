@@ -75,7 +75,11 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
 
             final walkerDoc = snapshot.data!;
             final profilePhoto = walkerDoc['profilePhoto'] ?? '';
-            final rating = walkerDoc['rating'].toInt();
+            List<double> ratings = walkerDoc['rating'] ?? [];
+            double rating = ratings.isNotEmpty
+                ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                : 0.0;
+
             final name = walkerDoc['name'] ?? 'Desconocido';
 
             return Padding(

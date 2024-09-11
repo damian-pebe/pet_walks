@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
+import 'package:petwalks_app/widgets/rate_dialog.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
@@ -205,6 +206,10 @@ class _ViewRequestState extends State<ViewRequest> {
                 return Text('No data', style: _textStyle);
               }
               final info = snapshot.data!;
+              List<double> ratings = info['rating'] ?? [];
+              double rating = ratings.isNotEmpty
+                  ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                  : 0.0;
 
               return Column(
                 children: [
@@ -231,37 +236,43 @@ class _ViewRequestState extends State<ViewRequest> {
                       Column(
                         children: [
                           GestureDetector(
-                            onTap: () => toastF('rate user'),
+                            onTap: () {
+                              toastF('rate user');
+                              showRatingPopup(context, rating, (newRating) {
+                                setState(() {});
+                                toastF('User rated: $newRating');
+                              });
+                            },
                             child: Column(
                               children: [
                                 Row(
                                   children: [
                                     Icon(
-                                        info['rating'] > 0
+                                        rating > 0
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
                                         size: 20),
                                     Icon(
-                                        info['rating'] > 1
+                                        rating > 1
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
                                         size: 20),
                                     Icon(
-                                        info['rating'] > 2
+                                        rating > 2
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
                                         size: 20),
                                     Icon(
-                                        info['rating'] > 3
+                                        rating > 3
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
                                         size: 20),
                                     Icon(
-                                        info['rating'] > 4
+                                        rating > 4
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
@@ -269,7 +280,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                   ],
                                 ),
                                 const SizedBox(width: 8.0),
-                                Text('${info['rating'].toString()}/5',
+                                Text('${rating.toString()}/5',
                                     style: _ratingStyle),
                               ],
                             ),
@@ -334,6 +345,10 @@ class _ViewRequestState extends State<ViewRequest> {
                 return Text('No data', style: _textStyle);
               }
               final info = snapshot.data!;
+              List<double> ratings = info['rating'] ?? [];
+              double rating = ratings.isNotEmpty
+                  ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                  : 0.0;
 
               return Column(
                 children: [
@@ -374,31 +389,31 @@ class _ViewRequestState extends State<ViewRequest> {
                                 Row(
                                   children: [
                                     Icon(
-                                        info['rating'] > 0
+                                        rating > 0
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
                                         size: 20),
                                     Icon(
-                                        info['rating'] > 1
+                                        rating > 1
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
                                         size: 20),
                                     Icon(
-                                        info['rating'] > 2
+                                        rating > 2
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
                                         size: 20),
                                     Icon(
-                                        info['rating'] > 3
+                                        rating > 3
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
                                         size: 20),
                                     Icon(
-                                        info['rating'] > 4
+                                        rating > 4
                                             ? Icons.star
                                             : Icons.star_border,
                                         color: Colors.amber,
@@ -406,7 +421,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                   ],
                                 ),
                                 const SizedBox(width: 8.0),
-                                Text('${info['rating'].toString()}/5',
+                                Text('${rating.toString()}/5',
                                     style: _ratingStyle),
                               ],
                             ),

@@ -46,6 +46,11 @@ class _OpenMap extends State<OpenMap> {
                 snippet: marker['description'] ?? 'No description available',
               ),
               onTap: () {
+                List<double> ratings = marker['rating'] ?? [];
+                double rating = ratings.isNotEmpty
+                    ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                    : 0.0;
+
                 _showBottomSheet(
                   position: latLng,
                   name: marker['name'] ?? 'Unknown',
@@ -53,7 +58,7 @@ class _OpenMap extends State<OpenMap> {
                   phone: marker['phone'] ?? 'Unknown',
                   description:
                       marker['description'] ?? 'No description available',
-                  rating: marker['rating']?.toDouble() ?? 0.0,
+                  rating: rating,
                   imageUrls:
                       marker['imageUrls'] != null && marker['imageUrls'] is List
                           ? List<String>.from(marker['imageUrls'])

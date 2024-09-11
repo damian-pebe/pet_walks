@@ -38,6 +38,15 @@ class _InfoPetState extends State<InfoPet> {
   void initState() {
     super.initState();
     fetchUserEmail();
+    ratingInit();
+  }
+
+  double rating = 0;
+  ratingInit() {
+    List<double> ratings = widget.petData['rating'] ?? [];
+    rating = ratings.isNotEmpty
+        ? (ratings.reduce((a, b) => a + b) / ratings.length)
+        : 0.0;
   }
 
   @override
@@ -134,35 +143,20 @@ class _InfoPetState extends State<InfoPet> {
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                  widget.petData['rating'] > 0
-                                      ? Icons.star
-                                      : Icons.star_border,
+                              Icon(rating > 0 ? Icons.star : Icons.star_border,
                                   color: Colors.amber),
-                              Icon(
-                                  widget.petData['rating'] > 1
-                                      ? Icons.star
-                                      : Icons.star_border,
+                              Icon(rating > 1 ? Icons.star : Icons.star_border,
                                   color: Colors.amber),
-                              Icon(
-                                  widget.petData['rating'] > 2
-                                      ? Icons.star
-                                      : Icons.star_border,
+                              Icon(rating > 2 ? Icons.star : Icons.star_border,
                                   color: Colors.amber),
-                              Icon(
-                                  widget.petData['rating'] > 3
-                                      ? Icons.star
-                                      : Icons.star_border,
+                              Icon(rating > 3 ? Icons.star : Icons.star_border,
                                   color: Colors.amber),
-                              Icon(
-                                  widget.petData['rating'] > 4
-                                      ? Icons.star
-                                      : Icons.star_border,
+                              Icon(rating > 4 ? Icons.star : Icons.star_border,
                                   color: Colors.amber),
                             ],
                           ),
                           const SizedBox(width: 8.0),
-                          Text('${widget.petData['rating']}/5'),
+                          Text('$rating/5'),
                         ],
                       ),
                       TextButton(

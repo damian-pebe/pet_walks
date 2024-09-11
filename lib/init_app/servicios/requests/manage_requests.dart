@@ -48,7 +48,10 @@ class _PendingRequestsNotificationsState
         DocumentSnapshot walkerDoc = walkerSnapshot.docs.first;
 
         String profilePhoto = walkerDoc['profilePhoto'] ?? '';
-        int rating = walkerDoc['rating'].toInt();
+        List<double> ratings = walkerDoc['rating'] ?? [];
+        double rating = ratings.isNotEmpty
+            ? (ratings.reduce((a, b) => a + b) / ratings.length)
+            : 0.0;
         String name = walkerDoc['name'] ?? 'Desconocido';
 
         pendingRequestsData.add({

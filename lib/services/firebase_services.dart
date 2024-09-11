@@ -151,7 +151,7 @@ Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
         Map<String, dynamic>? data = petDoc.data();
         if (data != null) {
           List<dynamic>? imageUrls = data['imageUrls'];
-          double rating =
+          List<double> rating =
               data['rating'] ?? 0.0; // Default to 0.0 if not present
           String name =
               data['name'] ?? ''; // Default to an empty string if not present
@@ -194,7 +194,7 @@ Future<void> newUser(
       "profilePhoto": '',
       "activeServices": ['walk', 'request', 'business'],
       "languaje": 'spanish',
-      "rating": 0
+      "rating": [0]
     });
   }
 }
@@ -440,7 +440,7 @@ Future<String> newBusiness(
     LatLng position,
     String? description,
     List<String>? downloadUrls) async {
-  double rating = 0;
+  List<double> rating = [0];
   DocumentReference userDoc = await db.collection("business").add({
     "name": name ?? "",
     "email": category ?? "",
@@ -859,7 +859,7 @@ Future<String> newPet(
     "description": description ?? "",
     "imageUrls": imageUrls ?? [],
     //example
-    "rating": 0.0,
+    "rating": [0],
     "comments": ['muy buena mascota', 'linda mascota', 'muy cariñoso!'],
   });
   late String lastPetId;
@@ -1154,4 +1154,13 @@ Future<void> addComment(
   }
 
   await db.collection(collection).doc(doc.id).update({"comments": comments});
+}
+
+Future<void> addRateToUser(double rate, String collection, String id) async {
+  var doc = await db.collection(collection).doc(id).get();
+
+  var ratingList = List<double>.from(doc['rating'] ?? []);
+  ratingList.add(rate);
+
+  await db.collection(collection).doc(id).update({"rating": ratingList});
 }
