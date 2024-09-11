@@ -114,6 +114,32 @@ Future<Map<String, dynamic>> fetchBuilderInfo(List<String> idPets) async {
   return allPetsData;
 }
 
+Future<Set<Map<String, dynamic>>> fetchImageNamePet(List<String> idPets) async {
+  print('idPets: $idPets');
+  Set<Map<String, dynamic>> allPetsData = {};
+
+  for (var element in idPets) {
+    var petDoc = await db.collection("pets").doc(element).get();
+
+    if (petDoc.exists) {
+      Map<String, dynamic>? data = petDoc.data();
+      if (data != null) {
+        String? imageUrl =
+            data['imageUrls'] != null && data['imageUrls'].isNotEmpty
+                ? data['imageUrls'][0] as String?
+                : null;
+        String? name = data['name'] as String?;
+
+        allPetsData.add({
+          'imageUrl': imageUrl,
+          'name': name,
+        });
+      }
+    }
+  }
+  return allPetsData;
+}
+
 Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
   Map<String, dynamic> allPetsData = {};
 
@@ -973,10 +999,10 @@ Future<String?> findMatchingBusinessId(String address) async {
   }
 }
 
-Future<String> findMatchingUserId(String email) async {
+Future<String> findMatchingUserId(String email1) async {
   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
       .collection('users')
-      .where('email', isEqualTo: email)
+      .where('email', isEqualTo: email1)
       .get();
 
   return querySnapshot.docs.first.id;
@@ -1115,4 +1141,17 @@ Future<Map<String, dynamic>> getInfoCollectionWithId(
   }
 
   return {};
+}
+
+Future<void> addComment(
+    String email, String comment, String collection, String id) async {
+  var doc = await db.collection(collection).doc(id).get();
+
+  List<String> comments = List<String>.from(doc.data()?['comments'] ?? []);
+
+  if (comment.isNotEmpty) {
+    comments.add(comment);
+  }
+
+  await db.collection(collection).doc(doc.id).update({"comments": comments});
 }

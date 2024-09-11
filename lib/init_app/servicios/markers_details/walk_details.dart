@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
+import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
-import 'package:petwalks_app/widgets/comments_dialog.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 
 class WalkDetails extends StatefulWidget {
@@ -93,20 +93,6 @@ class _WalkDetailsState extends State<WalkDetails> {
     updateInfoCarrousel(_imageUrls, _commentsPets, _rating, _name);
   }
 
-  void showCommentsDialog(BuildContext context, List<dynamic> comments) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black45,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
-        return CommentsDialog(comments: comments);
-      },
-    );
-  }
-
   List<String> imageUrls = [];
   List<String> commentsPets = [];
   double rating = 0.0;
@@ -125,8 +111,8 @@ class _WalkDetailsState extends State<WalkDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: const Text(
+            const Center(
+              child: Text(
                 'Pasear mascotas',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
@@ -161,7 +147,8 @@ class _WalkDetailsState extends State<WalkDetails> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        showCommentsDialog(context, commentsPets);
+                        showCommentsDialog(
+                            context, commentsPets, 'walks', widget.id);
                       },
                       child: const Text(
                         "Comentarios",

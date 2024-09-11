@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petwalks_app/init_app/servicios/travel_to.dart';
+import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
-import 'package:petwalks_app/widgets/comments_dialog.dart';
+import 'package:petwalks_app/widgets/call_comments.dart';
 
-class BusinessDetails extends StatelessWidget {
+class BusinessDetails extends StatefulWidget {
   final String name;
   final String address;
   final String phone;
@@ -23,27 +24,29 @@ class BusinessDetails extends StatelessWidget {
     required this.imageUrls,
     required this.comments,
     required this.geoPoint,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
-  void showCommentsDialog(BuildContext context, List<dynamic> comments) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black45,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
-        return CommentsDialog(comments: comments);
-      },
-    );
+  @override
+  State<BusinessDetails> createState() => _BusinessDetailsState();
+}
+
+class _BusinessDetailsState extends State<BusinessDetails> {
+  @override
+  void initState() {
+    matchId();
+    super.initState();
+  }
+
+  String? id;
+  matchId() async {
+    id = await findMatchingBusinessId(widget.address);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
@@ -56,43 +59,45 @@ class BusinessDetails extends StatelessWidget {
               child: SizedBox(
                   height: 200,
                   child: PhotoCarousel(
-                    imageUrls: imageUrls.isNotEmpty ? imageUrls : [],
+                    imageUrls:
+                        widget.imageUrls.isNotEmpty ? widget.imageUrls : [],
                   )),
             ),
             SizedBox(height: 8.0),
             Text(
-              name,
+              widget.name,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8.0),
-            Text("Domicilio: $address"),
-            Text("Telefono: $phone"),
+            Text("Domicilio: ${widget.address}"),
+            Text("Telefono: ${widget.phone}"),
             Divider(),
             Row(
               children: [
-                Icon(rating > 0 ? Icons.star : Icons.star_border,
+                Icon(widget.rating > 0 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
-                Icon(rating > 1 ? Icons.star : Icons.star_border,
+                Icon(widget.rating > 1 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
-                Icon(rating > 2 ? Icons.star : Icons.star_border,
+                Icon(widget.rating > 2 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
-                Icon(rating > 3 ? Icons.star : Icons.star_border,
+                Icon(widget.rating > 3 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
-                Icon(rating > 4 ? Icons.star : Icons.star_border,
+                Icon(widget.rating > 4 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
                 SizedBox(width: 8.0),
-                Text("$rating/5"),
+                Text("${widget.rating}/5"),
               ],
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 TextButton(
                   onPressed: () {
-                    showCommentsDialog(context, comments);
+                    showCommentsDialog(
+                        context, widget.comments, 'business', id ?? 'null');
                   },
-                  child: Text(
+                  child: const Text(
                     "Comentarios",
                     style: TextStyle(
                         decoration: TextDecoration.underline,
@@ -108,8 +113,8 @@ class BusinessDetails extends StatelessWidget {
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            TravelTo(address: address, geoPoint: geoPoint),
+                        builder: (context) => TravelTo(
+                            address: widget.address, geoPoint: widget.geoPoint),
                       )),
                   icon: Icon(
                     Icons.flight_takeoff,
@@ -127,7 +132,7 @@ class BusinessDetails extends StatelessWidget {
             ),
             Divider(),
             Text(
-              description,
+              widget.description,
               style: TextStyle(fontSize: 16),
             ),
           ],

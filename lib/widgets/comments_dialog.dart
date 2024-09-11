@@ -1,16 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:petwalks_app/services/firebase_services.dart';
 
-class CommentsDialog extends StatelessWidget {
+class CommentsDialog extends StatefulWidget {
   final List<dynamic> comments;
+  final String collection;
+  final String id;
 
-  const CommentsDialog({required this.comments, Key? key}) : super(key: key);
+  const CommentsDialog(
+      {required this.comments,
+      required this.collection,
+      required this.id,
+      super.key});
+
+  @override
+  _CommentsDialogState createState() => _CommentsDialogState();
+}
+
+class _CommentsDialogState extends State<CommentsDialog> {
+  final TextEditingController _commentController = TextEditingController();
+  String? email;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeFutures();
+  }
+
+  Future<void> _initializeFutures() async {
+    email = await fetchUserEmail();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Material(
         borderRadius: BorderRadius.circular(20.0),
-        elevation: 10, // Add elevation for shadow effect
+        elevation: 10,
         child: Container(
           width: MediaQuery.of(context).size.width * 0.85,
           padding: const EdgeInsets.all(20.0),
@@ -32,7 +57,7 @@ class CommentsDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.message, color: Theme.of(context).primaryColor),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(
                     'Comentarios',
                     style: TextStyle(
@@ -43,14 +68,14 @@ class CommentsDialog extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 20.0),
-              if (comments.isEmpty)
-                Text(
+              const SizedBox(height: 20.0),
+              if (widget.comments.isEmpty)
+                const Text(
                   'No hay comentarios disponibles.',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 )
               else
-                ...comments.map((comment) {
+                ...widget.comments.map((comment) {
                   return Column(
                     children: [
                       Row(
@@ -58,26 +83,27 @@ class CommentsDialog extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
                               child: Text(
                                 comment.toString(),
-                                style: TextStyle(fontSize: 16),
+                                style: const TextStyle(fontSize: 16),
                               ),
                             ),
                           ),
                           Column(
                             children: [
                               IconButton(
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.report,
-                                  color: const Color(0xFFBB1408),
+                                  color: Color(0xFFBB1408),
                                   size: 28,
                                 ),
                                 onPressed: () {
                                   // Add your report action here
                                 },
                               ),
-                              Text(
+                              const Text(
                                 'Report',
                                 style: TextStyle(
                                   fontSize: 12,
@@ -94,20 +120,49 @@ class CommentsDialog extends StatelessWidget {
                       ),
                     ],
                   );
-                }).toList(),
-              SizedBox(height: 10),
+                }),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _commentController,
+                      decoration: const InputDecoration(
+                        hintText: 'Escribe un comentario...',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon:
+                        Icon(Icons.send, color: Theme.of(context).primaryColor),
+                    onPressed: () {
+                      if (_commentController.text.isNotEmpty) {
+                        setState(() {
+                          widget.comments.add(_commentController.text);
+                        });
+                        _commentController.clear();
+                        addComment(email!, _commentController.toString(),
+                            widget.collection, widget.id);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text(
+                child: const Text(
                   'Cerrar',
                   style: TextStyle(
                     color: Colors.white,

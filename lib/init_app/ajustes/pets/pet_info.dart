@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:petwalks_app/init_app/ajustes/pets/edit_pets_info.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
+import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
-import 'package:petwalks_app/widgets/comments_dialog.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 
@@ -23,20 +23,6 @@ class InfoPet extends StatefulWidget {
 }
 
 class _InfoPetState extends State<InfoPet> {
-  void showCommentsDialog(BuildContext context, List<dynamic> comments) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black45,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
-        return CommentsDialog(comments: comments);
-      },
-    );
-  }
-
   String? email;
   Future<String> fetchUserEmail() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -181,8 +167,8 @@ class _InfoPetState extends State<InfoPet> {
                       ),
                       TextButton(
                         onPressed: () {
-                          showCommentsDialog(
-                              context, widget.petData['comments']);
+                          showCommentsDialog(context,
+                              widget.petData['comments'], 'pets', widget.id);
                         },
                         child: const Text(
                           "Comentarios",

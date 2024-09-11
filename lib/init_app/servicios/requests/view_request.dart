@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
-import 'package:petwalks_app/widgets/comments_dialog.dart';
+import 'package:petwalks_app/widgets/call_comments.dart';
+import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
 class ViewRequest extends StatefulWidget {
@@ -25,286 +26,447 @@ class _ViewRequestState extends State<ViewRequest> {
   Future<Map<String, dynamic>>? _futureBusinessInfo;
   Future<Map<String, dynamic>>? _futureWalkInfo;
 
+  final TextStyle _textStyle = const TextStyle(
+    fontSize: 16,
+    color: Colors.black,
+    fontWeight: FontWeight.w600,
+  );
+
+  final TextStyle _ratingStyle = const TextStyle(
+    fontSize: 16,
+    color: Colors.black,
+    fontWeight: FontWeight.bold,
+  );
+
   @override
   void initState() {
     super.initState();
-    _initializeFutures();
+    _refreshData();
   }
 
-  Future<void> _initializeFutures() async {
-    setState(() {
-      _refreshData();
-    });
-  }
-
+  String? idOwner;
+  String? idWalker;
   void _refreshData() async {
-    String idOwner = await findMatchingUserId(widget.emailOwner);
-    String idWalker = await findMatchingUserId(widget.emailWalker);
-    setState(() {
-      _futureOwnerInfo = getInfoCollectionWithId(idOwner, 'users');
-      _futureWalkerInfo = getInfoCollectionWithId(idWalker, 'users');
-      _futureBusinessInfo =
-          getInfoCollectionWithId(widget.idBusiness, 'business');
-      _futureWalkInfo = getInfoCollectionWithId(widget.idWalk, 'walks');
-    });
+    idOwner = await findMatchingUserId(widget.emailOwner);
+    idWalker = await findMatchingUserId(widget.emailWalker);
+
+    _futureOwnerInfo = getInfoCollectionWithId(idOwner!, 'users');
+    _futureWalkerInfo = getInfoCollectionWithId(idWalker!, 'users');
+    _futureBusinessInfo =
+        getInfoCollectionWithId(widget.idBusiness, 'business');
+    _futureWalkInfo = getInfoCollectionWithId(widget.idWalk, 'walks');
+
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
-      body: Container(
-        color: Colors.brown,
-        child: Column(
-          children: [
-            Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                  future: _futureWalkInfo,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return const Text('Error');
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Text('No data');
-                    }
-                    final info = snapshot.data!;
+      backgroundColor: const Color.fromARGB(255, 163, 114, 96),
+      body: Column(
+        children: [
+          Stack(
+            children: [
+              const titleW(title: 'Informacion '),
+              Positioned(
+                  left: 30,
+                  top: 70,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back_ios,
+                            size: 30, color: Colors.black),
+                      ),
+                      const Text(
+                        'Regresar',
+                        style: TextStyle(fontSize: 10),
+                      )
+                    ],
+                  )),
+              Positioned(
+                  left: 310,
+                  top: 70,
+                  child: IconButton(
+                      onPressed: () => _refreshData,
+                      icon: const Column(
+                        children: [
+                          Icon(
+                            Icons.refresh,
+                            size: 30,
+                            color: Colors.black,
+                          ),
+                          Text('Actualizar')
+                        ],
+                      )))
+            ],
+          ),
+          const Divider(),
+          Flexible(
+            fit: FlexFit.loose,
+            child: FutureBuilder<Map<String, dynamic>>(
+              future: _futureWalkInfo,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text('Error', style: _textStyle);
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Text('No data', style: _textStyle);
+                }
+                final info = snapshot.data!;
 
-                    return Column(
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        Text('Fecha y hora: ${info['startDate'].toString()}',
+                            style: _textStyle),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Fecha y hora: ${info['startDate']}'),
-                            Row(
-                              children: [
-                                const Icon(Icons.price_change),
-                                Text(info['price'].toString()),
-                              ],
-                            )
+                            const Icon(Icons.price_change),
+                            Text(info['price'].toString(), style: _textStyle),
                           ],
                         ),
-                        ListView()
                       ],
-                    );
-                  }),
-            ),
-            const Divider(),
-            Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                  future: _futureWalkerInfo,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return const Text('Error');
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Text('No data');
-                    }
-                    final info = snapshot.data!;
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    FutureBuilder<Set<Map<String, dynamic>>>(
+                      future: fetchImageNamePet(
+                          List<String>.from(info['selectedPets'] ?? [])),
+                      builder: (context, petsSnapshot) {
+                        if (petsSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (petsSnapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${petsSnapshot.error}'));
+                        } else if (!petsSnapshot.hasData ||
+                            petsSnapshot.data!.isEmpty) {
+                          return const Center(child: Text('No pets selected'));
+                        }
 
-                    return Column(
-                      children: [
-                        Row(
-                          children: [
-                            Column(
-                              children: [
-                                const Text('Paseador:'),
-                                Text('Nombre: ${info['name'] ?? ''}'),
-                                Text('Email: ${info['email'] ?? ''}'),
-                                Text('Telefono: ${info['phone'] ?? ''}'),
-                                const Text('Ruta: ')
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () => toastF('rate user'),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(
-                                              info['rating'] > 0
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                          Icon(
-                                              info['rating'] > 1
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                          Icon(
-                                              info['rating'] > 2
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                          Icon(
-                                              info['rating'] > 3
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                          Icon(
-                                              info['rating'] > 4
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                        ],
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      Text(
-                                        '${info['rating'].toString()}/5',
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                CommentsDialog(comments: info['comments'] ?? [])
-                              ],
-                            )
-                          ],
-                        ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: IconButton(
-                              onPressed: () {
-                                toastF('Denunciar');
-                              },
-                              icon: const Column(
+                        final pets = petsSnapshot.data!;
+                        print('info[selectedPets]: $pets');
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                          child: Row(
+                            children: pets.map((pet) {
+                              return Column(
                                 children: [
-                                  Icon(Icons.report_problem),
-                                  Text('Denunciar')
+                                  CircleAvatar(
+                                    radius: 30,
+                                    backgroundColor: Colors.grey[200],
+                                    child: ClipOval(
+                                      child: pet['imageUrl'] != null
+                                          ? Image.network(
+                                              pet['imageUrl'],
+                                              fit: BoxFit.cover,
+                                              width: 60,
+                                              height: 60,
+                                            )
+                                          : const Icon(Icons.pets, size: 40),
+                                    ),
+                                  ),
+                                  Text(
+                                    pet['name'] ?? 'No name',
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ],
-                              )),
-                        )
-                      ],
-                    );
-                  }),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                );
+              },
             ),
-            const Divider(),
-            Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                  future: _futureOwnerInfo,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return const Text('Error');
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Text('No data');
-                    }
-                    final info = snapshot.data!;
+          ),
+          const Divider(),
+          FutureBuilder<Map<String, dynamic>>(
+            future: _futureWalkerInfo,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Text('Error', style: _textStyle);
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Text('No data', style: _textStyle);
+              }
+              final info = snapshot.data!;
 
-                    return Column(
-                      children: [
-                        Row(
-                          children: [
-                            Column(
+              return Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Paseador:', style: _textStyle),
+                              Text('Nombre: ${info['name'] ?? ''}',
+                                  style: _textStyle),
+                              Text('Telefono: ${info['phone'] ?? ''}',
+                                  style: _textStyle),
+                              Text('Ruta: ', style: _textStyle),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () => toastF('rate user'),
+                            child: Column(
                               children: [
-                                const Text('Dueño:'),
-                                Text('Nombre: ${info['name'] ?? ''}'),
-                                Text('Email: ${info['email'] ?? ''}'),
-                                Text('Telefono: ${info['phone'] ?? ''}'),
+                                Row(
+                                  children: [
+                                    Icon(
+                                        info['rating'] > 0
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                    Icon(
+                                        info['rating'] > 1
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                    Icon(
+                                        info['rating'] > 2
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                    Icon(
+                                        info['rating'] > 3
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                    Icon(
+                                        info['rating'] > 4
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                  ],
+                                ),
+                                const SizedBox(width: 8.0),
+                                Text('${info['rating'].toString()}/5',
+                                    style: _ratingStyle),
                               ],
                             ),
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () => toastF('rate user'),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(
-                                              info['rating'] > 0
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                          Icon(
-                                              info['rating'] > 1
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                          Icon(
-                                              info['rating'] > 2
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                          Icon(
-                                              info['rating'] > 3
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                          Icon(
-                                              info['rating'] > 4
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 13),
-                                        ],
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      Text(
-                                        '${info['rating'].toString()}/5',
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                CommentsDialog(comments: info['comments'] ?? [])
-                              ],
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              showCommentsDialog(
+                                context,
+                                info['comments'] ?? [],
+                                'users',
+                                idWalker!,
+                              );
+                            },
+                            child: const Text(
+                              "Comentarios",
+                              style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 18,
+                                  color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text('This will be the onTimeTracking func',
+                          style: _textStyle),
+                      IconButton(
+                        onPressed: () {
+                          toastF('Denunciar');
+                        },
+                        icon: const Column(
+                          children: [
+                            Icon(
+                              Icons.report_problem,
+                              color: Colors.black,
+                            ),
+                            Text(
+                              'Denunciar',
                             )
                           ],
                         ),
-                        Row(
-                          children: [
-                            Image.network(''),
-                            IconButton(
-                                onPressed: () {
-                                  toastF('Denunciar');
-                                },
-                                icon: const Column(
-                                  children: [
-                                    Icon(Icons.report_problem),
-                                    Text('Denunciar')
-                                  ],
-                                ))
-                          ],
-                        )
-                      ],
-                    );
-                  }),
-            ),
-            const Divider(),
-            Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                  future: _futureBusinessInfo,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return const Text('Error');
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Text('No data');
-                    }
-                    final info = snapshot.data!;
+                      )
+                    ],
+                  )
+                ],
+              );
+            },
+          ),
+          const Divider(),
+          FutureBuilder<Map<String, dynamic>>(
+            future: _futureOwnerInfo,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Text('Error', style: _textStyle);
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Text('No data', style: _textStyle);
+              }
+              final info = snapshot.data!;
 
-                    return Container();
-                  }),
+              return Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text('Dueño:', style: _textStyle),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text('Nombre: ${info['name'] ?? ''}',
+                                style: _textStyle),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text('Telefono: ${info['phone'] ?? ''}',
+                                style: _textStyle),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () => toastF('rate user'),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                        info['rating'] > 0
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                    Icon(
+                                        info['rating'] > 1
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                    Icon(
+                                        info['rating'] > 2
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                    Icon(
+                                        info['rating'] > 3
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                    Icon(
+                                        info['rating'] > 4
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 20),
+                                  ],
+                                ),
+                                const SizedBox(width: 8.0),
+                                Text('${info['rating'].toString()}/5',
+                                    style: _ratingStyle),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              showCommentsDialog(context,
+                                  info['comments'] ?? [], 'users', idOwner!);
+                            },
+                            child: const Text(
+                              "Comentarios",
+                              style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 18,
+                                  color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        onPressed: () {
+                          toastF('Denunciar');
+                        },
+                        icon: const Column(
+                          children: [
+                            Icon(Icons.report_problem, color: Colors.black),
+                            Text('Denunciar')
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              );
+            },
+          ),
+          const Divider(),
+          if (widget.idBusiness.isNotEmpty)
+            FutureBuilder<Map<String, dynamic>>(
+              future: _futureBusinessInfo,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text('Error', style: _textStyle);
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Text('No data', style: _textStyle);
+                }
+                final info = snapshot.data!;
+
+                return Container();
+              },
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

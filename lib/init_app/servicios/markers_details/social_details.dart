@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
-import 'package:petwalks_app/widgets/comments_dialog.dart';
 
 class SocialNetworkDetails extends StatefulWidget {
   final List<String> postIds;
@@ -24,20 +24,6 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
     _futurePosts = getInfoPosts(widget.postIds);
   }
 
-  void showCommentsDialog(BuildContext context, List<dynamic> comments) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black45,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
-        return CommentsDialog(comments: comments);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Set<Map<String, dynamic>>>(
@@ -58,6 +44,8 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
           child: SingleChildScrollView(
             child: Column(
               children: posts.map((post) {
+                String id = post['id']; // Aquí se obtiene el ID del post
+
                 String description = post['description'] ?? '';
                 String type = post['type'] ?? '';
                 List<String> imageUrls =
@@ -108,7 +96,7 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
                         children: [
                           TextButton(
                             onPressed: () {
-                              showCommentsDialog(context, comments);
+                              showCommentsDialog(context, comments, 'post', id);
                             },
                             child: const Text(
                               "Comentarios",
@@ -176,20 +164,6 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
     _futurePosts = getInfoPosts(widget.postIds);
   }
 
-  void showCommentsDialog(BuildContext context, List<dynamic> comments) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black45,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
-        return CommentsDialog(comments: comments);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Set<Map<String, dynamic>>>(
@@ -215,6 +189,8 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
             child: SingleChildScrollView(
               child: Column(
                 children: posts.map((post) {
+                  String id = post['id']; // Aquí se obtiene el ID del post
+
                   String description = post['description'] ?? '';
                   String type = post['type'] ?? '';
                   List<String> imageUrls =
@@ -263,7 +239,7 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
                         Center(
                           child: TextButton(
                             onPressed: () {
-                              showCommentsDialog(context, comments);
+                              showCommentsDialog(context, comments, 'post', id);
                             },
                             child: const Text(
                               "Comentarios",

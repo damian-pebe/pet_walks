@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
-import 'package:petwalks_app/widgets/comments_dialog.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:petwalks_app/widgets/toast.dart';
@@ -23,20 +22,6 @@ class EditInfoPet extends StatefulWidget {
 
 class _EditInfoPet extends State<EditInfoPet> {
   bool _isLoading = false;
-
-  void showCommentsDialog(BuildContext context, List<dynamic> comments) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black45,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
-        return CommentsDialog(comments: comments);
-      },
-    );
-  }
 
   late TextEditingController nameController;
   late TextEditingController raceController;

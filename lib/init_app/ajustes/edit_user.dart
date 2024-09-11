@@ -179,7 +179,7 @@ class _EditUserState extends State<EditUser> {
               ),
             ],
           ),
-          backgroundColor: Color.fromRGBO(250, 244, 229, 1),
+          backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -192,7 +192,7 @@ class _EditUserState extends State<EditUser> {
                       controller: tokenController,
                       decoration: StyleTextField('Telefono')),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 SizedBox(
                   width: 120,
                   child: OutlinedButton(
@@ -210,7 +210,7 @@ class _EditUserState extends State<EditUser> {
                           vertical: 16.0, horizontal: 24.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
-                        side: BorderSide(width: 2.0, color: Colors.black),
+                        side: const BorderSide(width: 2.0, color: Colors.black),
                       ),
                       backgroundColor: Colors.grey[200],
                     ),
@@ -246,7 +246,7 @@ class _EditUserState extends State<EditUser> {
                 side: const BorderSide(
                     color: Color.fromRGBO(250, 244, 229, .65), width: 2),
               ),
-              child: Text(
+              child: const Text(
                 'Enviar token de verificacion',
                 style: TextStyle(
                     decoration: TextDecoration.underline,
@@ -263,7 +263,7 @@ class _EditUserState extends State<EditUser> {
                 side: const BorderSide(
                     color: Color.fromRGBO(250, 244, 229, .65), width: 2),
               ),
-              child: Text(
+              child: const Text(
                 'Salir',
                 style: TextStyle(fontSize: 13, color: Colors.black),
               ),
@@ -289,7 +289,7 @@ class _EditUserState extends State<EditUser> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+            scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: SingleChildScrollView(
             child: Column(
@@ -304,10 +304,10 @@ class _EditUserState extends State<EditUser> {
                           children: [
                             IconButton(
                               onPressed: () => Navigator.pop(context),
-                              icon: Icon(Icons.arrow_back_ios,
+                              icon: const Icon(Icons.arrow_back_ios,
                                   size: 30, color: Colors.black),
                             ),
-                            Text(
+                            const Text(
                               'Regresar',
                               style: TextStyle(fontSize: 10),
                             )
@@ -321,11 +321,11 @@ class _EditUserState extends State<EditUser> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                             vertical: 16.0, horizontal: 24.0),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15.0),
@@ -336,7 +336,7 @@ class _EditUserState extends State<EditUser> {
                             fontSize: 18.0,
                             color: Colors.grey[800],
                             letterSpacing: 1.2,
-                            shadows: [
+                            shadows: const [
                               Shadow(
                                 offset: Offset(1.0, 1.0),
                                 blurRadius: 2.0,
@@ -355,7 +355,7 @@ class _EditUserState extends State<EditUser> {
                               ? NetworkImage(_downloadUrl)
                               : null,
                           child: _downloadUrl.isEmpty
-                              ? Icon(
+                              ? const Icon(
                                   Icons.person,
                                   size: 50,
                                   color: Colors.grey,
@@ -370,7 +370,7 @@ class _EditUserState extends State<EditUser> {
                           decoration: StyleTextField('Nombre')),
                       Visibility(
                         visible: !_isName,
-                        child: Text(
+                        child: const Text(
                           "* Nombre no puede ser vacio",
                           style: TextStyle(color: Colors.red, fontSize: 10),
                         ),
@@ -412,11 +412,11 @@ class _EditUserState extends State<EditUser> {
                                 }
                               },
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     vertical: 16.0, horizontal: 0.0),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15.0),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                       width: 2.0, color: Colors.black),
                                 ),
                                 backgroundColor: Colors.grey[200],
@@ -427,10 +427,10 @@ class _EditUserState extends State<EditUser> {
                                     getIcon(),
                                     color: Colors.black,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 2,
                                   ),
-                                  Text(
+                                  const Text(
                                     'Verificacion',
                                     style: TextStyle(
                                         fontSize: 8, color: Colors.black),
@@ -443,7 +443,7 @@ class _EditUserState extends State<EditUser> {
                       ),
                       Visibility(
                         visible: !_isVerified,
-                        child: Text(
+                        child: const Text(
                           "* Debe verificar el nuevo telefono ",
                           style: TextStyle(color: Colors.red, fontSize: 10),
                         ),
@@ -462,7 +462,7 @@ class _EditUserState extends State<EditUser> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => SelectHome(),
+                                    builder: (context) => const SelectHome(),
                                   ),
                                 );
 
@@ -475,11 +475,11 @@ class _EditUserState extends State<EditUser> {
                                 });
                               },
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     vertical: 16.0, horizontal: 24.0),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15.0),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                       width: 2.0, color: Colors.black),
                                 ),
                                 backgroundColor: Colors.grey[200],

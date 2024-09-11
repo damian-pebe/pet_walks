@@ -37,20 +37,18 @@ class _HistorialState extends State<Historial> {
   Future<void> _initializeFutures() async {
     email = await fetchUserEmail();
     List<String> ids = await fetchHistoryIds(email!);
-    setState(() {
-      pendingRequests = fetchPendingRequests(email!);
-      futureStartRequests = fetchPendingRequestStart(email!);
-      futureEndRequests = fetchPendingRequestEnd(email!);
-      _futureHistory = getHistory(ids);
-    });
+    pendingRequests = fetchPendingRequests(email!);
+    futureStartRequests = fetchPendingRequestStart(email!);
+    futureEndRequests = fetchPendingRequestEnd(email!);
+    _futureHistory = getHistory(ids);
+    setState(() {});
   }
 
   void _refreshData() {
-    setState(() {
-      pendingRequests = fetchPendingRequests(email!);
-      futureStartRequests = fetchPendingRequestStart(email!);
-      futureEndRequests = fetchPendingRequestEnd(email!);
-    });
+    pendingRequests = fetchPendingRequests(email!);
+    futureStartRequests = fetchPendingRequestStart(email!);
+    futureEndRequests = fetchPendingRequestEnd(email!);
+    setState(() {});
   }
 
   void _onSwipeLeft() {
@@ -336,152 +334,194 @@ class _HistorialState extends State<Historial> {
 
                     final historyList = snapshot.data!.toList();
 
-                    return Expanded(
-                      child: ListView.builder(
-                        itemCount: historyList.length,
-                        itemBuilder: (context, index) {
-                          final history = historyList[index];
+                    return ListView.builder(
+                      itemCount: historyList.length,
+                      itemBuilder: (context, index) {
+                        final history = historyList[index];
 
-                          return FutureBuilder<Map<String, dynamic>>(
-                            future: getInfoWalk(history['idWalk']),
-                            builder: (context, walkSnapshot) {
-                              if (walkSnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              } else if (walkSnapshot.hasError) {
-                                return Center(
-                                    child:
-                                        Text('Error: ${walkSnapshot.error}'));
-                              } else if (!walkSnapshot.hasData ||
-                                  walkSnapshot.data!.isEmpty) {
-                                return const Center(
-                                    child:
-                                        Text('No walk information available'));
-                              }
+                        return FutureBuilder<Map<String, dynamic>>(
+                          future: getInfoWalk(history['idWalk']),
+                          builder: (context, walkSnapshot) {
+                            if (walkSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            } else if (walkSnapshot.hasError) {
+                              return Center(
+                                  child: Text('Error: ${walkSnapshot.error}'));
+                            } else if (!walkSnapshot.hasData ||
+                                walkSnapshot.data!.isEmpty) {
+                              return const Center(
+                                  child: Text('No walk information available'));
+                            }
 
-                              final walkData = walkSnapshot.data!;
+                            final walkData = walkSnapshot.data!;
 
-                              return Card(
-                                margin: const EdgeInsets.all(8.0),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            walkData['type'] ?? 'type',
-                                            style: const TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.black),
-                                          ),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  Icons.more_time_rounded),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text('Fecha y hora'),
-                                                  Text(walkData['timeStart'] ??
-                                                      'awaiting'),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  Icons.payments_outlined),
-                                              Text(
-                                                  walkData['price'].toString()),
-                                            ],
-                                          ),
-                                          FutureBuilder<Map<String, dynamic>>(
-                                            future: fetchBuilderInfo(
-                                                List<String>.from(
-                                                    walkData['selectedPets'] ??
-                                                        [])),
-                                            builder: (context, petsSnapshot) {
-                                              if (petsSnapshot
-                                                      .connectionState ==
-                                                  ConnectionState.waiting) {
-                                                return const Center(
-                                                    child:
-                                                        CircularProgressIndicator());
-                                              } else if (petsSnapshot
-                                                  .hasError) {
-                                                return Center(
-                                                    child: Text(
-                                                        'Error: ${petsSnapshot.error}'));
-                                              } else if (!petsSnapshot
-                                                      .hasData ||
-                                                  petsSnapshot.data!.isEmpty) {
-                                                return const Center(
-                                                    child: Text(
-                                                        'No pets selected'));
-                                              }
-
-                                              final petsList =
-                                                  petsSnapshot.data!;
-
-                                              return Column(
-                                                children: [
-                                                  CircleAvatar(
-                                                      child: petsList[
-                                                                  'imageUrl'] !=
-                                                              null
-                                                          ? Image.network(
-                                                              petsList[
-                                                                  'imageUrl'])
-                                                          : null),
-                                                  Text(petsList['name'] ??
-                                                      'no name'),
-                                                ],
-                                              );
-                                            },
-                                          )
-                                        ],
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          toastF('view info');
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ViewRequest(
-                                                emailOwner:
-                                                    history['emailOwner'],
-                                                emailWalker:
-                                                    history['emailWalker'],
-                                                idWalk: history['idWalk'],
-                                                idBusiness:
-                                                    history['idBusiness'] ?? '',
-                                              ),
+                            return Card(
+                              color: const Color.fromARGB(255, 163, 114, 96),
+                              margin: const EdgeInsets.all(8.0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          walkData['type'] ?? 'type',
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.more_time_rounded,
+                                              size: 30,
                                             ),
-                                          );
-                                        },
-                                        icon:
-                                            const Icon(Icons.arrow_forward_ios),
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Fecha y hora',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.black),
+                                                ),
+                                                Text(
+                                                  walkData['timeStart'] ??
+                                                      'awaiting',
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.black),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.payments_outlined),
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(walkData['price'].toString()),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        FutureBuilder<
+                                            Set<Map<String, dynamic>>>(
+                                          future: fetchImageNamePet(
+                                              List<String>.from(
+                                                  walkData['selectedPets'] ??
+                                                      [])),
+                                          builder: (context, petsSnapshot) {
+                                            if (petsSnapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return const Center(
+                                                  child:
+                                                      CircularProgressIndicator());
+                                            } else if (petsSnapshot.hasError) {
+                                              return Center(
+                                                  child: Text(
+                                                      'Error: ${petsSnapshot.error}'));
+                                            } else if (!petsSnapshot.hasData ||
+                                                petsSnapshot.data!.isEmpty) {
+                                              return const Center(
+                                                  child:
+                                                      Text('No pets selected'));
+                                            }
+
+                                            final pets = petsSnapshot.data!;
+                                            print('info[selectedPets]: $pets');
+
+                                            return Row(
+                                              children: pets.map((pet) {
+                                                return Column(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 20,
+                                                      backgroundColor:
+                                                          Colors.grey[200],
+                                                      child: ClipOval(
+                                                        child:
+                                                            pet['imageUrl'] !=
+                                                                    null
+                                                                ? Image.network(
+                                                                    pet['imageUrl'],
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    width: 40,
+                                                                    height: 40,
+                                                                  )
+                                                                : Icon(
+                                                                    Icons.pets,
+                                                                    size: 40),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      pet['name'] ?? 'No name',
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ],
+                                                );
+                                              }).toList(),
+                                            );
+                                          },
+                                        )
+                                      ],
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        toastF('view info');
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ViewRequest(
+                                              emailOwner: history['emailOwner'],
+                                              emailWalker:
+                                                  history['emailWalker'],
+                                              idWalk: history['idWalk'],
+                                              idBusiness:
+                                                  history['idBusiness'] ?? '',
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 30,
+                                        color: Colors.black,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     );
                   },
                 )),
