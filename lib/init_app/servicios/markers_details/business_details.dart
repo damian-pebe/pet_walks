@@ -36,6 +36,13 @@ class _BusinessDetailsState extends State<BusinessDetails> {
   void initState() {
     matchId();
     super.initState();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   String? id;
@@ -51,93 +58,100 @@ class _BusinessDetailsState extends State<BusinessDetails> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: SizedBox(
-                  height: 200,
-                  child: PhotoCarousel(
-                    imageUrls:
-                        widget.imageUrls.isNotEmpty ? widget.imageUrls : [],
-                  )),
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              widget.name,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8.0),
-            Text("Domicilio: ${widget.address}"),
-            Text("Telefono: ${widget.phone}"),
-            Divider(),
-            Row(
-              children: [
-                Icon(widget.rating > 0 ? Icons.star : Icons.star_border,
-                    color: Colors.amber),
-                Icon(widget.rating > 1 ? Icons.star : Icons.star_border,
-                    color: Colors.amber),
-                Icon(widget.rating > 2 ? Icons.star : Icons.star_border,
-                    color: Colors.amber),
-                Icon(widget.rating > 3 ? Icons.star : Icons.star_border,
-                    color: Colors.amber),
-                Icon(widget.rating > 4 ? Icons.star : Icons.star_border,
-                    color: Colors.amber),
-                SizedBox(width: 8.0),
-                Text("${widget.rating}/5"),
-              ],
-            ),
-            const SizedBox(height: 8.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    showCommentsDialog(context, widget.comments, 'business',
-                        id ?? 'null', true);
-                  },
-                  child: const Text(
-                    "Comentarios",
-                    style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.black),
+      child: lang == null
+          ? null
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: SizedBox(
+                      height: 200,
+                      child: PhotoCarousel(
+                        imageUrls:
+                            widget.imageUrls.isNotEmpty ? widget.imageUrls : [],
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: 50,
-                ),
-                IconButton(
-                  onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TravelTo(
-                            address: widget.address, geoPoint: widget.geoPoint),
-                      )),
-                  icon: Icon(
-                    Icons.flight_takeoff,
-                    size: 35,
+                  const SizedBox(height: 8.0),
+                  Text(
+                    widget.name,
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.report_outlined,
-                    size: 35,
+                  const SizedBox(height: 8.0),
+                  Text(lang!
+                      ? "Domicilio: ${widget.address}"
+                      : "Address: ${widget.address}"),
+                  Text(lang!
+                      ? "Telefono: ${widget.phone}"
+                      : "Phone: ${widget.phone}"),
+                  const Divider(),
+                  Row(
+                    children: [
+                      Icon(widget.rating > 0 ? Icons.star : Icons.star_border,
+                          color: Colors.amber),
+                      Icon(widget.rating > 1 ? Icons.star : Icons.star_border,
+                          color: Colors.amber),
+                      Icon(widget.rating > 2 ? Icons.star : Icons.star_border,
+                          color: Colors.amber),
+                      Icon(widget.rating > 3 ? Icons.star : Icons.star_border,
+                          color: Colors.amber),
+                      Icon(widget.rating > 4 ? Icons.star : Icons.star_border,
+                          color: Colors.amber),
+                      const SizedBox(width: 8.0),
+                      Text("${widget.rating}/5"),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          showCommentsDialog(context, widget.comments,
+                              'business', id ?? 'null', true);
+                        },
+                        child: Text(
+                          lang! ? "Comentarios" : "Comments",
+                          style: const TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black),
+                        ),
+                      ),
+                      const SizedBox(width: 50),
+                      IconButton(
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TravelTo(
+                                  address: widget.address,
+                                  geoPoint: widget.geoPoint),
+                            )),
+                        icon: const Icon(
+                          Icons.flight_takeoff,
+                          size: 35,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.report_outlined,
+                          size: 35,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Text(
+                    widget.description,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
             ),
-            Divider(),
-            Text(
-              widget.description,
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

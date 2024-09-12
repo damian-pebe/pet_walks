@@ -122,6 +122,13 @@ class _PasearState extends State<Pasear> {
     initData().then((_) {
       _getWalks();
     });
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   Future<void> _checkLocationPermission() async {
@@ -162,39 +169,43 @@ class _PasearState extends State<Pasear> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text(
-              'Pasear mascotas',
-              style: TextStyle(fontWeight: FontWeight.bold),
+      appBar: lang == null
+          ? null
+          : AppBar(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    lang! ? 'Pasear mascotas' : 'Walk pets',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const Icon(Icons.pets)
+                ],
+              ),
+              backgroundColor: const Color.fromRGBO(169, 200, 149, 1),
             ),
-            Icon(Icons.pets)
-          ],
-        ),
-        backgroundColor: Color.fromRGBO(169, 200, 149, 1),
-      ),
-      body: Stack(
-        children: [
-          if (_isPermissionGranted)
-            GoogleMap(
-              markers: markers,
-              mapType: MapType.normal,
-              initialCameraPosition: _center == null
-                  ? initialCameraPosition
-                  : CameraPosition(
-                      target: _center!,
-                      zoom: 17,
-                    ),
-              onMapCreated: (GoogleMapController controller) {
-                googleMapController.complete(controller);
-              },
-            )
-          else
-            Center(child: CircularProgressIndicator()),
-        ],
-      ),
+      body: lang == null
+          ? null
+          : Stack(
+              children: [
+                if (_isPermissionGranted)
+                  GoogleMap(
+                    markers: markers,
+                    mapType: MapType.normal,
+                    initialCameraPosition: _center == null
+                        ? initialCameraPosition
+                        : CameraPosition(
+                            target: _center!,
+                            zoom: 17,
+                          ),
+                    onMapCreated: (GoogleMapController controller) {
+                      googleMapController.complete(controller);
+                    },
+                  )
+                else
+                  const Center(child: CircularProgressIndicator()),
+              ],
+            ),
     );
   }
 }

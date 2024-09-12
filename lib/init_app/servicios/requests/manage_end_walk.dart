@@ -16,11 +16,18 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
   String? email;
   Map<String, bool> _loadingStates = {};
   List<DocumentSnapshot> _pendingRequests = [];
+  bool? lang; // true for Spanish, false for English
 
   @override
   void initState() {
-    _fetchEmail();
     super.initState();
+    _fetchEmail();
+    _getLanguage();
+  }
+
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   Future<void> _fetchEmail() async {
@@ -44,7 +51,7 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
 
   @override
   Widget build(BuildContext context) {
-    if (email == null) {
+    if (email == null || lang == null) {
       return const Center(
           child: SpinKitSpinningLines(color: Colors.blue, size: 50.0));
     }
@@ -109,43 +116,55 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Terminar viaje con: $name',
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 18)),
+                        Text(
+                          lang!
+                              ? 'Terminar viaje con: $name'
+                              : 'End walk with: $name',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 18),
+                        ),
                         Row(
                           children: [
                             CircleAvatar(
-                                backgroundImage: profilePhoto.isEmpty
-                                    ? null
-                                    : NetworkImage(profilePhoto)),
+                              backgroundImage: profilePhoto.isEmpty
+                                  ? null
+                                  : NetworkImage(profilePhoto),
+                            ),
                             const SizedBox(width: 10),
                             Row(
                               children: [
                                 Icon(
-                                    rating > 0 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
+                                  rating > 0 ? Icons.star : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 13,
+                                ),
                                 Icon(
-                                    rating > 1 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
+                                  rating > 1 ? Icons.star : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 13,
+                                ),
                                 Icon(
-                                    rating > 2 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
+                                  rating > 2 ? Icons.star : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 13,
+                                ),
                                 Icon(
-                                    rating > 3 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
+                                  rating > 3 ? Icons.star : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 13,
+                                ),
                                 Icon(
-                                    rating > 4 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
+                                  rating > 4 ? Icons.star : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 13,
+                                ),
                               ],
                             ),
                             const SizedBox(width: 8.0),
-                            Text('$rating/5',
-                                style: const TextStyle(color: Colors.white)),
+                            Text(
+                              '$rating/5',
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           ],
                         ),
                       ],
@@ -178,7 +197,9 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                             manageEndWalkInfo['idHistory'],
                                             'done');
 
-                                        toastF('walk finished');
+                                        toastF(lang!
+                                            ? 'Viaje terminado'
+                                            : 'Walk finished');
                                         await deleteStartHistory(
                                             requestId, false);
                                         setState(() {
@@ -186,7 +207,9 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                         });
                                       } else {
                                         updateOwner(false, requestId, false);
-                                        toastF('both users need to be ready');
+                                        toastF(lang!
+                                            ? 'Ambos usuarios deben estar listos'
+                                            : 'Both users need to be ready');
                                       }
                                     } else {
                                       updateWalker(true, requestId, false);
@@ -194,10 +217,14 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                           const Duration(seconds: 10));
                                       if (await getOwnerStatus(
                                           requestId, false)) {
-                                        toastF('walk started');
+                                        toastF(lang!
+                                            ? 'Viaje iniciado'
+                                            : 'Walk started');
                                       } else {
                                         updateWalker(false, requestId, false);
-                                        toastF('both users need to be ready');
+                                        toastF(lang!
+                                            ? 'Ambos usuarios deben estar listos'
+                                            : 'Both users need to be ready');
                                       }
                                     }
                                   } finally {
@@ -209,8 +236,10 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                           child: _loadingStates[requestId] == true
                               ? const SpinKitFadingCube(
                                   color: Colors.white, size: 20.0)
-                              : const Text('Terminar',
-                                  style: TextStyle(color: Colors.white)),
+                              : Text(
+                                  lang! ? 'Terminar' : 'End',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                         ),
                       ],
                     ),

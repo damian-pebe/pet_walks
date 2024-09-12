@@ -36,6 +36,49 @@ Future<List<String>> getPets(String email) async {
   }
 }
 
+Future<List<String>> getBusinessByIds() async {
+  String fetchedEmail = await fetchUserEmail();
+
+  try {
+    var userDoc = await db
+        .collection("users")
+        .where("email", isEqualTo: fetchedEmail)
+        .get();
+
+    if (userDoc.docs.isEmpty) {
+      return [];
+    } else {
+      var doc = userDoc.docs.first;
+      var businessArray = List<String>.from(doc.data()['idBusiness'] ?? []);
+      return businessArray;
+    }
+  } catch (e) {
+    print('Error fetching user: $e');
+    return [];
+  }
+}
+
+Future<List<String>> getbusinessIds() async {
+  String fetchedEmail = await fetchUserEmail();
+  try {
+    var userDoc = await db
+        .collection("users")
+        .where("email", isEqualTo: fetchedEmail)
+        .get();
+
+    if (userDoc.docs.isEmpty) {
+      return [];
+    } else {
+      var doc = userDoc.docs.first;
+      var idPetsArray = List<String>.from(doc.data()['idBusiness'] ?? []);
+      return idPetsArray;
+    }
+  } catch (e) {
+    print('Error fetching user: $e');
+    return [];
+  }
+}
+
 Future<Set<Map<String, dynamic>>> getPetsHistory(List<String> idPets) async {
   try {
     if (idPets.isEmpty) {
@@ -78,8 +121,37 @@ Future<void> updatePet(
   });
 }
 
+Future<void> updateBusiness(
+    String id,
+    String name,
+    String category,
+    String phone,
+    String address,
+    String description,
+    List<String> downloadUrls) async {
+  await db.collection("business").doc(id).update({
+    "name": name,
+    "category": category,
+    "phone": phone,
+    "address": address,
+    "description": description,
+    "imageUrls": downloadUrls,
+  });
+}
+
 Future<Map<String, dynamic>> getInfoPets(String email, String? idPet) async {
   var petDoc = await db.collection("pets").doc(idPet).get();
+
+  if (petDoc.exists) {
+    Map<String, dynamic> data = petDoc.data()!;
+    return data;
+  } else {
+    return {};
+  }
+}
+
+Future<Map<String, dynamic>> getInfoBusinessById(String id) async {
+  var petDoc = await db.collection("business").doc(id).get();
 
   if (petDoc.exists) {
     Map<String, dynamic> data = petDoc.data()!;
@@ -112,6 +184,31 @@ Future<Map<String, dynamic>> fetchBuilderInfo(List<String> idPets) async {
     } else {}
   }
   return allPetsData;
+}
+
+Future<Map<String, dynamic>> fetchBuilderInfoBusiness(List<String> ids) async {
+  Map<String, dynamic> allBusinessData = {};
+
+  for (var element in ids) {
+    var doc = await db.collection("business").doc(element).get();
+
+    if (doc.exists) {
+      Map<String, dynamic>? data = doc.data();
+      if (data != null) {
+        String? imageUrl = (data['imageUrls'] as List<dynamic>?)?.firstOrNull;
+        String? name = data['name'] as String?;
+        List<dynamic>? imageUrls = data['imageUrls'];
+
+        allBusinessData[element] = {
+          'imageUrl': imageUrl,
+          'name': name,
+          'imageUrls': imageUrls,
+          'id': element,
+        };
+      }
+    } else {}
+  }
+  return allBusinessData;
 }
 
 Future<Set<Map<String, dynamic>>> fetchImageNamePet(List<String> idPets) async {
@@ -457,7 +554,7 @@ Future<String> newBusiness(
   List<double> rating = [0];
   DocumentReference userDoc = await db.collection("business").add({
     "name": name ?? "",
-    "email": category ?? "",
+    "category": category ?? "",
     "phone": phone ?? "",
     "address": place ?? "",
     "position": GeoPoint(position.latitude, position.longitude),
@@ -900,6 +997,30 @@ Future<void> deletePet(String id, String email) async {
 
       await db.collection("users").doc(user.id).update({
         "idPets": idPets,
+      });
+    }
+  }
+}
+
+Future<void> deleteBusiness(String id) async {
+  String fetchedEmail = await fetchUserEmail();
+
+  await db.collection('business').doc(id).delete();
+
+  var userDoc = await db
+      .collection("users")
+      .where("email", isEqualTo: fetchedEmail)
+      .get();
+
+  if (userDoc.docs.isNotEmpty) {
+    var user = userDoc.docs.first;
+    var ids = List<String>.from(user.data()['idBusiness'] ?? []);
+
+    if (ids.contains(id)) {
+      ids.removeWhere((element) => element == id);
+
+      await db.collection("users").doc(id).update({
+        "idBusiness": ids,
       });
     }
   }

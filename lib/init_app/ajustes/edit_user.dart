@@ -34,9 +34,6 @@ class _EditUserState extends State<EditUser> {
 
   String homelatlng = '';
 
-  bool _obscureText = true;
-  bool _obscureText1 = true;
-
   bool isVerified = false;
   bool isPrivacity = false;
   final bool _isSame = true;
@@ -106,18 +103,13 @@ class _EditUserState extends State<EditUser> {
         fetchAndSetUserData(user.email!);
       }
     });
+    _getLanguage();
   }
 
-  void _toggleVisibility() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
-
-  void _toggleVisibility1() {
-    setState(() {
-      _obscureText1 = !_obscureText1;
-    });
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   bool sameToken(String sent) {
@@ -159,12 +151,14 @@ class _EditUserState extends State<EditUser> {
       barrierColor: Colors.black.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Verificar su numero de telefono",
+                lang!
+                    ? "Verificar su numero de telefono"
+                    : "Verify your phone number",
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
@@ -188,9 +182,12 @@ class _EditUserState extends State<EditUser> {
                 SizedBox(
                   width: 150,
                   child: TextField(
-                      keyboardType: TextInputType.number,
-                      controller: tokenController,
-                      decoration: StyleTextField('Telefono')),
+                    keyboardType: TextInputType.number,
+                    controller: tokenController,
+                    decoration: StyleTextField(
+                      lang! ? 'Phone' : 'Telefono',
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 5),
                 SizedBox(
@@ -199,9 +196,13 @@ class _EditUserState extends State<EditUser> {
                     onPressed: () {
                       if (sameToken(tokenController.text)) {
                         verificationModule = true;
-                        toastF("Telefono verificado con exito");
+                        toastF(lang!
+                            ? "Telefono verificado con exito"
+                            : "Phone verified successfully");
                       } else {
-                        toastF("* El token enviado no coincide");
+                        toastF(lang!
+                            ? "* El token enviado no coincide"
+                            : "* The sent token does not match");
                       }
                       Navigator.pop(context, verificationModule);
                     },
@@ -214,40 +215,44 @@ class _EditUserState extends State<EditUser> {
                       ),
                       backgroundColor: Colors.grey[200],
                     ),
-                    child: const Column(
+                    child: Column(
                       children: [
                         Icon(
                           Icons.verified_outlined,
                           color: Colors.black,
                         ),
                         Text(
-                          "Verificar",
+                          lang! ? "Verificar" : "Verify",
                           style: TextStyle(color: Colors.black, fontSize: 10),
                         ),
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 10),
             Visibility(
               visible: !_isSame,
-              child: const Text(
-                "* El token enviado no coincide",
+              child: Text(
+                lang!
+                    ? "* El token enviado no coincide"
+                    : "* The sent token does not match",
                 style: TextStyle(color: Colors.red, fontSize: 10),
               ),
             ),
             OutlinedButton(
               onPressed: () {
-                //enviar token
+                // Send token
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(
                     color: Color.fromRGBO(250, 244, 229, .65), width: 2),
               ),
-              child: const Text(
-                'Enviar token de verificacion',
+              child: Text(
+                lang!
+                    ? 'Enviar token de verificacion'
+                    : 'Send verification token',
                 style: TextStyle(
                     decoration: TextDecoration.underline,
                     fontSize: 13,
@@ -263,8 +268,8 @@ class _EditUserState extends State<EditUser> {
                 side: const BorderSide(
                     color: Color.fromRGBO(250, 244, 229, .65), width: 2),
               ),
-              child: const Text(
-                'Salir',
+              child: Text(
+                lang! ? 'Exit' : 'Salir',
                 style: TextStyle(fontSize: 13, color: Colors.black),
               ),
             ),
@@ -286,18 +291,16 @@ class _EditUserState extends State<EditUser> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    const titleW(title: 'Editar'),
-                    Positioned(
+    return Scaffold(
+      body: lang == null
+          ? null
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      titleW(title: lang! ? 'Editar' : 'Edit'),
+                      Positioned(
                         left: 30,
                         top: 70,
                         child: Column(
@@ -307,84 +310,79 @@ class _EditUserState extends State<EditUser> {
                               icon: const Icon(Icons.arrow_back_ios,
                                   size: 30, color: Colors.black),
                             ),
-                            const Text(
-                              'Regresar',
-                              style: TextStyle(fontSize: 10),
-                            )
+                            Text(
+                              lang! ? 'Regresar' : 'Back',
+                              style: const TextStyle(fontSize: 10),
+                            ),
                           ],
-                        )),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 24.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
                         ),
-                        child: Text(
-                          emailController.text,
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            color: Colors.grey[800],
-                            letterSpacing: 1.2,
-                            shadows: const [
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Colors.grey,
-                              ),
-                            ],
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 5),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0, horizontal: 24.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Text(
+                            emailController.text,
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.grey[800],
+                              letterSpacing: 1.2,
+                              shadows: const [
+                                Shadow(
+                                  offset: Offset(1.0, 1.0),
+                                  blurRadius: 2.0,
+                                  color: Colors.grey,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: CircleAvatar(
-                          radius: 70,
-                          backgroundImage: _downloadUrl.isNotEmpty
-                              ? NetworkImage(_downloadUrl)
-                              : null,
-                          child: _downloadUrl.isEmpty
-                              ? const Icon(
-                                  Icons.person,
-                                  size: 50,
-                                  color: Colors.grey,
-                                )
-                              : null,
+                        const SizedBox(height: 10),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: CircleAvatar(
+                            radius: 70,
+                            backgroundImage: _downloadUrl.isNotEmpty
+                                ? NetworkImage(_downloadUrl)
+                                : null,
+                            child: _downloadUrl.isEmpty
+                                ? const Icon(Icons.person,
+                                    size: 50, color: Colors.grey)
+                                : null,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
+                        const SizedBox(height: 10),
+                        TextField(
                           keyboardType: TextInputType.name,
                           controller: nameController,
-                          decoration: StyleTextField('Nombre')),
-                      Visibility(
-                        visible: !_isName,
-                        child: const Text(
-                          "* Nombre no puede ser vacio",
-                          style: TextStyle(color: Colors.red, fontSize: 10),
+                          decoration: StyleTextField(lang! ? 'Nombre' : 'Name'),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 250,
-                            child: TextField(
+                        Visibility(
+                          visible: !_isName,
+                          child: Text(
+                            "* ${lang! ? 'Nombre no puede ser vacio' : 'Name cannot be empty'}",
+                            style: TextStyle(color: Colors.red, fontSize: 10),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 250,
+                              child: TextField(
                                 onChanged: (_) {
                                   setState(() {
                                     isVerified = false;
@@ -392,71 +390,69 @@ class _EditUserState extends State<EditUser> {
                                 },
                                 keyboardType: TextInputType.number,
                                 controller: phoneController,
-                                decoration: StyleTextField('Telefono')),
-                          ),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 90,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                if (isVerified) {
-                                  toastF('Numero ya verificacdo');
-                                  return;
-                                }
-
-                                verifyPhone(phoneController.text);
-
-                                if (verificationModule) {
-                                  isVerified = true;
-                                  setState(() {});
-                                }
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 16.0, horizontal: 0.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  side: const BorderSide(
-                                      width: 2.0, color: Colors.black),
-                                ),
-                                backgroundColor: Colors.grey[200],
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    getIcon(),
-                                    color: Colors.black,
-                                  ),
-                                  const SizedBox(
-                                    height: 2,
-                                  ),
-                                  const Text(
-                                    'Verificacion',
-                                    style: TextStyle(
-                                        fontSize: 8, color: Colors.black),
-                                  )
-                                ],
+                                decoration: StyleTextField(
+                                    lang! ? 'Telefono' : 'Phone'),
                               ),
                             ),
-                          )
-                        ],
-                      ),
-                      Visibility(
-                        visible: !_isVerified,
-                        child: const Text(
-                          "* Debe verificar el nuevo telefono ",
-                          style: TextStyle(color: Colors.red, fontSize: 10),
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              width: 90,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  if (isVerified) {
+                                    toastF(lang!
+                                        ? 'Numero ya verificado'
+                                        : 'Number already verified');
+                                    return;
+                                  }
+
+                                  verifyPhone(phoneController.text);
+
+                                  if (verificationModule) {
+                                    setState(() {
+                                      isVerified = true;
+                                    });
+                                  }
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0, horizontal: 0.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    side: const BorderSide(
+                                        width: 2.0, color: Colors.black),
+                                  ),
+                                  backgroundColor: Colors.grey[200],
+                                ),
+                                child: Column(
+                                  children: [
+                                    Icon(getIcon(), color: Colors.black),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      lang! ? 'Verificacion' : 'Verification',
+                                      style: const TextStyle(
+                                          fontSize: 8, color: Colors.black),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          OutlinedButton(
-                              //seleccionar domicilio
+                        Visibility(
+                          visible: !_isVerified,
+                          child: Text(
+                            "* ${lang! ? 'Debe verificar el nuevo telefono' : 'You must verify the new phone'}",
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 10),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            OutlinedButton(
                               onPressed: () async {
                                 String domicilio = '';
                                 final result = await Navigator.push(
@@ -487,16 +483,13 @@ class _EditUserState extends State<EditUser> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
-                                    FontAwesomeIcons.home,
-                                    size: 25,
-                                    color: Colors.black,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
+                                  Icon(FontAwesomeIcons.home,
+                                      size: 25, color: Colors.black),
+                                  const SizedBox(width: 5),
                                   Text(
-                                    'Modificar\ndomicilio',
+                                    lang!
+                                        ? 'Modificar\ndomicilio'
+                                        : 'Modify\naddress',
                                     style: TextStyle(
                                       color: Colors.grey[600],
                                       fontSize: 18.0,
@@ -504,12 +497,10 @@ class _EditUserState extends State<EditUser> {
                                     ),
                                   ),
                                 ],
-                              )),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          OutlinedButton(
-                              //editar domicilio
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            OutlinedButton(
                               onPressed: () async {
                                 String domicilio = '';
                                 final result = await Navigator.push(
@@ -530,11 +521,11 @@ class _EditUserState extends State<EditUser> {
                                 });
                               },
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     vertical: 16.0, horizontal: 24.0),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15.0),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                       width: 2.0, color: Colors.black),
                                 ),
                                 backgroundColor: Colors.grey[200],
@@ -543,190 +534,178 @@ class _EditUserState extends State<EditUser> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'Editar\ndomicilio',
+                                    lang!
+                                        ? 'Editar\ndomicilio'
+                                        : 'Edit\naddress',
                                     style: TextStyle(
                                       color: Colors.grey[600],
                                       fontSize: 18.0,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.edit,
-                                    size: 25,
-                                    color: Colors.black,
-                                  ),
+                                  Icon(Icons.edit,
+                                      size: 25, color: Colors.black),
                                 ],
-                              )),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Visibility(
-                        visible: !_isHome,
-                        child: Text(
-                          "* El domicilio no puede estar vacio",
-                          style: TextStyle(color: Colors.red, fontSize: 10),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 24.0),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Text(
-                          "Domicilio: ${homeController.text}",
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black,
-                            letterSpacing: 1.2,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Colors.grey,
                               ),
-                            ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Visibility(
+                          visible: !_isHome,
+                          child: Text(
+                            "* ${lang! ? 'El domicilio no puede estar vacio' : 'Address cannot be empty'}",
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 10),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      OutlinedButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () async {
-                                setState(() {
-                                  _isLoading = true;
-                                });
-
-                                if (!verifyFields()) {
-                                  if (!verifyFieldsName()) {
-                                    setState(() {
-                                      _isName = false;
-                                    });
-                                  } else {
-                                    setState(() {
-                                      _isName = true;
-                                    });
-                                  }
-
-                                  if (!isVerified) {
-                                    setState(() {
-                                      _isVerified = false;
-                                    });
-                                  } else {
-                                    setState(() {
-                                      _isVerified = true;
-                                    });
-                                  }
-
-                                  if (!verifyFieldsHome()) {
-                                    setState(() {
-                                      _isHome = false;
-                                    });
-                                  } else {
-                                    setState(() {
-                                      _isHome = true;
-                                    });
-                                  }
-
-                                  // Reset loading state if fields are not verified
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                } else {
-                                  _isName = true;
-                                  _isVerified = true;
-                                  _isHome = true;
-
-                                  // Define and run asynchronous methods
-                                  Future<void> uploadImage() async {
-                                    await _uploadImage();
-                                  }
-
-                                  Future<void> save() async {
-                                    await modifyUser(
-                                      nameController.text,
-                                      emailController.text,
-                                      phoneController.text,
-                                      homeController.text,
-                                      _downloadUrl,
-                                    );
-                                  }
-
-                                  await uploadImage();
-                                  await save();
-
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-
-                                  toastF('Datos modificados con exito');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Funcion(),
-                                    ),
-                                  );
-                                }
-                              },
-                        style: OutlinedButton.styleFrom(
+                        const SizedBox(height: 5),
+                        Container(
                           padding: const EdgeInsets.symmetric(
                               vertical: 16.0, horizontal: 24.0),
-                          shape: RoundedRectangleBorder(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            border: Border.all(color: Colors.grey, width: 2.0),
                             borderRadius: BorderRadius.circular(15.0),
-                            side: const BorderSide(
-                                width: 2.0, color: Colors.black),
                           ),
-                          backgroundColor: Colors.grey[200],
+                          child: Text(
+                            "${lang! ? 'Domicilio' : 'Address'}: ${homeController.text}",
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                              letterSpacing: 1.2,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(1.0, 1.0),
+                                  blurRadius: 2.0,
+                                  color: Colors.grey,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator()
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    FontAwesomeIcons.signInAlt,
-                                    size: 30,
-                                    color: Colors.black,
-                                  ),
-                                  SizedBox(
-                                    width: 30,
-                                  ),
-                                  Text(
-                                    'Guardar cambios',
-                                    style: TextStyle(
+                        const SizedBox(height: 30),
+                        const SizedBox(height: 10),
+                        OutlinedButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+
+                                  if (!verifyFields()) {
+                                    if (!verifyFieldsName()) {
+                                      setState(() {
+                                        _isName = false;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _isName = true;
+                                      });
+                                    }
+
+                                    if (!isVerified) {
+                                      setState(() {
+                                        _isVerified = false;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _isVerified = true;
+                                      });
+                                    }
+
+                                    if (!verifyFieldsHome()) {
+                                      setState(() {
+                                        _isHome = false;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _isHome = true;
+                                      });
+                                    }
+
+                                    // Reset loading state if fields are not verified
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  } else {
+                                    _isName = true;
+                                    _isVerified = true;
+                                    _isHome = true;
+
+                                    // Define and run asynchronous methods
+                                    Future<void> uploadImage() async {
+                                      await _uploadImage();
+                                    }
+
+                                    Future<void> save() async {
+                                      await modifyUser(
+                                        nameController.text,
+                                        emailController.text,
+                                        phoneController.text,
+                                        homeController.text,
+                                        _downloadUrl,
+                                      );
+                                    }
+
+                                    await uploadImage();
+                                    await save();
+
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+
+                                    toastF(lang!
+                                        ? 'Datos modificados con exito'
+                                        : 'Data successfully modified');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Funcion(),
+                                      ),
+                                    );
+                                  }
+                                },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 24.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                              side: const BorderSide(
+                                  width: 2.0, color: Colors.black),
+                            ),
+                            backgroundColor: Colors.grey[200],
+                          ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator()
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(FontAwesomeIcons.signInAlt,
+                                        size: 30, color: Colors.black),
+                                    const SizedBox(width: 30),
+                                    Text(
+                                      lang!
+                                          ? 'Guardar cambios'
+                                          : 'Save changes',
+                                      style: const TextStyle(
                                         fontStyle: FontStyle.italic,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
-                                        fontSize: 20),
-                                  ),
-                                ],
-                              ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ));
+    );
   }
 }

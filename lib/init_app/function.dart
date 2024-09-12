@@ -6,6 +6,7 @@ import 'package:petwalks_app/init_app/history.dart';
 import 'package:petwalks_app/init_app/open_map.dart';
 import 'package:petwalks_app/init_app/social_network.dart';
 import 'package:petwalks_app/init_app/services.dart';
+import 'package:petwalks_app/services/firebase_services.dart';
 
 class Funcion extends StatefulWidget {
   const Funcion({super.key});
@@ -15,6 +16,18 @@ class Funcion extends StatefulWidget {
 }
 
 class _FuncionState extends State<Funcion> {
+  @override
+  void initState() {
+    super.initState();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    if (mounted) setState(() {});
+  }
+
   int _pageIndex = 0;
   final List<Widget> _pages = [
     const OpenMap(),
@@ -32,34 +45,53 @@ class _FuncionState extends State<Funcion> {
         brightness: Brightness.light,
       ),
       home: Scaffold(
-        body: Stack(
-          children: [
-            _pages[_pageIndex],
-          ],
-        ),
-        bottomNavigationBar: ConvexAppBar(
-          items: const [
-            TabItem(icon: FontAwesomeIcons.mapMarkerAlt, title: 'Mapa'),
-            TabItem(icon: FontAwesomeIcons.dog, title: 'Servicios'),
-            TabItem(icon: FontAwesomeIcons.history, title: 'Historial'),
-            TabItem(icon: FontAwesomeIcons.users, title: 'Red social'),
-            TabItem(icon: FontAwesomeIcons.cogs, title: 'Ajustes'),
-          ],
-          color: Colors.grey,
-          activeColor: Colors.black,
-          backgroundColor: Colors.yellow[200],
-          shadowColor: Colors.black.withOpacity(0.3),
-          height: 70,
-          curveSize: 80,
-          top: -20,
-          elevation: 30,
-          style: TabStyle.reactCircle,
-          onTap: (index) {
-            setState(() {
-              _pageIndex = index;
-            });
-          },
-        ),
+        body: lang == null
+            ? Center(child: CircularProgressIndicator())
+            : Stack(
+                children: [
+                  _pages[_pageIndex],
+                ],
+              ),
+        bottomNavigationBar: lang == null
+            ? null
+            : ConvexAppBar(
+                items: [
+                  TabItem(
+                    icon: FontAwesomeIcons.mapMarkerAlt,
+                    title: lang! ? 'Mapa' : 'Open map',
+                  ),
+                  TabItem(
+                    icon: FontAwesomeIcons.dog,
+                    title: lang! ? 'Servicios' : 'Services',
+                  ),
+                  TabItem(
+                    icon: FontAwesomeIcons.history,
+                    title: lang! ? 'Historial' : 'History',
+                  ),
+                  TabItem(
+                    icon: FontAwesomeIcons.users,
+                    title: lang! ? 'Comunidad' : 'Community',
+                  ),
+                  TabItem(
+                    icon: FontAwesomeIcons.cogs,
+                    title: lang! ? 'Ajustes' : 'Settings',
+                  ),
+                ],
+                color: Colors.grey,
+                activeColor: Colors.black,
+                backgroundColor: Colors.yellow[200],
+                shadowColor: Colors.black.withOpacity(0.3),
+                height: 70,
+                curveSize: 80,
+                top: -20,
+                elevation: 30,
+                style: TabStyle.reactCircle,
+                onTap: (index) {
+                  setState(() {
+                    _pageIndex = index;
+                  });
+                },
+              ),
       ),
     );
   }

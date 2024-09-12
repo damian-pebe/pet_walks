@@ -37,6 +37,13 @@ class _ViewPetsState extends State<ViewPets> {
   void initState() {
     super.initState();
     fetchUserEmail();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   @override
@@ -51,7 +58,9 @@ class _ViewPetsState extends State<ViewPets> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No pets found'));
+            return Center(
+                child: Text(
+                    lang! ? 'No se encontraron mascotas' : 'No pets found'));
           } else {
             List<String> ids = snapshot.data!;
             return ListView.builder(
@@ -60,121 +69,131 @@ class _ViewPetsState extends State<ViewPets> {
                 var id = ids[index];
                 var petInfo = showData[id] ?? {};
 
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        EmptyBox(w: 10),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Colors.black,
-                            size: 35,
-                          ),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              barrierDismissible: true,
-                              barrierColor: Colors.white.withOpacity(0.65),
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  backgroundColor:
-                                      Color.fromRGBO(244, 210, 248, .30),
-                                  actions: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20.0, vertical: 50),
-                                      child: Center(
-                                        child: Text(
-                                          "¿Estas seguro de querer eliminar a la mascota?",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        TextButton(
-                                            onPressed: () async {
-                                              await deletePet(id, email!);
-
-                                              Navigator.pop(context);
-                                              setState(() {
-                                                _fetchBuilderInfo();
-                                              });
-                                            },
-                                            child: Text('Aceptar')),
-                                        TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            child: Text('Cancelar')),
-                                      ],
-                                    )
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        EmptyBox(w: 10),
-                        const VerticalDivider(
-                          width: 1,
-                          thickness: 1,
-                          color: Colors.black,
-                        ),
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundImage: petInfo['imageUrl'] != null
-                                  ? NetworkImage(petInfo['imageUrl'])
-                                  : null,
-                            ),
-                            EmptyBox(w: 10),
-                            Text(petInfo['name'] ?? 'No name'),
-                          ],
-                        ),
-                        EmptyBox(w: 20),
-                        Expanded(
-                          child: Column(
+                return lang == null
+                    ? null
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
                             children: [
-                              ListTile(
-                                trailing: GestureDetector(
-                                    child: Icon(Icons.chevron_right)),
-                                onTap: () async {
-                                  var fetchedInfoPet =
-                                      await getInfoPets(email!, id);
-                                  if (!mounted) {
-                                    Navigator.pop(context);
-                                  }
+                              EmptyBox(w: 10),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.black,
+                                  size: 35,
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: true,
+                                    barrierColor:
+                                        Colors.white.withOpacity(0.65),
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        backgroundColor:
+                                            Color.fromRGBO(244, 210, 248, .30),
+                                        actions: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 20.0, vertical: 50),
+                                            child: Center(
+                                              child: Text(
+                                                lang!
+                                                    ? "¿Estás seguro de querer eliminar a la mascota?"
+                                                    : "Are you sure you want to delete the pet?",
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              TextButton(
+                                                  onPressed: () async {
+                                                    await deletePet(id, email!);
 
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => InfoPet(
-                                        petData: fetchedInfoPet,
-                                        imageUrls: petInfo['imageUrls'],
-                                        id: id,
-                                      ),
-                                    ),
+                                                    Navigator.pop(context);
+                                                    setState(() {
+                                                      _fetchBuilderInfo();
+                                                    });
+                                                  },
+                                                  child: Text(lang!
+                                                      ? 'Aceptar'
+                                                      : 'Accept')),
+                                              TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(context),
+                                                  child: Text(lang!
+                                                      ? 'Cancelar'
+                                                      : 'Cancel')),
+                                            ],
+                                          )
+                                        ],
+                                      );
+                                    },
                                   );
-                                  setState(() {
-                                    _fetchBuilderInfo();
-                                  });
                                 },
+                              ),
+                              EmptyBox(w: 10),
+                              const VerticalDivider(
+                                width: 1,
+                                thickness: 1,
+                                color: Colors.black,
+                              ),
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 30,
+                                    backgroundImage: petInfo['imageUrl'] != null
+                                        ? NetworkImage(petInfo['imageUrl'])
+                                        : null,
+                                  ),
+                                  EmptyBox(w: 10),
+                                  Text(petInfo['name'] ??
+                                      (lang! ? 'Sin nombre' : 'No name')),
+                                ],
+                              ),
+                              EmptyBox(w: 20),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      trailing: GestureDetector(
+                                          child: Icon(Icons.chevron_right)),
+                                      onTap: () async {
+                                        var fetchedInfoPet =
+                                            await getInfoPets(email!, id);
+                                        if (!mounted) {
+                                          Navigator.pop(context);
+                                        }
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => InfoPet(
+                                              petData: fetchedInfoPet,
+                                              imageUrls: petInfo['imageUrls'],
+                                              id: id,
+                                            ),
+                                          ),
+                                        );
+                                        setState(() {
+                                          _fetchBuilderInfo();
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
+                        ],
+                      );
               },
             );
           }

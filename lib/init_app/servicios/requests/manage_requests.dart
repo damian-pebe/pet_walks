@@ -15,19 +15,34 @@ class _PendingRequestsNotificationsState
     extends State<PendingRequestsNotifications> {
   String? email;
   List<Map<String, dynamic>> pendingRequestsData = [];
+  bool isLoading = true;
+  bool? lang; // true for Spanish, false for English
 
   @override
   void initState() {
     super.initState();
     _initializeEmail();
+    _getLanguage();
+  }
+
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   Future<void> _initializeEmail() async {
-    email = await fetchUserEmail();
-    setState(() {});
-
-    if (email != null) {
-      _fetchAndShowNotifications(email!);
+    try {
+      email = await fetchUserEmail();
+      if (email != null) {
+        await _fetchAndShowNotifications(email!);
+      }
+    } catch (e) {
+      // Handle error, e.g., show an error message
+      toastF(lang! ? 'Error al obtener datos' : 'Error fetching data');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -35,44 +50,59 @@ class _PendingRequestsNotificationsState
     final pendingRequests = await fetchPendingRequests(email);
     if (pendingRequests.isEmpty) return;
 
+    final List<Map<String, dynamic>> newRequestsData = [];
+
     for (var doc in pendingRequests) {
       String requestId = doc.id;
       String emailWalker = doc['emailWalker'];
 
-      QuerySnapshot walkerSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where("email", isEqualTo: emailWalker)
-          .get();
+      try {
+        QuerySnapshot walkerSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where("email", isEqualTo: emailWalker)
+            .get();
 
-      if (walkerSnapshot.docs.isNotEmpty) {
-        DocumentSnapshot walkerDoc = walkerSnapshot.docs.first;
+        if (walkerSnapshot.docs.isNotEmpty) {
+          DocumentSnapshot walkerDoc = walkerSnapshot.docs.first;
 
-        String profilePhoto = walkerDoc['profilePhoto'] ?? '';
+          String profilePhoto = walkerDoc['profilePhoto'] ?? '';
 
-        List<double> ratings = (walkerDoc['rating'] as List<dynamic>)
-            .map((e) => e is int ? e.toDouble() : e as double)
-            .toList();
-        double rating = ratings.isNotEmpty
-            ? (ratings.reduce((a, b) => a + b) / ratings.length)
-            : 0.0;
-        String name = walkerDoc['name'] ?? 'Desconocido';
+          List<double> ratings = (walkerDoc['rating'] as List<dynamic>)
+              .map((e) => e is int ? e.toDouble() : e as double)
+              .toList();
+          double rating = ratings.isNotEmpty
+              ? (ratings.reduce((a, b) => a + b) / ratings.length)
+              : 0.0;
+          String name = walkerDoc['name'] ?? 'Desconocido';
 
-        pendingRequestsData.add({
-          'requestId': requestId,
-          'profilePhoto': profilePhoto,
-          'rating': rating,
-          'name': name,
-          'doc': doc,
-        });
+          newRequestsData.add({
+            'requestId': requestId,
+            'profilePhoto': profilePhoto,
+            'rating': rating,
+            'name': name,
+            'doc': doc,
+          });
+        }
+      } catch (e) {
+        // Handle error, e.g., show an error message
+        toastF(lang!
+            ? 'Error al obtener datos del paseador'
+            : 'Error fetching walker data');
       }
     }
-    setState(() {});
+    setState(() {
+      pendingRequestsData = newRequestsData;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (email == null) {
-      return const CircularProgressIndicator();
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (email == null || lang == null) {
+      return const Center(child: Text('No data available'));
     }
 
     return ListView.builder(
@@ -108,8 +138,10 @@ class _PendingRequestsNotificationsState
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Solicitud de: $name',
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      lang! ? 'Solicitud de: $name' : 'Request from: $name',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                     Row(
                       children: [
                         CircleAvatar(
@@ -145,55 +177,61 @@ class _PendingRequestsNotificationsState
                   children: [
                     TextButton(
                         onPressed: () async {
-                          Map<String, dynamic> manageStartWalkInfo =
-                              await managePreHistory(requestId);
-                          String id = await newHistoryWalk(
-                            manageStartWalkInfo['idWalk'],
-                            manageStartWalkInfo['emailOwner'],
-                            manageStartWalkInfo['emailWalker'],
-                            manageStartWalkInfo['idBusiness'],
-                          );
-                          await newStartWalk(
+                          try {
+                            Map<String, dynamic> manageStartWalkInfo =
+                                await managePreHistory(requestId);
+                            String id = await newHistoryWalk(
                               manageStartWalkInfo['idWalk'],
                               manageStartWalkInfo['emailOwner'],
                               manageStartWalkInfo['emailWalker'],
                               manageStartWalkInfo['idBusiness'],
-                              id);
-                          toastF('Aceptar');
-                          setState(() {
-                            for (var data in pendingRequestsData) {
-                              deletePreHistory(data['requestId']);
-                            }
-                            pendingRequestsData.clear();
-                          });
-                          setState(() {
-                            _fetchAndShowNotifications(email!);
-                          });
+                            );
+                            await newStartWalk(
+                                manageStartWalkInfo['idWalk'],
+                                manageStartWalkInfo['emailOwner'],
+                                manageStartWalkInfo['emailWalker'],
+                                manageStartWalkInfo['idBusiness'],
+                                id);
+                            toastF(lang! ? 'Aceptado' : 'Accepted');
+                            setState(() {
+                              for (var data in pendingRequestsData) {
+                                deletePreHistory(data['requestId']);
+                              }
+                              pendingRequestsData.clear();
+                            });
+                            setState(() {
+                              _fetchAndShowNotifications(email!);
+                            });
+                          } catch (e) {
+                            toastF(lang!
+                                ? 'Error al aceptar solicitud'
+                                : 'Error accepting request');
+                          }
                         },
-                        child: const Column(
+                        child: Column(
                           children: [
                             Icon(Icons.check, color: Colors.white),
                             Text(
-                              'Aceptar',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 10),
+                              lang! ? 'Aceptar' : 'Accept',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 10),
                             )
                           ],
                         )),
                     TextButton(
                         onPressed: () {
-                          toastF('Denegar');
+                          toastF(lang! ? 'Denegado' : 'Denied');
                           deletePreHistory(requestId);
                           setState(() {
                             pendingRequestsData.removeAt(index);
                           });
                         },
-                        child: const Column(
+                        child: Column(
                           children: [
                             Icon(Icons.close,
                                 color: Color.fromARGB(255, 239, 62, 49)),
                             Text(
-                              'Denegar',
+                              lang! ? 'Denegar' : 'Deny',
                               style: TextStyle(
                                   color: Color.fromARGB(255, 239, 62, 49),
                                   fontSize: 10),

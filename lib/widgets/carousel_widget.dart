@@ -44,7 +44,7 @@ class PhotoCarousel extends StatelessWidget {
                     );
                   },
                   errorBuilder: (context, error, stackTrace) {
-                    return Center(child: Text('Image not available'));
+                    return const Center(child: Text('Image not available'));
                   },
                 ),
               ),

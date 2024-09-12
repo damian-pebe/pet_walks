@@ -67,6 +67,13 @@ class _AddPetsState extends State<AddPets> {
   void initState() {
     super.initState();
     fetchUserEmail();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   // Verification Fields
@@ -102,155 +109,168 @@ class _AddPetsState extends State<AddPets> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 30, left: 15, right: 15),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: _pickImages,
-            child: CircleAvatar(
-              radius: 50,
-              backgroundImage: _downloadUrls.isNotEmpty
-                  ? NetworkImage(_downloadUrls[0])
-                  : null,
-              child: _downloadUrls.isEmpty
-                  ? Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.grey,
-                    )
-                  : null,
-            ),
-          ),
-          EmptyBox(h: 15),
-          TextField(
-              keyboardType: TextInputType.name,
-              controller: nameController,
-              decoration: StyleTextField('Nombre')),
-          VisibilityW(boolean: _isName, string: "Falta nombre de la mascota"),
-          Divider(),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  TextField(
-                      keyboardType: TextInputType.name,
-                      controller: raceController,
-                      decoration: StyleTextField('Raza')),
-                  EmptyBox(h: 15),
-                  TextField(
-                      keyboardType: TextInputType.number,
-                      controller: sizeController,
-                      decoration: StyleTextField('Tamaño en cm')),
-                  EmptyBox(h: 15),
-                  TextField(
-                      keyboardType: TextInputType.name,
-                      controller: descriptionController,
-                      decoration:
-                          StyleTextField('Caracteristicas/Comentarios')),
-                  EmptyBox(h: 15),
-                  TextField(
-                      keyboardType: TextInputType.number,
-                      controller: oldController,
-                      decoration: StyleTextField('Edad')),
-                  EmptyBox(h: 15),
-                  TextField(
-                      keyboardType: TextInputType.name,
-                      controller: colorController,
-                      decoration: StyleTextField('Color de mascota')),
-                  const EmptyBox(h: 15),
-                  VisibilityW(
-                      boolean: _isPics,
-                      string: "Faltan imagenes de la mascota"),
-                ],
-              ),
-            ),
-          ),
-          Divider(),
-          OutlinedButton(
-            onPressed: _isLoading
-                ? null
-                : () async {
-                    setState(() {
-                      _isLoading = true;
-                    });
-
-                    if (!verifyFields()) {
-                      if (!verifyFieldsName()) {
-                        setState(() {
-                          _isName = false;
-                        });
-                      } else {
-                        setState(() {
-                          _isName = true;
-                        });
-                      }
-
-                      if (!verifyFieldsPics()) {
-                        setState(() {
-                          _isPics = false;
-                        });
-                      } else {
-                        setState(() {
-                          _isPics = true;
-                        });
-                      }
-
-                      setState(() {
-                        _isLoading = false;
-                      });
-                    } else {
-                      Future<void> save() async {
-                        String lastPetId = await newPet(
-                          nameController.text,
-                          raceController.text,
-                          sizeController.text,
-                          descriptionController.text,
-                          oldController.text,
-                          colorController.text,
-                          _downloadUrls,
-                        );
-                        await addPetToUser(email!, lastPetId);
-                      }
-
-                      await save();
-
-                      setState(() {
-                        _isLoading = false;
-                      });
-
-                      toastF('La mascota ha sido agregada');
-                      clear();
-                    }
-                  },
-            style: customOutlinedButtonStyle(),
-            child: _isLoading
-                ? CircularProgressIndicator()
-                : const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.pets_sharp,
-                        size: 30,
-                        color: Colors.black,
-                      ),
-                      SizedBox(width: 30),
-                      Text(
-                        'Agregar mascota',
-                        style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
+      child: lang == null
+          ? null
+          : Column(
+              children: [
+                GestureDetector(
+                  onTap: _pickImages,
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundImage: _downloadUrls.isNotEmpty
+                        ? NetworkImage(_downloadUrls[0])
+                        : null,
+                    child: _downloadUrls.isEmpty
+                        ? Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.grey,
+                          )
+                        : null,
                   ),
-          ),
-        ],
-      ),
+                ),
+                EmptyBox(h: 15),
+                TextField(
+                    keyboardType: TextInputType.name,
+                    controller: nameController,
+                    decoration: StyleTextField(lang! ? 'Nombre' : 'Name')),
+                VisibilityW(
+                    boolean: _isName,
+                    string: lang!
+                        ? "Falta nombre de la mascota"
+                        : "Pet name missing"),
+                Divider(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        TextField(
+                            keyboardType: TextInputType.name,
+                            controller: raceController,
+                            decoration:
+                                StyleTextField(lang! ? 'Raza' : 'Breed')),
+                        EmptyBox(h: 15),
+                        TextField(
+                            keyboardType: TextInputType.number,
+                            controller: sizeController,
+                            decoration: StyleTextField(
+                                lang! ? 'Tamaño en cm' : 'Size in cm')),
+                        EmptyBox(h: 15),
+                        TextField(
+                            keyboardType: TextInputType.name,
+                            controller: descriptionController,
+                            decoration: StyleTextField(lang!
+                                ? 'Caracteristicas/Comentarios'
+                                : 'Characteristics/Comments')),
+                        EmptyBox(h: 15),
+                        TextField(
+                            keyboardType: TextInputType.number,
+                            controller: oldController,
+                            decoration: StyleTextField(lang! ? 'Edad' : 'Age')),
+                        EmptyBox(h: 15),
+                        TextField(
+                            keyboardType: TextInputType.name,
+                            controller: colorController,
+                            decoration: StyleTextField(
+                                lang! ? 'Color de mascota' : 'Pet Color')),
+                        const EmptyBox(h: 15),
+                        VisibilityW(
+                            boolean: _isPics,
+                            string: lang!
+                                ? "Faltan imagenes de la mascota"
+                                : "Pet images missing"),
+                      ],
+                    ),
+                  ),
+                ),
+                Divider(),
+                OutlinedButton(
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          setState(() {
+                            _isLoading = true;
+                          });
+
+                          if (!verifyFields()) {
+                            if (!verifyFieldsName()) {
+                              setState(() {
+                                _isName = false;
+                              });
+                            } else {
+                              setState(() {
+                                _isName = true;
+                              });
+                            }
+
+                            if (!verifyFieldsPics()) {
+                              setState(() {
+                                _isPics = false;
+                              });
+                            } else {
+                              setState(() {
+                                _isPics = true;
+                              });
+                            }
+
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          } else {
+                            Future<void> save() async {
+                              String lastPetId = await newPet(
+                                nameController.text,
+                                raceController.text,
+                                sizeController.text,
+                                descriptionController.text,
+                                oldController.text,
+                                colorController.text,
+                                _downloadUrls,
+                              );
+                              await addPetToUser(email!, lastPetId);
+                            }
+
+                            await save();
+
+                            setState(() {
+                              _isLoading = false;
+                            });
+
+                            toastF(lang!
+                                ? 'La mascota ha sido agregada'
+                                : 'Pet has been added');
+                            clear();
+                          }
+                        },
+                  style: customOutlinedButtonStyle(),
+                  child: _isLoading
+                      ? CircularProgressIndicator()
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.pets_sharp,
+                              size: 30,
+                              color: Colors.black,
+                            ),
+                            SizedBox(width: 30),
+                            Text(
+                              lang! ? 'Agregar mascota' : 'Add Pet',
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
     );
   }
 }

@@ -16,11 +16,18 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
   String? email;
   Map<String, bool> _loadingStates = {};
   List<DocumentSnapshot> _pendingRequests = [];
+  bool? lang;
 
   @override
   void initState() {
-    _fetchEmail();
     super.initState();
+    _fetchEmail();
+    _getLanguage();
+  }
+
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   Future<void> _fetchEmail() async {
@@ -44,7 +51,7 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
 
   @override
   Widget build(BuildContext context) {
-    if (email == null) {
+    if (email == null || lang == null) {
       return const Center(
           child: SpinKitSpinningLines(color: Colors.blue, size: 50.0));
     }
@@ -68,7 +75,9 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const SizedBox.shrink();
             } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
+              return Text(lang!
+                  ? 'Error: ${snapshot.error}'
+                  : 'Error: ${snapshot.error}');
             } else if (!snapshot.hasData) {
               return const SizedBox.shrink();
             }
@@ -81,7 +90,7 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
             double rating = ratings.isNotEmpty
                 ? (ratings.reduce((a, b) => a + b) / ratings.length)
                 : 0.0;
-            final name = walkerDoc['name'] ?? 'Desconocido';
+            final name = walkerDoc['name'] ?? '';
 
             return Padding(
               padding:
@@ -108,15 +117,20 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Iniciar viaje con: $name',
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 18)),
+                        Text(
+                          lang!
+                              ? 'Iniciar viaje con: $name'
+                              : 'Start trip with: $name',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 18),
+                        ),
                         Row(
                           children: [
                             CircleAvatar(
-                                backgroundImage: profilePhoto.isEmpty
-                                    ? null
-                                    : NetworkImage(profilePhoto)),
+                              backgroundImage: profilePhoto.isEmpty
+                                  ? null
+                                  : NetworkImage(profilePhoto),
+                            ),
                             const SizedBox(width: 10),
                             Row(
                               children: [
@@ -182,7 +196,9 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                         updateHistory(
                                             manageStartWalkInfo['idHistory'],
                                             'walking');
-                                        toastF('walk started');
+                                        toastF(lang!
+                                            ? 'Viaje iniciado'
+                                            : 'Walk started');
                                         await deleteStartHistory(
                                             requestId, true);
                                         setState(() {
@@ -190,7 +206,9 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                         });
                                       } else {
                                         updateOwner(false, requestId, true);
-                                        toastF('both users need to be ready');
+                                        toastF(lang!
+                                            ? 'Ambos usuarios deben estar listos'
+                                            : 'Both users need to be ready');
                                       }
                                     } else {
                                       updateWalker(true, requestId, true);
@@ -198,10 +216,14 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                           const Duration(seconds: 10));
                                       if (await getOwnerStatus(
                                           requestId, true)) {
-                                        toastF('walk started');
+                                        toastF(lang!
+                                            ? 'Viaje iniciado'
+                                            : 'Walk started');
                                       } else {
                                         updateWalker(false, requestId, true);
-                                        toastF('both users need to be ready');
+                                        toastF(lang!
+                                            ? 'Ambos usuarios deben estar listos'
+                                            : 'Both users need to be ready');
                                       }
                                     }
                                   } finally {
@@ -213,8 +235,10 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                           child: _loadingStates[requestId] == true
                               ? const SpinKitFadingCube(
                                   color: Colors.white, size: 20.0)
-                              : const Text('Iniciar',
-                                  style: TextStyle(color: Colors.white)),
+                              : Text(
+                                  lang! ? 'Iniciar' : 'Start',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                         ),
                       ],
                     ),

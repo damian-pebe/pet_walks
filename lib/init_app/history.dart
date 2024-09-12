@@ -32,6 +32,13 @@ class _HistorialState extends State<Historial> {
   void initState() {
     super.initState();
     _initializeFutures();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   Future<void> _initializeFutures() async {
@@ -41,7 +48,7 @@ class _HistorialState extends State<Historial> {
     futureStartRequests = fetchPendingRequestStart(email!);
     futureEndRequests = fetchPendingRequestEnd(email!);
     _futureHistory = getHistory(ids);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _refreshData() {
@@ -285,300 +292,347 @@ class _HistorialState extends State<Historial> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
-      body: GestureDetector(
-        onPanUpdate: (details) {
-          if (details.delta.dx < -10) {
-            _onSwipeLeft();
-          } else if (details.delta.dx > 10) {
-            _onSwipeRight();
-          }
-        },
-        child: PageView(
-          controller: _pageController,
-          children: [
-            Column(
-              children: [
-                Stack(
-                  children: [
-                    const titleW(title: 'Historial'),
-                    Positioned(
-                        left: 330,
-                        top: 70,
-                        child: Column(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.swipe_right,
-                                  size: 30, color: Colors.black),
-                              onPressed: () => setState(() {
-                                _onSwipeLeft();
-                              }),
-                            ),
-                            const Text(
-                              'Solicitudes',
-                              style: TextStyle(fontSize: 10),
-                            )
-                          ],
-                        )),
-                  ],
-                ),
-                Expanded(
-                    child: FutureBuilder<Set<Map<String, dynamic>>>(
-                  future: _futureHistory,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No history available'));
-                    }
+      body: lang == null
+          ? null
+          : GestureDetector(
+              onPanUpdate: (details) {
+                if (details.delta.dx < -10) {
+                  _onSwipeLeft();
+                } else if (details.delta.dx > 10) {
+                  _onSwipeRight();
+                }
+              },
+              child: PageView(
+                controller: _pageController,
+                children: [
+                  Column(
+                    children: [
+                      Stack(
+                        children: [
+                          titleW(title: lang! ? 'Historial' : 'History'),
+                          Positioned(
+                              left: 330,
+                              top: 70,
+                              child: Column(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.swipe_right,
+                                        size: 30, color: Colors.black),
+                                    onPressed: () => setState(() {
+                                      _onSwipeLeft();
+                                    }),
+                                  ),
+                                  Text(
+                                    lang! ? 'Solicitudes' : 'Request',
+                                    style: TextStyle(fontSize: 10),
+                                  )
+                                ],
+                              )),
+                        ],
+                      ),
+                      Expanded(
+                          child: FutureBuilder<Set<Map<String, dynamic>>>(
+                        future: _futureHistory,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(
+                                child: Text('No history available'));
+                          }
 
-                    final historyList = snapshot.data!.toList();
+                          final historyList = snapshot.data!.toList();
 
-                    return ListView.builder(
-                      itemCount: historyList.length,
-                      itemBuilder: (context, index) {
-                        final history = historyList[index];
+                          return ListView.builder(
+                            itemCount: historyList.length,
+                            itemBuilder: (context, index) {
+                              final history = historyList[index];
 
-                        return FutureBuilder<Map<String, dynamic>>(
-                          future: getInfoWalk(history['idWalk']),
-                          builder: (context, walkSnapshot) {
-                            if (walkSnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            } else if (walkSnapshot.hasError) {
-                              return Center(
-                                  child: Text('Error: ${walkSnapshot.error}'));
-                            } else if (!walkSnapshot.hasData ||
-                                walkSnapshot.data!.isEmpty) {
-                              return const Center(
-                                  child: Text('No walk information available'));
-                            }
+                              return FutureBuilder<Map<String, dynamic>>(
+                                future: getInfoWalk(history['idWalk']),
+                                builder: (context, walkSnapshot) {
+                                  if (walkSnapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (walkSnapshot.hasError) {
+                                    return Center(
+                                        child: Text(
+                                            'Error: ${walkSnapshot.error}'));
+                                  } else if (!walkSnapshot.hasData ||
+                                      walkSnapshot.data!.isEmpty) {
+                                    return Center(
+                                        child: Text(lang!
+                                            ? 'No hay informacion de paseos disponibles'
+                                            : 'No walk information available'));
+                                  }
 
-                            final walkData = walkSnapshot.data!;
+                                  final walkData = walkSnapshot.data!;
 
-                            return Card(
-                              color: const Color.fromARGB(255, 163, 114, 96),
-                              margin: const EdgeInsets.all(8.0),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          walkData['type'] ?? 'type',
-                                          style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black),
-                                        ),
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.more_time_rounded,
-                                              size: 30,
-                                            ),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                const Text(
-                                                  'Fecha y hora',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black),
-                                                ),
-                                                Text(
-                                                  walkData['timeStart'] ??
-                                                      'awaiting',
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.black),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.payments_outlined),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(walkData['price'].toString()),
-                                          ],
-                                        ),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        FutureBuilder<
-                                            Set<Map<String, dynamic>>>(
-                                          future: fetchImageNamePet(
-                                              List<String>.from(
-                                                  walkData['selectedPets'] ??
-                                                      [])),
-                                          builder: (context, petsSnapshot) {
-                                            if (petsSnapshot.connectionState ==
-                                                ConnectionState.waiting) {
-                                              return const Center(
-                                                  child:
-                                                      CircularProgressIndicator());
-                                            } else if (petsSnapshot.hasError) {
-                                              return Center(
-                                                  child: Text(
-                                                      'Error: ${petsSnapshot.error}'));
-                                            } else if (!petsSnapshot.hasData ||
-                                                petsSnapshot.data!.isEmpty) {
-                                              return const Center(
-                                                  child:
-                                                      Text('No pets selected'));
-                                            }
-
-                                            final pets = petsSnapshot.data!;
-                                            print('info[selectedPets]: $pets');
-
-                                            return Row(
-                                              children: pets.map((pet) {
-                                                return Column(
-                                                  children: [
-                                                    CircleAvatar(
-                                                      radius: 20,
-                                                      backgroundColor:
-                                                          Colors.grey[200],
-                                                      child: ClipOval(
-                                                        child:
-                                                            pet['imageUrl'] !=
-                                                                    null
-                                                                ? Image.network(
-                                                                    pet['imageUrl'],
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    width: 40,
-                                                                    height: 40,
-                                                                  )
-                                                                : Icon(
-                                                                    Icons.pets,
-                                                                    size: 40),
+                                  return Card(
+                                    color:
+                                        const Color.fromARGB(255, 163, 114, 96),
+                                    margin: const EdgeInsets.all(8.0),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                walkData['type'] == 'walk'
+                                                    ? lang!
+                                                        ? 'Paseo'
+                                                        : 'Walk'
+                                                    : lang!
+                                                        ? 'Viaje'
+                                                        : 'Travel',
+                                                style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black),
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.more_time_rounded,
+                                                    size: 30,
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 5,
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        lang!
+                                                            ? 'Fecha y hora'
+                                                            : 'Time',
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color:
+                                                                Colors.black),
                                                       ),
-                                                    ),
-                                                    Text(
-                                                      pet['name'] ?? 'No name',
-                                                      style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                  ],
-                                                );
-                                              }).toList(),
-                                            );
-                                          },
-                                        )
-                                      ],
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        toastF('view info');
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ViewRequest(
-                                              emailOwner: history['emailOwner'],
-                                              emailWalker:
-                                                  history['emailWalker'],
-                                              idWalk: history['idWalk'],
-                                              idBusiness:
-                                                  history['idBusiness'] ?? '',
+                                                      Text(
+                                                        walkData['timeStart'] ??
+                                                            (lang!
+                                                                ? 'Esperando'
+                                                                : 'Awaiting'),
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            color:
+                                                                Colors.black),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                      Icons.payments_outlined),
+                                                  const SizedBox(
+                                                    width: 5,
+                                                  ),
+                                                  Text(walkData['price']
+                                                      .toString()),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              FutureBuilder<
+                                                  Set<Map<String, dynamic>>>(
+                                                future: fetchImageNamePet(
+                                                    List<String>.from(walkData[
+                                                            'selectedPets'] ??
+                                                        [])),
+                                                builder:
+                                                    (context, petsSnapshot) {
+                                                  if (petsSnapshot
+                                                          .connectionState ==
+                                                      ConnectionState.waiting) {
+                                                    return const Center(
+                                                        child:
+                                                            CircularProgressIndicator());
+                                                  } else if (petsSnapshot
+                                                      .hasError) {
+                                                    return Center(
+                                                        child: Text(
+                                                            'Error: ${petsSnapshot.error}'));
+                                                  } else if (!petsSnapshot
+                                                          .hasData ||
+                                                      petsSnapshot
+                                                          .data!.isEmpty) {
+                                                    return const Center(
+                                                        child: Text(
+                                                            'No pets selected'));
+                                                  }
+
+                                                  final pets =
+                                                      petsSnapshot.data!;
+                                                  print(
+                                                      'info[selectedPets]: $pets');
+
+                                                  return Row(
+                                                    children: pets.map((pet) {
+                                                      return Column(
+                                                        children: [
+                                                          CircleAvatar(
+                                                            radius: 20,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .grey[200],
+                                                            child: ClipOval(
+                                                              child: pet['imageUrl'] !=
+                                                                      null
+                                                                  ? Image
+                                                                      .network(
+                                                                      pet['imageUrl'],
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                      width: 40,
+                                                                      height:
+                                                                          40,
+                                                                    )
+                                                                  : Icon(
+                                                                      Icons
+                                                                          .pets,
+                                                                      size: 40),
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            pet['name'] ??
+                                                                'unknown',
+                                                            style: const TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    }).toList(),
+                                                  );
+                                                },
+                                              )
+                                            ],
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              toastF('view info');
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ViewRequest(
+                                                    emailOwner:
+                                                        history['emailOwner'],
+                                                    emailWalker:
+                                                        history['emailWalker'],
+                                                    idWalk: history['idWalk'],
+                                                    idBusiness:
+                                                        history['idBusiness'] ??
+                                                            '',
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            icon: const Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 30,
+                                              color: Colors.black,
                                             ),
                                           ),
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 30,
-                                        color: Colors.black,
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                )),
-              ],
-            ),
-            Column(
-              children: [
-                Stack(
-                  children: [
-                    const titleW(title: 'Solicitudes'),
-                    Positioned(
-                        left: 30,
-                        top: 70,
-                        child: Column(
-                          children: [
-                            IconButton(
-                              onPressed: () => setState(() {
-                                _onSwipeRight();
-                              }),
-                              icon: const Icon(Icons.swipe_left,
-                                  size: 30, color: Colors.black),
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      )),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Stack(
+                        children: [
+                          titleW(title: lang! ? 'Solicitudes' : 'Requests'),
+                          Positioned(
+                              left: 30,
+                              top: 70,
+                              child: Column(
+                                children: [
+                                  IconButton(
+                                    onPressed: () => setState(() {
+                                      _onSwipeRight();
+                                    }),
+                                    icon: const Icon(Icons.swipe_left,
+                                        size: 30, color: Colors.black),
+                                  ),
+                                  Text(
+                                    lang! ? 'Regresar' : 'Return',
+                                    style: TextStyle(fontSize: 10),
+                                  )
+                                ],
+                              )),
+                        ],
+                      ),
+                      email == null
+                          ? const Center(child: CircularProgressIndicator())
+                          : _buildPendingRequest(
+                              title: lang!
+                                  ? 'Solicituddes pendientes'
+                                  : 'Pending requests',
+                              futurePendingRequests: pendingRequests,
+                              index: 0,
                             ),
-                            const Text(
-                              'Regresar',
-                              style: TextStyle(fontSize: 10),
-                            )
-                          ],
-                        )),
-                  ],
-                ),
-                email == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : _buildPendingRequest(
-                        title: 'Pending Requests',
-                        futurePendingRequests: pendingRequests,
-                        index: 0,
-                      ),
-                email == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : _buildStartRequest(
-                        title: 'Start requests',
-                        futureStartRequests: futureStartRequests,
-                        index: 1,
-                      ),
-                email == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : _buildEndRequest(
-                        title: 'End requests',
-                        futureEndRequests: futureEndRequests,
-                        index: 2,
-                      ),
-              ],
+                      email == null
+                          ? const Center(child: CircularProgressIndicator())
+                          : _buildStartRequest(
+                              title: lang!
+                                  ? 'Solicitudes de inicio'
+                                  : 'Start requests',
+                              futureStartRequests: futureStartRequests,
+                              index: 1,
+                            ),
+                      email == null
+                          ? const Center(child: CircularProgressIndicator())
+                          : _buildEndRequest(
+                              title: lang!
+                                  ? 'Solicitudes de termino'
+                                  : 'End requests',
+                              futureEndRequests: futureEndRequests,
+                              index: 2,
+                            ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

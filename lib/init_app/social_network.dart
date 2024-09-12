@@ -57,7 +57,9 @@ class _SocialNetwork extends State<SocialNetwork> {
 
     if (position != null) {
       markers.add(Marker(
-        markerId: const MarkerId('Publicacion'),
+        markerId: MarkerId(
+          lang! ? 'Publicacion' : 'Post',
+        ),
         position: position,
         icon: icon,
         onTap: () {
@@ -116,6 +118,13 @@ class _SocialNetwork extends State<SocialNetwork> {
     );
     _checkLocationPermission();
     initData();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   Future<void> _checkLocationPermission() async {
@@ -173,277 +182,289 @@ class _SocialNetwork extends State<SocialNetwork> {
     const navbarHeight = kBottomNavigationBarHeight;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          if (_isPermissionGranted)
-            GoogleMap(
-              markers: markers,
-              mapType: MapType.normal,
-              initialCameraPosition: _center == null
-                  ? initialCameraPosition
-                  : CameraPosition(
-                      target: _center!,
-                      zoom: 17,
+      body: lang == null
+          ? null
+          : Stack(
+              children: [
+                if (_isPermissionGranted)
+                  GoogleMap(
+                    markers: markers,
+                    mapType: MapType.normal,
+                    initialCameraPosition: _center == null
+                        ? initialCameraPosition
+                        : CameraPosition(
+                            target: _center!,
+                            zoom: 17,
+                          ),
+                    onMapCreated: (GoogleMapController controller) {
+                      googleMapController.complete(controller);
+                    },
+                  )
+                else
+                  const Center(child: CircularProgressIndicator()),
+                if (!_isTypeWindowVisible)
+                  Positioned(
+                    left: 20,
+                    top: 30,
+                    child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isTypeWindowVisible = true;
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.black,
+                      ),
                     ),
-              onMapCreated: (GoogleMapController controller) {
-                googleMapController.complete(controller);
-              },
-            )
-          else
-            const Center(child: CircularProgressIndicator()),
-          if (!_isTypeWindowVisible)
-            Positioned(
-              left: 20,
-              top: 30,
-              child: IconButton(
-                onPressed: () {
-                  setState(() {
-                    _isTypeWindowVisible = true;
-                  });
-                },
-                icon: const Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          if (_isTypeWindowVisible)
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                height: screenHeight - navbarHeight,
-                width: 80,
-                color: Colors.white.withOpacity(.6),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 2),
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FutureBuilder<Set<Map<String, dynamic>>>(
-                        future: ownPosts(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Center(
-                                child: Text('Error: ${snapshot.error}'));
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return const Center(child: Text('No posts'));
-                          } else {
-                            return Flexible(
-                              child: ListView(
-                                shrinkWrap: true,
-                                children: snapshot.data!.map((post) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (post['imageUrls'] != null &&
-                                          post['imageUrls'].isNotEmpty)
-                                        Stack(
+                if (_isTypeWindowVisible)
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                      height: screenHeight - navbarHeight,
+                      width: 80,
+                      color: Colors.white.withOpacity(.6),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black, width: 2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FutureBuilder<Set<Map<String, dynamic>>>(
+                              future: ownPosts(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                      child: Text('Error: ${snapshot.error}'));
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.isEmpty) {
+                                  return const Center(child: Text('No posts'));
+                                } else {
+                                  return Flexible(
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      children: snapshot.data!.map((post) {
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            GestureDetector(
-                                              child: CircleAvatar(
-                                                radius: 40,
-                                                backgroundImage: NetworkImage(
-                                                    post['imageUrls'][0]),
-                                              ),
-                                              onTap: () =>
-                                                  _showBottomSheetAlone(
-                                                      postIds: [post['id']]),
-                                            ),
-                                            Positioned(
-                                              top: 8,
-                                              right: 8,
-                                              child: GestureDetector(
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.grey
-                                                          .withOpacity(0.3),
-                                                      shape: BoxShape.circle,
+                                            if (post['imageUrls'] != null &&
+                                                post['imageUrls'].isNotEmpty)
+                                              Stack(
+                                                children: [
+                                                  GestureDetector(
+                                                    child: CircleAvatar(
+                                                      radius: 40,
+                                                      backgroundImage:
+                                                          NetworkImage(
+                                                              post['imageUrls']
+                                                                  [0]),
                                                     ),
-                                                    padding:
-                                                        const EdgeInsets.all(3),
-                                                    child: const Icon(
-                                                      Icons.delete,
-                                                      color: Colors.white,
-                                                      size: 17,
-                                                    ),
+                                                    onTap: () =>
+                                                        _showBottomSheetAlone(
+                                                            postIds: [
+                                                          post['id']
+                                                        ]),
                                                   ),
-                                                  onTap: () => showDialog(
-                                                        context: context,
-                                                        barrierDismissible:
-                                                            true,
-                                                        barrierColor: Colors
-                                                            .white
-                                                            .withOpacity(0.65),
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return AlertDialog(
-                                                            backgroundColor:
-                                                                Colors.white
-                                                                    .withOpacity(
-                                                                        .1),
-                                                            actions: [
-                                                              const Padding(
-                                                                padding: EdgeInsets
-                                                                    .symmetric(
-                                                                        horizontal:
-                                                                            20.0,
-                                                                        vertical:
-                                                                            50),
-                                                                child: Center(
-                                                                  child: Text(
-                                                                    "¿Estas seguro de querer eliminar a la mascota?",
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          20,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w700,
-                                                                      color: Colors
-                                                                          .black,
+                                                  Positioned(
+                                                    top: 8,
+                                                    right: 8,
+                                                    child: GestureDetector(
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.grey
+                                                                .withOpacity(
+                                                                    0.3),
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(3),
+                                                          child: const Icon(
+                                                            Icons.delete,
+                                                            color: Colors.white,
+                                                            size: 17,
+                                                          ),
+                                                        ),
+                                                        onTap: () => showDialog(
+                                                              context: context,
+                                                              barrierDismissible:
+                                                                  true,
+                                                              barrierColor: Colors
+                                                                  .white
+                                                                  .withOpacity(
+                                                                      0.65),
+                                                              builder:
+                                                                  (BuildContext
+                                                                      context) {
+                                                                return AlertDialog(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white
+                                                                          .withOpacity(
+                                                                              .1),
+                                                                  actions: [
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                          horizontal:
+                                                                              20.0,
+                                                                          vertical:
+                                                                              50),
+                                                                      child:
+                                                                          Center(
+                                                                        child:
+                                                                            Text(
+                                                                          lang!
+                                                                              ? '¿Estas seguro de querer eliminar el post?'
+                                                                              : 'Do u really want to delete the post?',
+                                                                          style:
+                                                                              const TextStyle(
+                                                                            fontSize:
+                                                                                20,
+                                                                            fontWeight:
+                                                                                FontWeight.w700,
+                                                                            color:
+                                                                                Colors.black,
+                                                                          ),
+                                                                        ),
+                                                                      ),
                                                                     ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Row(
-                                                                children: [
-                                                                  TextButton(
-                                                                      onPressed:
-                                                                          () async {
-                                                                        await deletePost(
-                                                                            post['id']);
+                                                                    Row(
+                                                                      children: [
+                                                                        TextButton(
+                                                                            onPressed:
+                                                                                () async {
+                                                                              await deletePost(post['id']);
 
-                                                                        setState(
-                                                                            () {
-                                                                          toastF(
-                                                                              'Publicacion eliminada');
-                                                                        });
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                      },
-                                                                      child:
-                                                                          const Text(
-                                                                        'Aceptar',
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontSize:
-                                                                              10,
-                                                                          fontWeight:
-                                                                              FontWeight.w400,
-                                                                          color:
-                                                                              Colors.black,
-                                                                        ),
-                                                                      )),
-                                                                  TextButton(
-                                                                      onPressed: () =>
-                                                                          Navigator.pop(
-                                                                              context),
-                                                                      child:
-                                                                          const Text(
-                                                                        'Cancelar',
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontSize:
-                                                                              10,
-                                                                          fontWeight:
-                                                                              FontWeight.w400,
-                                                                          color:
-                                                                              Colors.black,
-                                                                        ),
-                                                                      )),
-                                                                ],
-                                                              )
-                                                            ],
-                                                          );
-                                                        },
-                                                      )),
+                                                                              setState(() {
+                                                                                toastF(
+                                                                                  lang! ? 'Publicacion eliminada' : 'Post deleted',
+                                                                                );
+                                                                              });
+                                                                              Navigator.pop(context);
+                                                                            },
+                                                                            child:
+                                                                                Text(
+                                                                              lang! ? 'Aceptar' : 'Accept',
+                                                                              style: const TextStyle(
+                                                                                fontSize: 10,
+                                                                                fontWeight: FontWeight.w400,
+                                                                                color: Colors.black,
+                                                                              ),
+                                                                            )),
+                                                                        TextButton(
+                                                                            onPressed: () =>
+                                                                                Navigator.pop(context),
+                                                                            child: Text(
+                                                                              lang! ? 'Cancelar' : 'Cancel',
+                                                                              style: TextStyle(
+                                                                                fontSize: 10,
+                                                                                fontWeight: FontWeight.w400,
+                                                                                color: Colors.black,
+                                                                              ),
+                                                                            )),
+                                                                      ],
+                                                                    )
+                                                                  ],
+                                                                );
+                                                              },
+                                                            )),
+                                                  ),
+                                                ],
+                                              ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 4.0),
+                                              child: Center(
+                                                child: Text(
+                                                  post['type'] == 'Extravio'
+                                                      ? (lang!
+                                                          ? 'Extravio'
+                                                          : 'Stray')
+                                                      : (lang!
+                                                          ? 'Adopcion'
+                                                          : 'Adoption'),
+                                                  style: const TextStyle(
+                                                      fontSize: 12),
+                                                ),
+                                              ),
                                             ),
                                           ],
-                                        ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 4.0),
-                                        child: Center(
-                                          child: Text(
-                                            post['type'],
-                                            style:
-                                                const TextStyle(fontSize: 12),
-                                          ),
-                                        ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            const Divider(thickness: 1),
+                            Column(
+                              children: [
+                                Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    padding: const EdgeInsets.all(8),
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const AddPost()),
+                                        );
+                                        if (result == true) {
+                                          setState(() {
+                                            markers.clear();
+                                            _checkArrayDeletedPosts();
+                                          });
+                                        }
+                                      },
+                                      icon: const Icon(
+                                        Icons.add,
+                                        color: Colors.black,
                                       ),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
-                            );
-                          }
-                        },
+                                    )),
+                                const Text('Add')
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      const Divider(thickness: 1),
-                      Column(
-                        children: [
-                          Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.3),
-                                shape: BoxShape.circle,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              child: IconButton(
-                                onPressed: () async {
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const AddPost()),
-                                  );
-                                  if (result == true) {
-                                    setState(() {
-                                      markers.clear();
-                                      _checkArrayDeletedPosts();
-                                    });
-                                  }
-                                },
-                                icon: const Icon(
-                                  Icons.add,
-                                  color: Colors.black,
-                                ),
-                              )),
-                          const Text('Add')
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                if (_isTypeWindowVisible)
+                  Positioned(
+                    left: 90,
+                    top: 30,
+                    child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isTypeWindowVisible = false;
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+              ],
             ),
-          if (_isTypeWindowVisible)
-            Positioned(
-              left: 90,
-              top: 30,
-              child: IconButton(
-                onPressed: () {
-                  setState(() {
-                    _isTypeWindowVisible = false;
-                  });
-                },
-                icon: const Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

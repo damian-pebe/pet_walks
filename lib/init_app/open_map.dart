@@ -180,7 +180,7 @@ class _OpenMap extends State<OpenMap> {
               },
             )
           else
-            Center(child: CircularProgressIndicator()),
+            const Center(child: CircularProgressIndicator()),
         ],
       ),
     );

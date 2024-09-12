@@ -22,6 +22,13 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
   void initState() {
     super.initState();
     _futurePosts = getInfoPosts(widget.postIds);
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   @override
@@ -32,117 +39,122 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(
+              child: Text(lang!
+                  ? 'Error: ${snapshot.error}'
+                  : 'Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No posts available'));
+          return Center(
+              child: Text(lang!
+                  ? 'No hay publicaciones disponibles'
+                  : 'No posts available'));
         }
 
         final posts = snapshot.data!;
 
         return FractionallySizedBox(
           heightFactor: 1.7,
-          child: SingleChildScrollView(
-            child: Column(
-              children: posts.map((post) {
-                String id = post['id']; // Aquí se obtiene el ID del post
-
-                String description = post['description'] ?? '';
-                String type = post['type'] ?? '';
-                List<String> imageUrls =
-                    List<String>.from(post['imageUrls'] ?? []);
-                List<String> comments =
-                    List<String>.from(post['comments'] ?? []);
-
-                return Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(16.0)),
-                  ),
+          child: lang == null
+              ? null
+              : SingleChildScrollView(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Text(
-                          type,
-                          style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
+                    children: posts.map((post) {
+                      String id = post['id'];
+
+                      String description = post['description'] ?? '';
+                      String type = post['type'] ?? '';
+                      List<String> imageUrls =
+                          List<String>.from(post['imageUrls'] ?? []);
+                      List<String> comments =
+                          List<String>.from(post['comments'] ?? []);
+
+                      return Container(
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(16.0)),
                         ),
-                      ),
-                      Stack(
-                        children: [
-                          Center(
-                            child: SizedBox(
-                              height: 200,
-                              child: PhotoCarousel(imageUrls: imageUrls),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(
+                                type,
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        description,
-                        style:
-                            const TextStyle(fontSize: 15, color: Colors.black),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              showCommentsDialog(
-                                  context, comments, 'post', id, true);
-                            },
-                            child: const Text(
-                              "Comentarios",
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            Stack(
                               children: [
-                                Icon(
-                                  Icons.message,
-                                  size: 20,
-                                  color: Colors.black,
-                                ),
-                                SizedBox(width: 5),
-                                Text(
-                                  "Chat",
-                                  style: TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                      fontSize: 16),
+                                Center(
+                                  child: SizedBox(
+                                    height: 200,
+                                    child: PhotoCarousel(imageUrls: imageUrls),
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8.0),
-                      const Divider()
-                    ],
+                            const SizedBox(height: 5),
+                            Text(
+                              description,
+                              style: const TextStyle(
+                                  fontSize: 15, color: Colors.black),
+                            ),
+                            const SizedBox(height: 5),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    showCommentsDialog(
+                                        context, comments, 'post', id, true);
+                                  },
+                                  child: Text(
+                                    lang! ? "Comentarios" : "Comments",
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {},
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Icon(
+                                        Icons.message,
+                                        size: 20,
+                                        color: Colors.black,
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        lang! ? "Chat" : "Chat",
+                                        style: const TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                            fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8.0),
+                            const Divider()
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
-          ),
+                ),
         );
       },
     );
   }
 }
 
-//own details only
+// Own details only
 class SocialNetworkDetailsAlone extends StatefulWidget {
   final List<String> postIds;
 
@@ -163,6 +175,13 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
   void initState() {
     super.initState();
     _futurePosts = getInfoPosts(widget.postIds);
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   @override
@@ -173,89 +192,95 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(
+              child: Text(lang!
+                  ? 'Error: ${snapshot.error}'
+                  : 'Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No posts available'));
+          return Center(
+              child: Text(lang!
+                  ? 'No hay publicaciones disponibles'
+                  : 'No posts available'));
         }
 
         final posts = snapshot.data!;
 
         return FractionallySizedBox(
           heightFactor: 1,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: posts.map((post) {
-                  String id = post['id']; // Aquí se obtiene el ID del post
-
-                  String description = post['description'] ?? '';
-                  String type = post['type'] ?? '';
-                  List<String> imageUrls =
-                      List<String>.from(post['imageUrls'] ?? []);
-                  List<String> comments =
-                      List<String>.from(post['comments'] ?? []);
-
-                  return Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(16.0)),
-                    ),
+          child: lang == null
+              ? null
+              : Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  child: SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Text(
-                            type,
-                            style: const TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
+                      children: posts.map((post) {
+                        String id = post['id'];
+
+                        String description = post['description'] ?? '';
+                        String type = post['type'] ?? '';
+                        List<String> imageUrls =
+                            List<String>.from(post['imageUrls'] ?? []);
+                        List<String> comments =
+                            List<String>.from(post['comments'] ?? []);
+
+                        return Container(
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(16.0)),
                           ),
-                        ),
-                        Stack(
-                          children: [
-                            Center(
-                              child: SizedBox(
-                                height: 200,
-                                child: PhotoCarousel(imageUrls: imageUrls),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                child: Text(
+                                  type,
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          description,
-                          style: const TextStyle(
-                              fontSize: 15, color: Colors.black),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Center(
-                          child: TextButton(
-                            onPressed: () {
-                              showCommentsDialog(
-                                  context, comments, 'post', id, true);
-                            },
-                            child: const Text(
-                              "Comentarios",
-                              style: TextStyle(color: Colors.black),
-                            ),
+                              Stack(
+                                children: [
+                                  Center(
+                                    child: SizedBox(
+                                      height: 200,
+                                      child:
+                                          PhotoCarousel(imageUrls: imageUrls),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                description,
+                                style: const TextStyle(
+                                    fontSize: 15, color: Colors.black),
+                              ),
+                              const SizedBox(height: 5),
+                              Center(
+                                child: TextButton(
+                                  onPressed: () {
+                                    showCommentsDialog(
+                                        context, comments, 'post', id, true);
+                                  },
+                                  child: Text(
+                                    lang! ? "Comentarios" : "Comments",
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
+                  ),
+                ),
         );
       },
     );

@@ -3,7 +3,6 @@ import 'package:path/path.dart' as path;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:petwalks_app/init_app/function.dart';
@@ -12,6 +11,7 @@ import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
+import 'package:petwalks_app/widgets/toast.dart';
 import 'package:petwalks_app/widgets/visibility.dart';
 
 class AgregarEmpresa extends StatefulWidget {
@@ -31,6 +31,34 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
   void initState() {
     super.initState();
     _email();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
+    category = lang!
+        ? [
+            'Veterinaria',
+            'Escuela',
+            'Guardería',
+            'Hotel',
+            'Refugio',
+            'Tienda de animales',
+            'Tienda de alimentos',
+            'Otros'
+          ]
+        : [
+            'Veterinary'
+                'School'
+                'Daycare'
+                'Hotel'
+                'Shelter'
+                'Pet store'
+                'Pet food store'
+                'Others'
+          ];
   }
 
   bool _isLoading = false;
@@ -76,26 +104,8 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
   }
 
   late LatLng homelatlng;
-  List<String> category = [
-    'Veterinaria',
-    'Escuela',
-    'Guardería',
-    'Hotel',
-    'Refugio',
-    'Tienda de animales',
-    'Tienda de croquetas',
-    'Otros'
-  ];
 
-  void toastF(String msg) {
-    Fluttertoast.showToast(
-      msg: msg,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-      textColor: Colors.black,
-    );
-  }
+  late List<String> category;
 
   bool isVerified = false;
   IconData getIcon() {
@@ -117,12 +127,14 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
       barrierColor: Colors.black.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Verificar su numero de telefono",
+                lang!
+                    ? 'Verificar su numero de telefono'
+                    : 'Verify phone number',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
@@ -148,7 +160,9 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                   child: TextField(
                     keyboardType: TextInputType.number,
                     controller: tokenController,
-                    decoration: StyleTextField('Telefono'),
+                    decoration: StyleTextField(
+                      lang! ? 'Telefono' : 'Phone number',
+                    ),
                   ),
                 ),
                 SizedBox(height: 5),
@@ -158,9 +172,17 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                     onPressed: () {
                       if (sameToken(tokenController.text)) {
                         verificationModule = true;
-                        toastF("Telefono verificado con exito");
+                        toastF(
+                          lang!
+                              ? 'Telefono verificado con exito'
+                              : 'Phone verification successfully ',
+                        );
                       } else {
-                        toastF("* El token enviado no coincide");
+                        toastF(
+                          lang!
+                              ? 'El token enviado no coincide'
+                              : 'Token doesnt match ',
+                        );
                       }
                       Navigator.pop(context, verificationModule);
                     },
@@ -172,7 +194,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                           color: Colors.black,
                         ),
                         Text(
-                          "Verificar",
+                          lang! ? 'Verificar' : 'Verify',
                           style: TextStyle(color: Colors.black, fontSize: 10),
                         ),
                       ],
@@ -185,7 +207,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
             Visibility(
               visible: !_isSame,
               child: Text(
-                "* El token enviado no coincide",
+                lang! ? 'El token enviado no coincide' : 'Token doesnt match ',
                 style: TextStyle(color: Colors.red, fontSize: 10),
               ),
             ),
@@ -198,7 +220,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                     color: Color.fromRGBO(250, 244, 229, .65), width: 2),
               ),
               child: Text(
-                'Enviar token de verificacion',
+                lang! ? 'Enviar token de verificacion' : 'Send verify token ',
                 style: TextStyle(
                     decoration: TextDecoration.underline,
                     fontSize: 13,
@@ -215,7 +237,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                     color: Color.fromRGBO(250, 244, 229, .65), width: 2),
               ),
               child: Text(
-                'Salir',
+                lang! ? 'Salir' : 'Back',
                 style: TextStyle(fontSize: 13, color: Colors.black),
               ),
             ),
@@ -269,397 +291,423 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
         theme: ThemeData(
             scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Stack(children: [
-                  Stack(
-                    children: [
-                      const titleW(title: 'Agregar empresa'),
-                      Positioned(
-                          left: 10,
-                          top: 70,
-                          child: Column(
-                            children: [
-                              IconButton(
-                                onPressed: () => Navigator.pop(context),
-                                icon: const Icon(Icons.arrow_back_ios,
-                                    size: 30, color: Colors.black),
-                              ),
-                              const Text(
-                                'Regresar',
-                                style: TextStyle(fontSize: 10),
-                              )
-                            ],
-                          )),
-                    ],
-                  ),
-                ]),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          body: lang == null
+              ? null
+              : SingleChildScrollView(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(
-                        height: 5,
-                      ),
-                      TextField(
-                        keyboardType: TextInputType.name,
-                        controller: nameController,
-                        decoration: StyleTextField('Nombre'),
-                      ),
-                      VisibilityW(
-                        boolean: !_isName,
-                        string: "Falta nombre del usuario",
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      FormField<String>(
-                        builder: (FormFieldState<String> state) {
-                          return InputDecorator(
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                                borderSide: const BorderSide(
-                                    color: Colors.black, width: 2.0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                                borderSide: const BorderSide(
-                                    color: Colors.black, width: 2.0),
-                              ),
-                              labelText: 'Categoria de empresa',
+                      Stack(children: [
+                        Stack(
+                          children: [
+                            titleW(
+                              title: lang! ? 'Agregar empresa' : 'Add business',
                             ),
-                            isEmpty: categoryController == null ||
-                                categoryController == '',
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: categoryController,
-                                isDense: true,
-                                dropdownColor: Colors.grey[200],
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18.0,
-                                ),
-                                icon: const Icon(Icons.arrow_drop_down,
-                                    color: Colors.black),
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    categoryController = newValue;
-                                    _categoryController.text = newValue ?? '';
-                                  });
-                                },
-                                items: category.map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 250,
-                            child: TextField(
-                              enabled: enablePhone,
-                              keyboardType: TextInputType.number,
-                              controller: phoneController,
-                              decoration: StyleTextField('Telefono'),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 90,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                if (isVerified) {
-                                  toastF('Numero ya verificacdo');
-                                  return;
-                                }
-
-                                verifyPhone(phoneController.text);
-
-                                if (verificationModule) {
-                                  isVerified = true;
-                                  setState(() {});
-                                }
-                              },
-                              style: customOutlinedButtonStyle(),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    getIcon(),
-                                    color: Colors.black,
-                                  ),
-                                  SizedBox(
-                                    height: 2,
-                                  ),
-                                  Text(
-                                    'Verificacion',
-                                    style: TextStyle(
-                                        fontSize: 8, color: Colors.black),
-                                  )
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      VisibilityW(
-                        boolean: !_isVerified,
-                        string: "Falta verificar telefono del usuario",
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          OutlinedButton(
-                              //seleccionar domicilio
-                              onPressed: () async {
-                                String domicilio = '';
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SelectHome(),
-                                  ),
-                                );
-
-                                if (result != null) {
-                                  domicilio = result['domicilio'];
-                                  homelatlng = result['position'];
-                                  print('\nDOMICILIO: ' + domicilio);
-                                }
-                                setState(() {
-                                  homeController.text = domicilio.toString();
-                                });
-                              },
-                              style: customOutlinedButtonStyle(),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    FontAwesomeIcons.home,
-                                    size: 25,
-                                    color: Colors.black,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    'Seleccionar\ndomicilio',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 18.0,
-                                      fontStyle: FontStyle.italic,
+                            Positioned(
+                                left: 10,
+                                top: 70,
+                                child: Column(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).pop();
+                                      },
+                                      icon: const Icon(Icons.arrow_back_ios,
+                                          size: 30, color: Colors.black),
                                     ),
-                                  ),
-                                ],
-                              )),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          OutlinedButton(
-                              //editar domicilio
-                              onPressed: () async {
-                                String domicilio = '';
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditHome(
-                                      homeToEdit: homeController.text,
-                                    ),
-                                  ),
-                                );
-
-                                if (result != null) {
-                                  domicilio = result['domicilio'];
-                                  print('\nDOMICILIO: ' + domicilio);
-                                }
-                                setState(() {
-                                  homeController.text = domicilio.toString();
-                                });
-                              },
-                              style: customOutlinedButtonStyle(),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Editar\ndomicilio',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 18.0,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.edit,
-                                    size: 25,
-                                    color: Colors.black,
-                                  ),
-                                ],
-                              )),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      VisibilityW(
-                        boolean: !_isHome,
-                        string: "Falta seleccionar domicilio del usuario",
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 24.0),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
+                                    Text(
+                                      lang! ? 'Regresar' : 'Back',
+                                      style: TextStyle(fontSize: 10),
+                                    )
+                                  ],
+                                )),
+                          ],
                         ),
-                        child: Text(
-                          "Domicilio: " + homeController.text,
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black,
-                            letterSpacing: 1.2,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: 250,
-                            child: TextField(
-                                controller: descriptionController,
-                                maxLines: 4,
-                                keyboardType: TextInputType.multiline,
-                                decoration: StyleTextField('Descripcion')),
-                          ),
-                          const SizedBox(
-                            width: 30,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      OutlinedButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () async {
-                                if (!verifyFields()) {
-                                  if (!verifyFieldsName()) {
-                                    setState(() {
-                                      _isName = false;
-                                    });
-                                  } else {
-                                    setState(() {
-                                      _isName = true;
-                                    });
-                                  }
-                                } else {
-                                  setState(() {
-                                    _isName = true;
-                                    _isLoading = true;
-                                  });
-
-                                  Future<void> uploadImages() async {
-                                    await _uploadImages();
-                                  }
-
-                                  Future<void> save() async {
-                                    String lastBusinessId = await newBusiness(
-                                      nameController.text,
-                                      categoryController,
-                                      phoneController.text,
-                                      homeController.text,
-                                      homelatlng,
-                                      descriptionController.text,
-                                      _downloadUrls,
-                                    );
-                                    await addBusinessToUser(
-                                        email, lastBusinessId);
-                                  }
-
-                                  await uploadImages();
-                                  await save();
-
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Funcion(),
+                      ]),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              height: 5,
+                            ),
+                            TextField(
+                              keyboardType: TextInputType.name,
+                              controller: nameController,
+                              decoration: StyleTextField('Nombre'),
+                            ),
+                            VisibilityW(
+                              boolean: !_isName,
+                              string: lang!
+                                  ? 'Falta nombre del usuario'
+                                  : ' Missing user name ',
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            FormField<String>(
+                              builder: (FormFieldState<String> state) {
+                                return InputDecorator(
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey[200],
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.black, width: 2.0),
                                     ),
-                                  );
-                                }
-                              },
-                        style: customOutlinedButtonStyle(),
-                        child: _isLoading
-                            ? CircularProgressIndicator()
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.add_business_sharp,
-                                    size: 30,
-                                    color: Colors.black,
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.black, width: 2.0),
+                                    ),
+                                    labelText: lang!
+                                        ? 'Categoria de empresa'
+                                        : 'Business category',
                                   ),
-                                  SizedBox(
-                                    width: 30,
-                                  ),
-                                  Text(
-                                    'Agregar empresa',
-                                    style: TextStyle(
-                                        fontStyle: FontStyle.italic,
-                                        fontWeight: FontWeight.bold,
+                                  isEmpty: categoryController == null ||
+                                      categoryController == '',
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: categoryController,
+                                      isDense: true,
+                                      dropdownColor: Colors.grey[200],
+                                      style: const TextStyle(
                                         color: Colors.black,
-                                        fontSize: 20),
+                                        fontSize: 18.0,
+                                      ),
+                                      icon: const Icon(Icons.arrow_drop_down,
+                                          color: Colors.black),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          categoryController = newValue;
+                                          _categoryController.text =
+                                              newValue ?? '';
+                                        });
+                                      },
+                                      items: category.map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                    ),
                                   ),
-                                ],
+                                );
+                              },
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 250,
+                                  child: TextField(
+                                    enabled: enablePhone,
+                                    keyboardType: TextInputType.number,
+                                    controller: phoneController,
+                                    decoration: StyleTextField(
+                                      lang! ? 'Telefono' : 'Phone number',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                SizedBox(
+                                  width: 90,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      verifyPhone(phoneController.text);
+
+                                      if (verificationModule) {
+                                        isVerified = true;
+                                        setState(() {});
+                                      }
+                                    },
+                                    style: customOutlinedButtonStyle(),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          getIcon(),
+                                          color: Colors.black,
+                                        ),
+                                        SizedBox(
+                                          height: 2,
+                                        ),
+                                        Text(
+                                          lang!
+                                              ? 'Verificacion'
+                                              : 'Verification',
+                                          style: TextStyle(
+                                              fontSize: 8, color: Colors.black),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            VisibilityW(
+                              boolean: !_isVerified,
+                              string: lang!
+                                  ? 'Falta verificar telefono del usuario'
+                                  : 'Missing phone number verification',
+                            ),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                OutlinedButton(
+                                    //seleccionar domicilio
+                                    onPressed: () async {
+                                      String domicilio = '';
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SelectHome(),
+                                        ),
+                                      );
+
+                                      if (result != null) {
+                                        domicilio = result['domicilio'];
+                                        homelatlng = result['position'];
+                                        print('\nDOMICILIO: ' + domicilio);
+                                      }
+                                      setState(() {
+                                        homeController.text =
+                                            domicilio.toString();
+                                      });
+                                    },
+                                    style: customOutlinedButtonStyle(),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          FontAwesomeIcons.home,
+                                          size: 25,
+                                          color: Colors.black,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                          lang! ? 'Seleccionar' : 'Select ',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 18.0,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                OutlinedButton(
+                                    //editar domicilio
+                                    onPressed: () async {
+                                      String domicilio = '';
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditHome(
+                                            homeToEdit: homeController.text,
+                                          ),
+                                        ),
+                                      );
+
+                                      if (result != null) {
+                                        domicilio = result['domicilio'];
+                                        print('\nDOMICILIO: ' + domicilio);
+                                      }
+                                      setState(() {
+                                        homeController.text =
+                                            domicilio.toString();
+                                      });
+                                    },
+                                    style: customOutlinedButtonStyle(),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          lang! ? 'Editar' : 'Edit',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 18.0,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.edit,
+                                          size: 25,
+                                          color: Colors.black,
+                                        ),
+                                      ],
+                                    )),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 24.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
+                              child: Text(
+                                lang!
+                                    ? 'Domicilio: ${homeController.text}'
+                                    : 'Address: ${homeController.text}',
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.black,
+                                  letterSpacing: 1.2,
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(1.0, 1.0),
+                                      blurRadius: 2.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            VisibilityW(
+                              boolean: !_isHome,
+                              string: lang!
+                                  ? 'Falta seleccionar domicilio'
+                                  : 'Missing address',
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: 250,
+                                  child: TextField(
+                                      controller: descriptionController,
+                                      maxLines: 4,
+                                      keyboardType: TextInputType.multiline,
+                                      decoration: StyleTextField(lang!
+                                          ? 'Descripcion'
+                                          : 'Description')),
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            OutlinedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () async {
+                                      if (!verifyFields()) {
+                                        if (!verifyFieldsName()) {
+                                          setState(() {
+                                            _isName = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            _isName = true;
+                                          });
+                                        }
+                                      } else {
+                                        setState(() {
+                                          _isName = true;
+                                          _isLoading = true;
+                                        });
+
+                                        Future<void> uploadImages() async {
+                                          await _uploadImages();
+                                        }
+
+                                        Future<void> save() async {
+                                          String lastBusinessId =
+                                              await newBusiness(
+                                            nameController.text,
+                                            categoryController,
+                                            phoneController.text,
+                                            homeController.text,
+                                            homelatlng,
+                                            descriptionController.text,
+                                            _downloadUrls,
+                                          );
+                                          await addBusinessToUser(
+                                              email, lastBusinessId);
+                                        }
+
+                                        await uploadImages();
+                                        await save();
+
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Funcion(),
+                                          ),
+                                        );
+                                      }
+                                    },
+                              style: customOutlinedButtonStyle(),
+                              child: _isLoading
+                                  ? CircularProgressIndicator()
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_business_sharp,
+                                          size: 30,
+                                          color: Colors.black,
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          lang!
+                                              ? 'Agregar empresa'
+                                              : 'Add business',
+                                          style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                              fontSize: 20),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
         ));
   }
 }

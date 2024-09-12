@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
@@ -27,12 +26,19 @@ class _AddPostState extends State<AddPost> {
   void initState() {
     super.initState();
     _email();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   TextEditingController descriptionController = TextEditingController(text: "");
 
   List<File> _imageFiles = [];
-  List<String> _downloadUrls = ['placeholder/200x200'];
+  List<String> _downloadUrls = [];
 
   Future<void> _pickImages() async {
     setState(() {
@@ -64,16 +70,6 @@ class _AddPostState extends State<AddPost> {
     setState(() {});
   }
 
-  void toastF(String msg) {
-    Fluttertoast.showToast(
-      msg: msg,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-      textColor: Colors.black,
-    );
-  }
-
   bool isToggled = false;
   String type = 'Extravio';
   String isToggledText() {
@@ -89,175 +85,185 @@ class _AddPostState extends State<AddPost> {
         theme: ThemeData(
             scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    const titleW(title: 'Publicar'),
-                    Positioned(
-                        left: 30,
-                        top: 70,
-                        child: Column(
-                          children: [
-                            IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.arrow_back_ios,
-                                  size: 30, color: Colors.black),
-                            ),
-                            const Text(
-                              'Regresar',
-                              style: TextStyle(fontSize: 10),
-                            )
-                          ],
-                        )),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isToggled = !isToggled;
-                                });
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 400),
-                                width: 90,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  color: isToggled
-                                      ? const Color.fromARGB(100, 169, 200, 149)
-                                      : const Color.fromARGB(
-                                          255, 169, 200, 149),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    AnimatedPositioned(
-                                      duration:
-                                          const Duration(milliseconds: 400),
-                                      curve: Curves.easeIn,
-                                      left: isToggled ? 50 : 0,
-                                      right: isToggled ? 0 : 50,
-                                      child: Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.white,
-                                        ),
-                                        child: Icon(
-                                          isToggled
-                                              ? FontAwesomeIcons.lowVision
-                                              : FontAwesomeIcons.heart,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              isToggledText(),
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.black),
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const SizedBox(height: 10),
-                        GestureDetector(
-                          child: PhotoCarousel(
-                            imageUrls: (_downloadUrls as List<dynamic>)
-                                .map((item) => item.toString())
-                                .toList(),
+          body: lang == null
+              ? null
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Stack(
+                        children: [
+                          titleW(
+                            title: lang! ? 'Publicar' : 'Post',
                           ),
-                          onTap: () => _pickImages(),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                          width: 250,
-                          child: TextField(
-                              controller: descriptionController,
-                              maxLines: 6,
-                              keyboardType: TextInputType.multiline,
-                              decoration: StyleTextField('Descripcion')),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        _isLoading
-                            ? CircularProgressIndicator()
-                            : OutlinedButton(
-                                onPressed: _isLoading
-                                    ? null
-                                    : () async {
-                                        setState(() {
-                                          _isLoading = true;
-                                        });
-
-                                        await _uploadImages();
-
-                                        save() async {
-                                          String lastPostId = await newPost(
-                                              descriptionController.text,
-                                              _downloadUrls,
-                                              type);
-                                          await addPostToUser(
-                                              email, lastPostId);
-                                        }
-
-                                        await save();
-                                        setState(() {
-                                          _isLoading = false;
-                                        });
-                                        Navigator.pop(context, true);
-                                      },
-                                style: customOutlinedButtonStyle(),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.public,
-                                      size: 30,
-                                      color: Colors.black,
+                          Positioned(
+                              left: 30,
+                              top: 70,
+                              child: Column(
+                                children: [
+                                  IconButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    icon: const Icon(Icons.arrow_back_ios,
+                                        size: 30, color: Colors.black),
+                                  ),
+                                  Text(
+                                    lang! ? 'Regresar' : 'Back',
+                                    style: TextStyle(fontSize: 10),
+                                  )
+                                ],
+                              )),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Column(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      isToggled = !isToggled;
+                                    });
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 400),
+                                    width: 90,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: isToggled
+                                          ? const Color.fromARGB(
+                                              100, 169, 200, 149)
+                                          : const Color.fromARGB(
+                                              255, 169, 200, 149),
                                     ),
-                                    SizedBox(
-                                      width: 30,
+                                    child: Stack(
+                                      children: [
+                                        AnimatedPositioned(
+                                          duration:
+                                              const Duration(milliseconds: 400),
+                                          curve: Curves.easeIn,
+                                          left: isToggled ? 50 : 0,
+                                          right: isToggled ? 0 : 50,
+                                          child: Container(
+                                            width: 40,
+                                            height: 40,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white,
+                                            ),
+                                            child: Icon(
+                                              isToggled
+                                                  ? FontAwesomeIcons.lowVision
+                                                  : FontAwesomeIcons.heart,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      'Publicar',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic,
-                                          fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  isToggledText(),
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.black),
+                                )
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            const SizedBox(height: 10),
+                            GestureDetector(
+                              child: _downloadUrls.isNotEmpty
+                                  ? PhotoCarousel(
+                                      imageUrls:
+                                          (_downloadUrls as List<dynamic>)
+                                              .map((item) => item.toString())
+                                              .toList(),
+                                    )
+                                  : Text(lang!
+                                      ? 'Click para seleccionar imagenes'
+                                      : 'Click to select images'),
+                              onTap: () => _pickImages(),
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            SizedBox(
+                              width: 250,
+                              child: TextField(
+                                  controller: descriptionController,
+                                  maxLines: 6,
+                                  keyboardType: TextInputType.multiline,
+                                  decoration: StyleTextField(
+                                      lang! ? 'Descripcion' : 'Description')),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            _isLoading
+                                ? CircularProgressIndicator()
+                                : OutlinedButton(
+                                    onPressed: _isLoading
+                                        ? null
+                                        : () async {
+                                            setState(() {
+                                              _isLoading = true;
+                                            });
+
+                                            await _uploadImages();
+
+                                            save() async {
+                                              String lastPostId = await newPost(
+                                                  descriptionController.text,
+                                                  _downloadUrls,
+                                                  type);
+                                              await addPostToUser(
+                                                  email, lastPostId);
+                                            }
+
+                                            await save();
+                                            setState(() {
+                                              _isLoading = false;
+                                            });
+                                            Navigator.pop(context, true);
+                                          },
+                                    style: customOutlinedButtonStyle(),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.public,
+                                          size: 30,
                                           color: Colors.black,
-                                          fontSize: 20),
-                                    ),
-                                  ],
-                                )),
-                      ],
-                    ),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          lang! ? 'Publicar' : 'Post',
+                                          style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                              fontSize: 20),
+                                        ),
+                                      ],
+                                    )),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
         ));
   }
 }

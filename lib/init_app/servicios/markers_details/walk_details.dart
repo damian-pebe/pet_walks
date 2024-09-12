@@ -56,6 +56,13 @@ class _WalkDetailsState extends State<WalkDetails> {
     super.initState();
     idPets = List<String>.from(widget.selectedPets);
     _email();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    setState(() {});
   }
 
   void _fetchBuilderInfo() async {
@@ -108,266 +115,296 @@ class _WalkDetailsState extends State<WalkDetails> {
   Widget build(BuildContext context) {
     return FractionallySizedBox(
       heightFactor: 0.75,
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(
-              child: Text(
-                'Pasear mascotas',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      child: lang == null
+          ? null
+          : Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
               ),
-            ),
-            Center(
-              child: SizedBox(
-                height: 200,
-                child: PhotoCarousel(imageUrls: imageUrls),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(rating > 0 ? Icons.star : Icons.star_border,
-                        color: Colors.amber),
-                    Icon(rating > 1 ? Icons.star : Icons.star_border,
-                        color: Colors.amber),
-                    Icon(rating > 2 ? Icons.star : Icons.star_border,
-                        color: Colors.amber),
-                    Icon(rating > 3 ? Icons.star : Icons.star_border,
-                        color: Colors.amber),
-                    Icon(rating > 4 ? Icons.star : Icons.star_border,
-                        color: Colors.amber),
-                    const SizedBox(width: 8.0),
-                    Text("$rating/5"),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        showCommentsDialog(
-                            context, commentsPets, 'walks', widget.id, true);
-                      },
-                      child: const Text(
-                        "Comentarios",
-                        style: TextStyle(color: Colors.black),
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      lang! ? 'Pasear mascotas' : 'Walk Pets',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 8.0),
-            SizedBox(
-              height: 90,
-              child: FutureBuilder<List<String>>(
-                future: _array(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No pets fetching info'));
-                  } else {
-                    List<String> ids = snapshot.data!;
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: ids.length,
-                      itemBuilder: (context, index) {
-                        var id = ids[index];
-                        var petInfo = showData[id] ?? {};
-                        var petInfos = showDatas[id] ?? {};
-
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  child: CircleAvatar(
-                                    radius: 30,
-                                    backgroundImage: petInfo['imageUrl'] != null
-                                        ? NetworkImage(petInfo['imageUrl'])
-                                        : null,
-                                  ),
-                                  onTap: () {
-                                    updateInfoCarrousel(
-                                      petInfos['imageUrls'] ?? {},
-                                      petInfos['comments'] ?? {},
-                                      petInfos['rating'] ?? 0.0,
-                                      petInfos['name'] ?? 'Unknown',
-                                    );
-                                  },
-                                ),
-                                const EmptyBox(h: 5),
-                                Text(petInfos['name'] ?? 'No name'),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
-            ),
-            const Divider(),
-            Column(
-              children: [
-                Center(child: Text("Domicilio: ${widget.place}")),
-                const SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Pago"),
-                        Row(
-                          children: [
-                            Icon(
-                              widget.payMethod == 'Efectivo'
-                                  ? Icons.attach_money_outlined
-                                  : Icons.credit_card_sharp,
-                              size: 20,
-                            ),
-                            Text(widget.price.toString()),
-                          ],
-                        ),
-                      ],
+                  ),
+                  Center(
+                    child: SizedBox(
+                      height: 200,
+                      child: PhotoCarousel(imageUrls: imageUrls),
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Pasear con mas mascotas"),
-                        Icon(
-                          widget.walkWFriends == 'Si'
-                              ? Icons.check
-                              : Icons.cancel_outlined,
-                          size: 20,
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-                Divider(),
-                Center(
-                  child: Row(
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.timer_outlined),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Container(
-                            child: widget.travelTo.isEmpty
-                                ? Text("Tiempo de paseo: ${widget.timeWalking}")
-                                : OutlinedButton(
-                                    onPressed: () {},
-                                    style: OutlinedButton.styleFrom(
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 131, 195, 248),
-                                      side: BorderSide(
-                                          color:
-                                              Color.fromRGBO(250, 244, 229, 1),
-                                          width: 2),
-                                    ),
-                                    child: Text(
-                                      '   Ubicacion de destino   ',
-                                      style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                          fontSize: 13,
-                                          color: Colors.black),
-                                    ),
-                                  ),
+                          Icon(rating > 0 ? Icons.star : Icons.star_border,
+                              color: Colors.amber),
+                          Icon(rating > 1 ? Icons.star : Icons.star_border,
+                              color: Colors.amber),
+                          Icon(rating > 2 ? Icons.star : Icons.star_border,
+                              color: Colors.amber),
+                          Icon(rating > 3 ? Icons.star : Icons.star_border,
+                              color: Colors.amber),
+                          Icon(rating > 4 ? Icons.star : Icons.star_border,
+                              color: Colors.amber),
+                          const SizedBox(width: 8.0),
+                          Text("$rating/5"),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              showCommentsDialog(context, commentsPets, 'walks',
+                                  widget.id, true);
+                            },
+                            child: Text(
+                              lang! ? "Comentarios" : "Comments",
+                              style: TextStyle(color: Colors.black),
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                ),
-                Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    OutlinedButton(
-                      onPressed: () async {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        // String idWalk = await findMatchingWalkId(widget.id);
-                        String? idBusiness =
-                            await findMatchingBusinessId(widget.travelTo);
-                        // String idOwner =
-                        //     await findMatchingUserId();
-                        // String idWalker = await findMatchingUserId();
-                        await newPreHistory(
-                            widget.id, widget.ownerEmail, email, idBusiness);
+                  const SizedBox(height: 8.0),
+                  SizedBox(
+                    height: 90,
+                    child: FutureBuilder<List<String>>(
+                      future: _array(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text(lang!
+                                  ? 'Error: ${snapshot.error}'
+                                  : 'Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(
+                              child: Text(lang!
+                                  ? 'No hay información de mascotas'
+                                  : 'No pets fetching info'));
+                        } else {
+                          List<String> ids = snapshot.data!;
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: ids.length,
+                            itemBuilder: (context, index) {
+                              var id = ids[index];
+                              var petInfo = showData[id] ?? {};
+                              var petInfos = showDatas[id] ?? {};
 
-                        setState(() {
-                          _isLoading = false;
-                        });
-                        Navigator.pop(context);
-                        Navigator.pop(context);
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Column(
+                                    children: [
+                                      GestureDetector(
+                                        child: CircleAvatar(
+                                          radius: 30,
+                                          backgroundImage:
+                                              petInfo['imageUrl'] != null
+                                                  ? NetworkImage(
+                                                      petInfo['imageUrl'])
+                                                  : null,
+                                        ),
+                                        onTap: () {
+                                          updateInfoCarrousel(
+                                            petInfos['imageUrls'] ?? {},
+                                            petInfos['comments'] ?? {},
+                                            petInfos['rating'] ?? 0.0,
+                                            petInfos['name'] ??
+                                                (lang!
+                                                    ? 'Desconocido'
+                                                    : 'Unknown'),
+                                          );
+                                        },
+                                      ),
+                                      const EmptyBox(h: 5),
+                                      Text(petInfos['name'] ??
+                                          (lang! ? 'Sin nombre' : 'No name')),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                       },
-                      style: customOutlinedButtonStyle(),
-                      child: _isLoading
-                          ? const CircularProgressIndicator()
-                          : const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    ),
+                  ),
+                  const Divider(),
+                  Column(
+                    children: [
+                      Center(
+                          child: Text(lang!
+                              ? "Domicilio: ${widget.place}"
+                              : "Address: ${widget.place}")),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(lang! ? "Pago" : "Payment"),
+                              Row(
+                                children: [
+                                  Icon(
+                                    widget.payMethod == 'Efectivo'
+                                        ? Icons.attach_money_outlined
+                                        : Icons.credit_card_sharp,
+                                    size: 20,
+                                  ),
+                                  Text(widget.price.toString()),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(lang!
+                                  ? "Pasear con más mascotas"
+                                  : "Walk with more pets"),
+                              Icon(
+                                widget.walkWFriends == 'Si'
+                                    ? Icons.check
+                                    : Icons.cancel_outlined,
+                                size: 20,
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                      const Divider(),
+                      Center(
+                        child: Row(
+                          children: [
+                            Row(
                               children: [
-                                Icon(
-                                  Icons.flight,
-                                  size: 20,
-                                  color: Colors.black,
-                                ),
+                                Icon(Icons.timer_outlined),
                                 SizedBox(
                                   width: 5,
                                 ),
-                                Text(
-                                  "Solicitar viaje",
-                                  style: TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                      fontSize: 18),
+                                Container(
+                                  child: widget.travelTo.isEmpty
+                                      ? Text(lang!
+                                          ? "Tiempo de paseo: ${widget.timeWalking}"
+                                          : "Walking time: ${widget.timeWalking}")
+                                      : OutlinedButton(
+                                          onPressed: () {},
+                                          style: OutlinedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 131, 195, 248),
+                                            side: BorderSide(
+                                                color: Color.fromRGBO(
+                                                    250, 244, 229, 1),
+                                                width: 2),
+                                          ),
+                                          child: Text(
+                                            lang!
+                                                ? 'Ubicación de destino'
+                                                : 'Destination location',
+                                            style: TextStyle(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                fontSize: 13,
+                                                color: Colors.black),
+                                          ),
+                                        ),
                                 ),
                               ],
                             ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        showDescriptionDialog(context, widget.description);
-                      },
-                      child: Text(
-                        'Descripcion',
-                        style: TextStyle(
-                            decoration: TextDecoration.underline,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 18,
-                            color: Colors.black),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
+                      const Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () async {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              String? idBusiness =
+                                  await findMatchingBusinessId(widget.travelTo);
+                              await newPreHistory(widget.id, widget.ownerEmail,
+                                  email, idBusiness);
+
+                              setState(() {
+                                _isLoading = false;
+                              });
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                            style: customOutlinedButtonStyle(),
+                            child: _isLoading
+                                ? const CircularProgressIndicator()
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Icon(
+                                        Icons.flight,
+                                        size: 20,
+                                        color: Colors.black,
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                        lang!
+                                            ? "Solicitar viaje"
+                                            : "Request trip",
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                            fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              showDescriptionDialog(
+                                  context, widget.description);
+                            },
+                            child: Text(
+                              lang! ? 'Descripción' : 'Description',
+                              style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18,
+                                  color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
     );
   }
 
@@ -392,8 +429,8 @@ class _WalkDetailsState extends State<WalkDetails> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Descripcion:',
+                    Text(
+                      lang! ? 'Descripción:' : 'Description:',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     const SizedBox(height: 8.0),

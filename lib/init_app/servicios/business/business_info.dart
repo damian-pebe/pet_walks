@@ -8,21 +8,21 @@ import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 
-class InfoPet extends StatefulWidget {
-  final Map<String, dynamic> petData;
+class InfoBusiness extends StatefulWidget {
+  final Map<String, dynamic> businessData;
   final List<dynamic> imageUrls;
   final String id;
-  const InfoPet(
-      {required this.petData,
+  const InfoBusiness(
+      {required this.businessData,
       required this.imageUrls,
       required this.id,
       super.key});
 
   @override
-  State<InfoPet> createState() => _InfoPetState();
+  State<InfoBusiness> createState() => _InfoBusinessState();
 }
 
-class _InfoPetState extends State<InfoPet> {
+class _InfoBusinessState extends State<InfoBusiness> {
   String? email;
   Future<String> fetchUserEmail() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -50,7 +50,7 @@ class _InfoPetState extends State<InfoPet> {
 
   double rating = 0;
   ratingInit() {
-    List<double> ratings = (widget.petData['rating'] as List<dynamic>)
+    List<double> ratings = (widget.businessData['rating'] as List<dynamic>)
         .map((e) => e is int ? e.toDouble() : e as double)
         .toList();
     rating = ratings.isNotEmpty
@@ -88,6 +88,7 @@ class _InfoPetState extends State<InfoPet> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => EditInfoPet(
+                                        //chaange this to business
                                         petData: infoPet,
                                         id: widget.id,
                                       ),
@@ -96,8 +97,9 @@ class _InfoPetState extends State<InfoPet> {
 
                                   if (updatedPetData != null) {
                                     setState(() {
-                                      widget.petData.clear();
-                                      widget.petData.addAll(updatedPetData);
+                                      widget.businessData.clear();
+                                      widget.businessData
+                                          .addAll(updatedPetData);
                                       widget.imageUrls.clear();
                                       widget.imageUrls
                                           .addAll(updatedPetData['imageUrls']);
@@ -138,22 +140,19 @@ class _InfoPetState extends State<InfoPet> {
                       children: [
                         const EmptyBox(h: 8),
                         containerStyle(
-                            '${lang! ? 'Nombre' : 'Name'}: ${widget.petData['name']}'),
+                            '${lang! ? 'Nombre' : 'Name'}: ${widget.businessData['name']}'),
                         const EmptyBox(h: 8),
                         containerStyle(
-                            '${lang! ? 'Raza' : 'Breed'}: ${widget.petData['race']}'),
+                            '${lang! ? 'Categoria' : 'Category'}: ${widget.businessData['category']}'),
                         const EmptyBox(h: 8),
                         containerStyle(
-                            '${lang! ? 'Tamaño' : 'Size'}: ${widget.petData['size']} cm'),
+                            '${lang! ? 'Telefono' : 'Phone'}: ${widget.businessData['phone']}'),
                         const EmptyBox(h: 8),
                         containerStyleDescription(
-                            '${lang! ? 'Descripción' : 'Description'}: ${widget.petData['description']}'),
+                            '${lang! ? 'Descripción' : 'Description'}: ${widget.businessData['description']}'),
                         const EmptyBox(h: 8),
                         containerStyle(
-                            '${lang! ? 'Edad' : 'Age'}: ${widget.petData['old']} años'),
-                        const EmptyBox(h: 8),
-                        containerStyle(
-                            '${lang! ? 'Color' : 'Color'}: ${widget.petData['color']}'),
+                            '${lang! ? 'Domicilio' : 'Address'}: ${widget.businessData['address']}'),
                         const EmptyBox(h: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -197,8 +196,8 @@ class _InfoPetState extends State<InfoPet> {
                               onPressed: () {
                                 showCommentsDialog(
                                     context,
-                                    widget.petData['comments'],
-                                    'pets',
+                                    widget.businessData['comments'],
+                                    'business',
                                     widget.id,
                                     false);
                               },

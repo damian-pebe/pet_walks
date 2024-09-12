@@ -12,8 +12,8 @@ void showRatingPopup(BuildContext context, double currentRating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: const Text(
-          'Rate the User',
+        title: Text(
+          'Calificar / Rate',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -38,7 +38,7 @@ void showRatingPopup(BuildContext context, double currentRating,
                       child: Icon(
                         tempRating > index ? Icons.star : Icons.star_border,
                         color: Colors.amber,
-                        size: 50, // Larger star size
+                        size: 50,
                       ),
                     );
                   }),
@@ -68,10 +68,7 @@ void showRatingPopup(BuildContext context, double currentRating,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Icon(Icons.clear),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -83,10 +80,7 @@ void showRatingPopup(BuildContext context, double currentRating,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Calificar',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Icon(Icons.check),
                 onPressed: () {
                   addRateToUser(tempRating, collection, id);
                   onRatingSelected(tempRating);
