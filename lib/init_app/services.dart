@@ -245,7 +245,7 @@ class _ServiciosState extends State<Servicios> {
                       onPressed: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ViewBusiness(),
+                              builder: (context) => const Business(),
                             ),
                           ),
                       style: customOutlinedButtonStyle(),

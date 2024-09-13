@@ -37,8 +37,16 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
   List<File> _imageFiles = [];
   List<String> _downloadUrls = [];
 
-  late List<String> category;
-
+  List<String> category = [
+    'Veterinaria/Veterinary',
+    'Escuela/School',
+    'Guardería/Daycare',
+    'Hotel/Hotel',
+    'Refugio/Shelter',
+    'Mascotienda/Pet store',
+    'Tienda comida/Pet food store',
+    'Otros/Others'
+  ];
   Future<void> _pickImages() async {
     final pickedFiles = await ImagePicker().pickMultiImage(imageQuality: 80);
 
@@ -86,27 +94,6 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
   void _getLanguage() async {
     lang = await getLanguage();
     setState(() {
-      category = lang!
-          ? [
-              'Veterinaria',
-              'Escuela',
-              'Guardería',
-              'Hotel',
-              'Refugio',
-              'Tienda de animales',
-              'Tienda de alimentos',
-              'Otros'
-            ]
-          : [
-              'Veterinary',
-              'School',
-              'Daycare',
-              'Hotel',
-              'Shelter',
-              'Pet store',
-              'Pet food store',
-              'Others'
-            ];
       selectedCategory = widget.businessData['category'] ?? category[0];
     });
   }
@@ -300,394 +287,436 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
       home: Scaffold(
         body: lang == null
             ? null
-            : Center(
-                child: Column(
-                  children: [
-                    Stack(children: [
-                      titleW(title: lang! ? 'Información' : 'Information'),
-                      Positioned(
-                          left: 30,
-                          top: 70,
-                          child: Column(
-                            children: [
-                              IconButton(
-                                onPressed: () => Navigator.pop(context),
-                                icon: Icon(Icons.arrow_back_ios,
-                                    size: 30, color: Colors.black),
-                              ),
-                              Text(
-                                lang! ? 'Regresar' : 'Back',
-                                style: TextStyle(fontSize: 10),
-                              )
-                            ],
-                          )),
-                      Positioned(
-                          left: 300,
-                          top: 70,
-                          child: Column(
-                            children: [
-                              IconButton(
-                                onPressed: () => _pickImages(),
-                                icon: Icon(Icons.upload,
-                                    size: 30, color: Colors.black),
-                              ),
-                              Text(
-                                lang! ? 'Nuevas Imágenes' : 'New Images',
-                                style: TextStyle(fontSize: 10),
-                              )
-                            ],
-                          )),
-                    ]),
-                    const Divider(),
-                    Stack(children: [
-                      PhotoCarousel(imageUrls: data),
-                    ]),
-                    const Divider(),
-                    Expanded(
-                      child: SingleChildScrollView(
-                          child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 50, vertical: 15),
-                              child: Column(
-                                children: [
-                                  TextField(
-                                      keyboardType: TextInputType.name,
-                                      controller: nameController,
-                                      decoration: StyleTextField(
-                                          lang! ? 'Nombre' : 'Name')),
-                                  Visibility(
-                                    visible: !_isName,
-                                    child: Text(
-                                      "* ${lang! ? 'Nombre no puede ser vacio' : 'Name cannot be empty'}",
-                                      style: TextStyle(
-                                          color: Colors.red, fontSize: 10),
+            : Column(
+                children: [
+                  Stack(children: [
+                    titleW(title: lang! ? 'Información' : 'Information'),
+                    Positioned(
+                        left: 30,
+                        top: 70,
+                        child: Column(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: Icon(Icons.arrow_back_ios,
+                                  size: 30, color: Colors.black),
+                            ),
+                            Text(
+                              lang! ? 'Regresar' : 'Back',
+                              style: TextStyle(fontSize: 10),
+                            )
+                          ],
+                        )),
+                    Positioned(
+                        left: 315,
+                        top: 70,
+                        child: Column(
+                          children: [
+                            IconButton(
+                              onPressed: () => _pickImages(),
+                              icon: Icon(Icons.upload,
+                                  size: 30, color: Colors.black),
+                            ),
+                            Text(
+                              lang! ? 'Nuevas Imágenes' : 'New Images',
+                              style: TextStyle(fontSize: 10),
+                            )
+                          ],
+                        )),
+                  ]),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  const Divider(),
+                  Stack(children: [
+                    PhotoCarousel(imageUrls: data),
+                  ]),
+                  const Divider(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                            child: Column(
+                              children: [
+                                TextField(
+                                    keyboardType: TextInputType.name,
+                                    controller: nameController,
+                                    decoration: StyleTextField(
+                                        lang! ? 'Nombre' : 'Name')),
+                                Visibility(
+                                  visible: !_isName,
+                                  child: Text(
+                                    "* ${lang! ? 'Nombre no puede ser vacio' : 'Name cannot be empty'}",
+                                    style: TextStyle(
+                                        color: Colors.red, fontSize: 10),
+                                  ),
+                                ),
+                                const EmptyBox(h: 20),
+                                DropdownButton<String>(
+                                  value: selectedCategory,
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedCategory = newValue!;
+                                    });
+                                  },
+                                  items: category.map((String cat) {
+                                    return DropdownMenuItem<String>(
+                                      value: cat,
+                                      child: Text(cat),
+                                    );
+                                  }).toList(),
+                                ),
+                                const EmptyBox(h: 20),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: 200,
+                                      child: TextField(
+                                          onChanged: (_) {
+                                            setState(() {
+                                              isVerified = false;
+                                            });
+                                          },
+                                          keyboardType: TextInputType.number,
+                                          controller: phoneController,
+                                          decoration: StyleTextField(
+                                            lang! ? "Telefono" : "Phone number",
+                                          )),
                                     ),
-                                  ),
-                                  const EmptyBox(h: 20),
-                                  DropdownButton<String>(
-                                    value: selectedCategory,
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectedCategory = newValue!;
-                                      });
-                                    },
-                                    items: category.map((String cat) {
-                                      return DropdownMenuItem<String>(
-                                        value: cat,
-                                        child: Text(cat),
-                                      );
-                                    }).toList(),
-                                  ),
-                                  const EmptyBox(h: 20),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        width: 250,
-                                        child: TextField(
-                                            onChanged: (_) {
-                                              setState(() {
-                                                isVerified = false;
-                                              });
-                                            },
-                                            keyboardType: TextInputType.number,
-                                            controller: phoneController,
-                                            decoration: StyleTextField(
-                                              lang!
-                                                  ? "Telefono"
-                                                  : "Phone number",
-                                            )),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      SizedBox(
-                                        width: 90,
-                                        child: OutlinedButton(
-                                          onPressed: () {
-                                            verifyPhone(phoneController.text);
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 100,
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          verifyPhone(phoneController.text);
 
-                                            if (verificationModule) {
-                                              isVerified = true;
-                                              setState(() {});
+                                          if (verificationModule) {
+                                            isVerified = true;
+                                            setState(() {});
+                                          }
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 16.0, horizontal: 0.0),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15.0),
+                                            side: BorderSide(
+                                                width: 2.0,
+                                                color: Colors.black),
+                                          ),
+                                          backgroundColor: Colors.grey[200],
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Icon(
+                                              getIcon(),
+                                              color: Colors.black,
+                                            ),
+                                            SizedBox(
+                                              height: 2,
+                                            ),
+                                            Text(
+                                              lang! ? "Verificar" : "Verify",
+                                              style: TextStyle(
+                                                  fontSize: 8,
+                                                  color: Colors.black),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Visibility(
+                                  visible: !_isVerified,
+                                  child: Text(
+                                    lang!
+                                        ? '* Falta verificar telefono del usuario'
+                                        : '* Missing phone number verification',
+                                    style: TextStyle(
+                                        color: Colors.red, fontSize: 10),
+                                  ),
+                                ),
+                                const EmptyBox(h: 20),
+                                Column(
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        OutlinedButton(
+                                          onPressed: () async {
+                                            String domicilio = '';
+                                            final result = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const SelectHome(),
+                                              ),
+                                            );
+
+                                            if (result != null) {
+                                              domicilio = result['domicilio'];
+                                              print(
+                                                  '\nDOMICILIO: ' + domicilio);
                                             }
+                                            setState(() {
+                                              homeController.text =
+                                                  domicilio.toString();
+                                            });
                                           },
                                           style: OutlinedButton.styleFrom(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 vertical: 16.0,
-                                                horizontal: 0.0),
+                                                horizontal: 24.0),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(15.0),
-                                              side: BorderSide(
+                                              side: const BorderSide(
                                                   width: 2.0,
                                                   color: Colors.black),
                                             ),
                                             backgroundColor: Colors.grey[200],
                                           ),
-                                          child: Column(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(
-                                                getIcon(),
-                                                color: Colors.black,
-                                              ),
-                                              SizedBox(
-                                                height: 2,
-                                              ),
+                                              Icon(FontAwesomeIcons.home,
+                                                  size: 25,
+                                                  color: Colors.black),
+                                              const SizedBox(width: 5),
                                               Text(
-                                                lang! ? "Verificar" : "Verify",
+                                                lang!
+                                                    ? 'Seleccionar'
+                                                    : 'Select',
                                                 style: TextStyle(
-                                                    fontSize: 8,
-                                                    color: Colors.black),
-                                              )
+                                                  color: Colors.grey[600],
+                                                  fontSize: 18.0,
+                                                  fontStyle: FontStyle.italic,
+                                                ),
+                                              ),
                                             ],
                                           ),
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                  Visibility(
-                                    visible: !_isVerified,
-                                    child: Text(
-                                      lang!
-                                          ? '* Falta verificar telefono del usuario'
-                                          : '* Missing phone number verification',
-                                      style: TextStyle(
-                                          color: Colors.red, fontSize: 10),
-                                    ),
-                                  ),
-                                  const EmptyBox(h: 20),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      OutlinedButton(
-                                        onPressed: () async {
-                                          String domicilio = '';
-                                          final result = await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const SelectHome(),
-                                            ),
-                                          );
-
-                                          if (result != null) {
-                                            domicilio = result['domicilio'];
-                                            print('\nDOMICILIO: ' + domicilio);
-                                          }
-                                          setState(() {
-                                            homeController.text =
-                                                domicilio.toString();
-                                          });
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 16.0, horizontal: 24.0),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15.0),
-                                            side: const BorderSide(
-                                                width: 2.0,
-                                                color: Colors.black),
-                                          ),
-                                          backgroundColor: Colors.grey[200],
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(FontAwesomeIcons.home,
-                                                size: 25, color: Colors.black),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              lang!
-                                                  ? 'Modificar\ndomicilio'
-                                                  : 'Modify\naddress',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 18.0,
-                                                fontStyle: FontStyle.italic,
+                                        const SizedBox(width: 10),
+                                        OutlinedButton(
+                                          onPressed: () async {
+                                            String domicilio = '';
+                                            final result = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => EditHome(
+                                                  homeToEdit:
+                                                      homeController.text,
+                                                ),
                                               ),
+                                            );
+
+                                            if (result != null) {
+                                              domicilio = result['domicilio'];
+                                              print(
+                                                  '\nDOMICILIO: ' + domicilio);
+                                            }
+                                            setState(() {
+                                              homeController.text =
+                                                  domicilio.toString();
+                                            });
+                                          },
+                                          style: OutlinedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 16.0,
+                                                horizontal: 24.0),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(15.0),
+                                              side: const BorderSide(
+                                                  width: 2.0,
+                                                  color: Colors.black),
+                                            ),
+                                            backgroundColor: Colors.grey[200],
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                lang! ? 'Editar' : 'Edit',
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 18.0,
+                                                  fontStyle: FontStyle.italic,
+                                                ),
+                                              ),
+                                              Icon(Icons.edit,
+                                                  size: 25,
+                                                  color: Colors.black),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 16.0, horizontal: 24.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        border: Border.all(
+                                          color: Colors.grey,
+                                          width: 2.0,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
+                                      ),
+                                      child: Text(
+                                        lang!
+                                            ? "Domicilio: ${homeController.text}"
+                                            : "Address: ${homeController.text}",
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors.black,
+                                          letterSpacing: 1.2,
+                                          shadows: [
+                                            Shadow(
+                                              offset: Offset(1.0, 1.0),
+                                              blurRadius: 2.0,
+                                              color: Colors.grey,
                                             ),
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      OutlinedButton(
-                                        onPressed: () async {
-                                          String domicilio = '';
-                                          final result = await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => EditHome(
-                                                homeToEdit: homeController.text,
-                                              ),
-                                            ),
-                                          );
-
-                                          if (result != null) {
-                                            domicilio = result['domicilio'];
-                                            print('\nDOMICILIO: ' + domicilio);
-                                          }
-                                          setState(() {
-                                            homeController.text =
-                                                domicilio.toString();
-                                          });
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 16.0, horizontal: 24.0),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15.0),
-                                            side: const BorderSide(
-                                                width: 2.0,
-                                                color: Colors.black),
-                                          ),
-                                          backgroundColor: Colors.grey[200],
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              lang!
-                                                  ? 'Editar\ndomicilio'
-                                                  : 'Edit\naddress',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 18.0,
-                                                fontStyle: FontStyle.italic,
-                                              ),
-                                            ),
-                                            Icon(Icons.edit,
-                                                size: 25, color: Colors.black),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Visibility(
-                                    visible: !_isHome,
-                                    child: Text(
-                                      "* ${lang! ? 'El domicilio no puede estar vacio' : 'Address cannot be empty'}",
-                                      style: const TextStyle(
-                                          color: Colors.red, fontSize: 10),
                                     ),
+                                  ],
+                                ),
+                                Visibility(
+                                  visible: !_isHome,
+                                  child: Text(
+                                    "* ${lang! ? 'El domicilio no puede estar vacio' : 'Address cannot be empty'}",
+                                    style: const TextStyle(
+                                        color: Colors.red, fontSize: 10),
                                   ),
-                                  const EmptyBox(h: 20),
-                                  TextField(
-                                      keyboardType: TextInputType.multiline,
-                                      controller: descriptionController,
-                                      decoration: StyleTextField(lang!
-                                          ? 'Descripción'
-                                          : 'Description')),
-                                  const EmptyBox(h: 20),
-                                ],
-                              ))),
-                    ),
-                    Divider(),
-                    OutlinedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              if (!verifyFields()) {
-                                if (!verifyFieldsName()) {
-                                  setState(() {
-                                    _isName = false;
-                                  });
-                                } else {
-                                  setState(() {
-                                    _isName = true;
-                                  });
-                                }
+                                ),
+                                const EmptyBox(h: 20),
+                                TextField(
+                                    keyboardType: TextInputType.multiline,
+                                    controller: descriptionController,
+                                    decoration: StyleTextField(
+                                        lang! ? 'Descripción' : 'Description')),
+                                const EmptyBox(h: 20),
+                              ],
+                            ))),
+                  ),
+                  Divider(),
+                  OutlinedButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            if (!verifyFields()) {
+                              if (!verifyFieldsName()) {
+                                setState(() {
+                                  _isName = false;
+                                });
+                              } else {
+                                setState(() {
+                                  _isName = true;
+                                });
+                              }
 
-                                if (!isVerified) {
-                                  setState(() {
-                                    _isVerified = false;
-                                  });
-                                } else {
-                                  setState(() {
-                                    _isVerified = true;
-                                  });
-                                }
+                              if (!isVerified) {
+                                setState(() {
+                                  _isVerified = false;
+                                });
+                              } else {
+                                setState(() {
+                                  _isVerified = true;
+                                });
+                              }
 
-                                if (!verifyFieldsHome()) {
-                                  setState(() {
-                                    _isHome = false;
-                                  });
-                                } else {
-                                  setState(() {
-                                    _isHome = true;
-                                  });
-                                }
+                              if (!verifyFieldsHome()) {
+                                setState(() {
+                                  _isHome = false;
+                                });
+                              } else {
+                                setState(() {
+                                  _isHome = true;
+                                });
+                              }
 
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            } else {
+                              _isName = true;
+                              _isVerified = true;
+                              _isHome = true;
+
+                              setState(() {
+                                _isLoading = true;
+                              });
+
+                              try {
+                                await updateBusiness(
+                                  widget.id,
+                                  nameController.text,
+                                  selectedCategory,
+                                  phoneController.text,
+                                  homeController.text,
+                                  descriptionController.text,
+                                  data,
+                                );
+
+                                toastF(lang!
+                                    ? 'Se ha actualizado la informacion'
+                                    : 'Information updated');
+                                Navigator.pop(context);
+                              } catch (e) {
+                                toastF(lang!
+                                    ? 'Error al actualizar la informacion'
+                                    : 'Error updating information');
+                              } finally {
                                 setState(() {
                                   _isLoading = false;
                                 });
-                              } else {
-                                _isName = true;
-                                _isVerified = true;
-                                _isHome = true;
-
-                                setState(() {
-                                  _isLoading = true;
-                                });
-
-                                try {
-                                  await updateBusiness(
-                                    widget.id,
-                                    nameController.text,
-                                    selectedCategory,
-                                    phoneController.text,
-                                    homeController.text,
-                                    descriptionController.text,
-                                    data,
-                                  );
-
-                                  toastF(lang!
-                                      ? 'Se ha actualizado la informacion'
-                                      : 'Information updated');
-                                  Navigator.pop(context);
-                                } catch (e) {
-                                  toastF(lang!
-                                      ? 'Error al actualizar la informacion'
-                                      : 'Error updating information');
-                                } finally {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                }
                               }
-                            },
-                      style: customOutlinedButtonStyle(),
-                      child: _isLoading
-                          ? const CircularProgressIndicator()
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.update,
-                                  size: 30,
+                            }
+                          },
+                    style: customOutlinedButtonStyle(),
+                    child: _isLoading
+                        ? const CircularProgressIndicator()
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.update,
+                                size: 30,
+                                color: Colors.black,
+                              ),
+                              const SizedBox(
+                                width: 30,
+                              ),
+                              Text(
+                                lang! ? 'Actualizar' : 'Update',
+                                style: const TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.black,
+                                  fontSize: 20,
                                 ),
-                                const SizedBox(
-                                  width: 30,
-                                ),
-                                Text(
-                                  lang! ? 'Actualizar' : 'Update',
-                                  style: const TextStyle(
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ],
-                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                ],
               ),
       ),
     );

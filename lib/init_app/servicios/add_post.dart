@@ -188,9 +188,15 @@ class _AddPostState extends State<AddPost> {
                                               .map((item) => item.toString())
                                               .toList(),
                                     )
-                                  : Text(lang!
-                                      ? 'Click para seleccionar imagenes'
-                                      : 'Click to select images'),
+                                  : Text(
+                                      lang!
+                                          ? 'Click para seleccionar imagenes'
+                                          : 'Click to select images',
+                                      style: const TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          fontSize: 15,
+                                          color: Colors.black),
+                                    ),
                               onTap: () => _pickImages(),
                             ),
                             const SizedBox(
@@ -240,17 +246,17 @@ class _AddPostState extends State<AddPost> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.public,
                                           size: 30,
                                           color: Colors.black,
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 30,
                                         ),
                                         Text(
                                           lang! ? 'Publicar' : 'Post',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontStyle: FontStyle.italic,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black,

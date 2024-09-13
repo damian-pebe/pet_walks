@@ -197,7 +197,14 @@ Future<Map<String, dynamic>> fetchBuilderInfoBusiness(List<String> ids) async {
       if (data != null) {
         String? imageUrl = (data['imageUrls'] as List<dynamic>?)?.firstOrNull;
         String? name = data['name'] as String?;
-        List<dynamic>? imageUrls = data['imageUrls'];
+        List<dynamic>? imageUrls = data['imageUrls'] as List<dynamic>?;
+
+        // Log the URL for debugging
+        print('Fetched URL: $imageUrl');
+
+        if (imageUrl != null && !Uri.parse(imageUrl).isAbsolute) {
+          imageUrl = null;
+        }
 
         allBusinessData[element] = {
           'imageUrl': imageUrl,
@@ -206,7 +213,7 @@ Future<Map<String, dynamic>> fetchBuilderInfoBusiness(List<String> ids) async {
           'id': element,
         };
       }
-    } else {}
+    }
   }
   return allBusinessData;
 }
@@ -936,6 +943,10 @@ Future<String> newPost(
     "comments": ['RECOMENDADOOO!'],
   });
   String lastPostId = userDoc.id;
+
+  await db.collection("post").doc(userDoc.id).update({
+    "id": lastPostId,
+  });
 
   return lastPostId;
 }

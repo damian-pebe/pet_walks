@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/init_app/ajustes/edit_user.dart';
 import 'package:petwalks_app/init_app/ajustes/pets.dart';
-import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/options.dart';
 import 'package:petwalks_app/services/auth_service.dart';
 import 'package:petwalks_app/services/firebase_services.dart';

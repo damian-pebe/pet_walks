@@ -291,421 +291,464 @@ class _EditUserState extends State<EditUser> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: lang == null
-          ? null
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  Stack(
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+        home: Scaffold(
+          body: lang == null
+              ? null
+              : SingleChildScrollView(
+                  child: Column(
                     children: [
-                      titleW(title: lang! ? 'Editar' : 'Edit'),
-                      Positioned(
-                        left: 30,
-                        top: 70,
+                      Stack(
+                        children: [
+                          titleW(title: lang! ? 'Editar' : 'Edit'),
+                          Positioned(
+                            left: 30,
+                            top: 70,
+                            child: Column(
+                              children: [
+                                IconButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  icon: const Icon(Icons.arrow_back_ios,
+                                      size: 30, color: Colors.black),
+                                ),
+                                Text(
+                                  lang! ? 'Regresar' : 'Back',
+                                  style: const TextStyle(fontSize: 10),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30.0),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.arrow_back_ios,
-                                  size: 30, color: Colors.black),
+                            const SizedBox(height: 5),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 24.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              child: Text(
+                                emailController.text,
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  color: Colors.grey[800],
+                                  letterSpacing: 1.2,
+                                  shadows: const [
+                                    Shadow(
+                                      offset: Offset(1.0, 1.0),
+                                      blurRadius: 2.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                            Text(
-                              lang! ? 'Regresar' : 'Back',
-                              style: const TextStyle(fontSize: 10),
+                            const SizedBox(height: 10),
+                            GestureDetector(
+                              onTap: _pickImage,
+                              child: CircleAvatar(
+                                radius: 70,
+                                backgroundImage: _downloadUrl.isNotEmpty
+                                    ? NetworkImage(_downloadUrl)
+                                    : null,
+                                child: _downloadUrl.isEmpty
+                                    ? const Icon(Icons.person,
+                                        size: 50, color: Colors.grey)
+                                    : null,
+                              ),
                             ),
+                            const SizedBox(height: 10),
+                            TextField(
+                              keyboardType: TextInputType.name,
+                              controller: nameController,
+                              decoration:
+                                  StyleTextField(lang! ? 'Nombre' : 'Name'),
+                            ),
+                            Visibility(
+                              visible: !_isName,
+                              child: Text(
+                                "* ${lang! ? 'Nombre no puede ser vacio' : 'Name cannot be empty'}",
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 10),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 220,
+                                  child: TextField(
+                                    onChanged: (_) {
+                                      setState(() {
+                                        isVerified = false;
+                                      });
+                                    },
+                                    keyboardType: TextInputType.number,
+                                    controller: phoneController,
+                                    decoration: StyleTextField(
+                                        lang! ? 'Telefono' : 'Phone'),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                SizedBox(
+                                  width: 110,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      if (isVerified) {
+                                        toastF(lang!
+                                            ? 'Numero ya verificado'
+                                            : 'Number already verified');
+                                        return;
+                                      }
+
+                                      verifyPhone(phoneController.text);
+
+                                      if (verificationModule) {
+                                        setState(() {
+                                          isVerified = true;
+                                        });
+                                      }
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 16.0, horizontal: 0.0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
+                                        side: const BorderSide(
+                                            width: 2.0, color: Colors.black),
+                                      ),
+                                      backgroundColor: Colors.grey[200],
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Icon(getIcon(), color: Colors.black),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          lang!
+                                              ? 'Verificacion'
+                                              : 'Verification',
+                                          style: const TextStyle(
+                                              fontSize: 8, color: Colors.black),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Visibility(
+                              visible: !_isVerified,
+                              child: Text(
+                                "* ${lang! ? 'Debe verificar el nuevo telefono' : 'You must verify the new phone'}",
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 10),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    OutlinedButton(
+                                      onPressed: () async {
+                                        String domicilio = '';
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const SelectHome(),
+                                          ),
+                                        );
+
+                                        if (result != null) {
+                                          domicilio = result['domicilio'];
+                                          print('\nDOMICILIO: ' + domicilio);
+                                        }
+                                        setState(() {
+                                          homeController.text =
+                                              domicilio.toString();
+                                        });
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 16.0, horizontal: 24.0),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15.0),
+                                          side: const BorderSide(
+                                              width: 2.0, color: Colors.black),
+                                        ),
+                                        backgroundColor: Colors.grey[200],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(FontAwesomeIcons.home,
+                                              size: 25, color: Colors.black),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            lang! ? 'Seleccionar' : 'Select',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 18.0,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    OutlinedButton(
+                                      onPressed: () async {
+                                        String domicilio = '';
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => EditHome(
+                                              homeToEdit: homeController.text,
+                                            ),
+                                          ),
+                                        );
+
+                                        if (result != null) {
+                                          domicilio = result['domicilio'];
+                                          print('\nDOMICILIO: ' + domicilio);
+                                        }
+                                        setState(() {
+                                          homeController.text =
+                                              domicilio.toString();
+                                        });
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 16.0, horizontal: 24.0),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15.0),
+                                          side: const BorderSide(
+                                              width: 2.0, color: Colors.black),
+                                        ),
+                                        backgroundColor: Colors.grey[200],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            lang! ? 'Editar' : 'Edit',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 18.0,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          ),
+                                          Icon(Icons.edit,
+                                              size: 25, color: Colors.black),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 16.0, horizontal: 24.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                      width: 2.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  child: Text(
+                                    "Domicilio: " + homeController.text,
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.black,
+                                      letterSpacing: 1.2,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(1.0, 1.0),
+                                          blurRadius: 2.0,
+                                          color: Colors.grey,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            Visibility(
+                              visible: !_isHome,
+                              child: Text(
+                                "* ${lang! ? 'El domicilio no puede estar vacio' : 'Address cannot be empty'}",
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 10),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 24.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                border:
+                                    Border.all(color: Colors.grey, width: 2.0),
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              child: Text(
+                                "${lang! ? 'Domicilio' : 'Address'}: ${homeController.text}",
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.black,
+                                  letterSpacing: 1.2,
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(1.0, 1.0),
+                                      blurRadius: 2.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                            const SizedBox(height: 10),
+                            OutlinedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () async {
+                                      setState(() {
+                                        _isLoading = true;
+                                      });
+
+                                      if (!verifyFields()) {
+                                        if (!verifyFieldsName()) {
+                                          setState(() {
+                                            _isName = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            _isName = true;
+                                          });
+                                        }
+
+                                        if (!isVerified) {
+                                          setState(() {
+                                            _isVerified = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            _isVerified = true;
+                                          });
+                                        }
+
+                                        if (!verifyFieldsHome()) {
+                                          setState(() {
+                                            _isHome = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            _isHome = true;
+                                          });
+                                        }
+
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+                                      } else {
+                                        _isName = true;
+                                        _isVerified = true;
+                                        _isHome = true;
+
+                                        Future<void> uploadImage() async {
+                                          await _uploadImage();
+                                        }
+
+                                        Future<void> save() async {
+                                          await modifyUser(
+                                            nameController.text,
+                                            emailController.text,
+                                            phoneController.text,
+                                            homeController.text,
+                                            _downloadUrl,
+                                          );
+                                        }
+
+                                        await uploadImage();
+                                        await save();
+
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+
+                                        toastF(lang!
+                                            ? 'Datos modificados con exito'
+                                            : 'Data successfully modified');
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Funcion(),
+                                          ),
+                                        );
+                                      }
+                                    },
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 16.0, horizontal: 24.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  side: const BorderSide(
+                                      width: 2.0, color: Colors.black),
+                                ),
+                                backgroundColor: Colors.grey[200],
+                              ),
+                              child: _isLoading
+                                  ? const CircularProgressIndicator()
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(FontAwesomeIcons.signInAlt,
+                                            size: 30, color: Colors.black),
+                                        const SizedBox(width: 30),
+                                        Text(
+                                          lang!
+                                              ? 'Guardar cambios'
+                                              : 'Save changes',
+                                          style: const TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                            const SizedBox(height: 10),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 5),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 24.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          child: Text(
-                            emailController.text,
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.grey[800],
-                              letterSpacing: 1.2,
-                              shadows: const [
-                                Shadow(
-                                  offset: Offset(1.0, 1.0),
-                                  blurRadius: 2.0,
-                                  color: Colors.grey,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        GestureDetector(
-                          onTap: _pickImage,
-                          child: CircleAvatar(
-                            radius: 70,
-                            backgroundImage: _downloadUrl.isNotEmpty
-                                ? NetworkImage(_downloadUrl)
-                                : null,
-                            child: _downloadUrl.isEmpty
-                                ? const Icon(Icons.person,
-                                    size: 50, color: Colors.grey)
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          keyboardType: TextInputType.name,
-                          controller: nameController,
-                          decoration: StyleTextField(lang! ? 'Nombre' : 'Name'),
-                        ),
-                        Visibility(
-                          visible: !_isName,
-                          child: Text(
-                            "* ${lang! ? 'Nombre no puede ser vacio' : 'Name cannot be empty'}",
-                            style: TextStyle(color: Colors.red, fontSize: 10),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: 250,
-                              child: TextField(
-                                onChanged: (_) {
-                                  setState(() {
-                                    isVerified = false;
-                                  });
-                                },
-                                keyboardType: TextInputType.number,
-                                controller: phoneController,
-                                decoration: StyleTextField(
-                                    lang! ? 'Telefono' : 'Phone'),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            SizedBox(
-                              width: 90,
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  if (isVerified) {
-                                    toastF(lang!
-                                        ? 'Numero ya verificado'
-                                        : 'Number already verified');
-                                    return;
-                                  }
-
-                                  verifyPhone(phoneController.text);
-
-                                  if (verificationModule) {
-                                    setState(() {
-                                      isVerified = true;
-                                    });
-                                  }
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 16.0, horizontal: 0.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    side: const BorderSide(
-                                        width: 2.0, color: Colors.black),
-                                  ),
-                                  backgroundColor: Colors.grey[200],
-                                ),
-                                child: Column(
-                                  children: [
-                                    Icon(getIcon(), color: Colors.black),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      lang! ? 'Verificacion' : 'Verification',
-                                      style: const TextStyle(
-                                          fontSize: 8, color: Colors.black),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Visibility(
-                          visible: !_isVerified,
-                          child: Text(
-                            "* ${lang! ? 'Debe verificar el nuevo telefono' : 'You must verify the new phone'}",
-                            style: const TextStyle(
-                                color: Colors.red, fontSize: 10),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            OutlinedButton(
-                              onPressed: () async {
-                                String domicilio = '';
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SelectHome(),
-                                  ),
-                                );
-
-                                if (result != null) {
-                                  domicilio = result['domicilio'];
-                                  print('\nDOMICILIO: ' + domicilio);
-                                }
-                                setState(() {
-                                  homeController.text = domicilio.toString();
-                                });
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 16.0, horizontal: 24.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  side: const BorderSide(
-                                      width: 2.0, color: Colors.black),
-                                ),
-                                backgroundColor: Colors.grey[200],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(FontAwesomeIcons.home,
-                                      size: 25, color: Colors.black),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    lang!
-                                        ? 'Modificar\ndomicilio'
-                                        : 'Modify\naddress',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 18.0,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            OutlinedButton(
-                              onPressed: () async {
-                                String domicilio = '';
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditHome(
-                                      homeToEdit: homeController.text,
-                                    ),
-                                  ),
-                                );
-
-                                if (result != null) {
-                                  domicilio = result['domicilio'];
-                                  print('\nDOMICILIO: ' + domicilio);
-                                }
-                                setState(() {
-                                  homeController.text = domicilio.toString();
-                                });
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 16.0, horizontal: 24.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  side: const BorderSide(
-                                      width: 2.0, color: Colors.black),
-                                ),
-                                backgroundColor: Colors.grey[200],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    lang!
-                                        ? 'Editar\ndomicilio'
-                                        : 'Edit\naddress',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 18.0,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
-                                  Icon(Icons.edit,
-                                      size: 25, color: Colors.black),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        Visibility(
-                          visible: !_isHome,
-                          child: Text(
-                            "* ${lang! ? 'El domicilio no puede estar vacio' : 'Address cannot be empty'}",
-                            style: const TextStyle(
-                                color: Colors.red, fontSize: 10),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 24.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            border: Border.all(color: Colors.grey, width: 2.0),
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          child: Text(
-                            "${lang! ? 'Domicilio' : 'Address'}: ${homeController.text}",
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.black,
-                              letterSpacing: 1.2,
-                              shadows: [
-                                Shadow(
-                                  offset: Offset(1.0, 1.0),
-                                  blurRadius: 2.0,
-                                  color: Colors.grey,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        const SizedBox(height: 10),
-                        OutlinedButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                                  setState(() {
-                                    _isLoading = true;
-                                  });
-
-                                  if (!verifyFields()) {
-                                    if (!verifyFieldsName()) {
-                                      setState(() {
-                                        _isName = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        _isName = true;
-                                      });
-                                    }
-
-                                    if (!isVerified) {
-                                      setState(() {
-                                        _isVerified = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        _isVerified = true;
-                                      });
-                                    }
-
-                                    if (!verifyFieldsHome()) {
-                                      setState(() {
-                                        _isHome = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        _isHome = true;
-                                      });
-                                    }
-
-                                    // Reset loading state if fields are not verified
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
-                                  } else {
-                                    _isName = true;
-                                    _isVerified = true;
-                                    _isHome = true;
-
-                                    // Define and run asynchronous methods
-                                    Future<void> uploadImage() async {
-                                      await _uploadImage();
-                                    }
-
-                                    Future<void> save() async {
-                                      await modifyUser(
-                                        nameController.text,
-                                        emailController.text,
-                                        phoneController.text,
-                                        homeController.text,
-                                        _downloadUrl,
-                                      );
-                                    }
-
-                                    await uploadImage();
-                                    await save();
-
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
-
-                                    toastF(lang!
-                                        ? 'Datos modificados con exito'
-                                        : 'Data successfully modified');
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const Funcion(),
-                                      ),
-                                    );
-                                  }
-                                },
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 24.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              side: const BorderSide(
-                                  width: 2.0, color: Colors.black),
-                            ),
-                            backgroundColor: Colors.grey[200],
-                          ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator()
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(FontAwesomeIcons.signInAlt,
-                                        size: 30, color: Colors.black),
-                                    const SizedBox(width: 30),
-                                    Text(
-                                      lang!
-                                          ? 'Guardar cambios'
-                                          : 'Save changes',
-                                      style: const TextStyle(
-                                        fontStyle: FontStyle.italic,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-    );
+                ),
+        ));
   }
 }

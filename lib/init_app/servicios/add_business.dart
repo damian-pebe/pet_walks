@@ -9,6 +9,7 @@ import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:petwalks_app/widgets/toast.dart';
@@ -37,28 +38,8 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
   bool? lang;
   void _getLanguage() async {
     lang = await getLanguage();
+
     setState(() {});
-    category = lang!
-        ? [
-            'Veterinaria',
-            'Escuela',
-            'Guardería',
-            'Hotel',
-            'Refugio',
-            'Tienda de animales',
-            'Tienda de alimentos',
-            'Otros'
-          ]
-        : [
-            'Veterinary'
-                'School'
-                'Daycare'
-                'Hotel'
-                'Shelter'
-                'Pet store'
-                'Pet food store'
-                'Others'
-          ];
   }
 
   bool _isLoading = false;
@@ -80,12 +61,17 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
   List<String> _downloadUrls = [];
 
   Future<void> _pickImages() async {
+    setState(() {
+      _downloadUrls = [];
+      _imageFiles = [];
+    });
     final pickedFiles = await ImagePicker().pickMultiImage(imageQuality: 80);
 
     setState(() {
       _imageFiles =
           pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
     });
+    await _uploadImages();
   }
 
   Future<void> _uploadImages() async {
@@ -93,19 +79,30 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
 
     for (var imageFile in _imageFiles) {
       final fileName = path.basename(imageFile.path);
-      final storageRef =
-          FirebaseStorage.instance.ref().child('uploads/business/$fileName');
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('uploads/BusinessImages/$fileName');
       await storageRef.putFile(imageFile);
       final url = await storageRef.getDownloadURL();
       setState(() {
         _downloadUrls.add(url);
       });
     }
+    setState(() {});
   }
 
   late LatLng homelatlng;
 
-  late List<String> category;
+  List<String> category = [
+    'Veterinaria/Veterinary',
+    'Escuela/School',
+    'Guardería/Daycare',
+    'Hotel/Hotel',
+    'Refugio/Shelter',
+    'Mascotienda/Pet store',
+    'Tienda comida/Pet food store',
+    'Otros/Others'
+  ];
 
   bool isVerified = false;
   IconData getIcon() {
@@ -330,73 +327,68 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             TextField(
                               keyboardType: TextInputType.name,
                               controller: nameController,
-                              decoration: StyleTextField('Nombre'),
+                              decoration: StyleTextField(
+                                lang! ? 'Nombre' : 'Name',
+                              ),
                             ),
                             VisibilityW(
-                              boolean: !_isName,
+                              boolean: _isName,
                               string: lang!
                                   ? 'Falta nombre del usuario'
                                   : ' Missing user name ',
                             ),
+                            const SizedBox(height: 10),
+                            GestureDetector(
+                              child: _downloadUrls.isNotEmpty
+                                  ? PhotoCarousel(
+                                      imageUrls:
+                                          (_downloadUrls as List<dynamic>)
+                                              .map((item) => item.toString())
+                                              .toList(),
+                                    )
+                                  : Text(
+                                      lang!
+                                          ? 'Click para seleccionar imagenes'
+                                          : 'Click to select images',
+                                      style: const TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          fontSize: 15,
+                                          color: Colors.black),
+                                    ),
+                              onTap: () => _pickImages(),
+                            ),
+                            const SizedBox(height: 10),
                             const SizedBox(
                               height: 10,
                             ),
-                            FormField<String>(
-                              builder: (FormFieldState<String> state) {
-                                return InputDecorator(
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.grey[200],
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 2.0),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 2.0),
-                                    ),
-                                    labelText: lang!
-                                        ? 'Categoria de empresa'
-                                        : 'Business category',
-                                  ),
-                                  isEmpty: categoryController == null ||
-                                      categoryController == '',
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      value: categoryController,
-                                      isDense: true,
-                                      dropdownColor: Colors.grey[200],
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18.0,
-                                      ),
-                                      icon: const Icon(Icons.arrow_drop_down,
-                                          color: Colors.black),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          categoryController = newValue;
-                                          _categoryController.text =
-                                              newValue ?? '';
-                                        });
-                                      },
-                                      items: category.map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                );
+                            DropdownButton<String>(
+                              value: categoryController,
+                              isDense: true,
+                              dropdownColor: Colors.grey[200],
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 18.0,
+                              ),
+                              icon: const Icon(Icons.arrow_drop_down,
+                                  color: Colors.black),
+                              onChanged: (newValue) {
+                                setState(() {
+                                  categoryController = newValue;
+                                  _categoryController.text = newValue ?? '';
+                                });
                               },
+                              items: category.map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
                             ),
                             const SizedBox(
                               height: 10,
@@ -406,7 +398,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 SizedBox(
-                                  width: 250,
+                                  width: 220,
                                   child: TextField(
                                     enabled: enablePhone,
                                     keyboardType: TextInputType.number,
@@ -418,7 +410,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                 ),
                                 const SizedBox(width: 10),
                                 SizedBox(
-                                  width: 90,
+                                  width: 110,
                                   child: OutlinedButton(
                                     onPressed: () {
                                       verifyPhone(phoneController.text);
