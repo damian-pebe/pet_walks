@@ -358,7 +358,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                           : 'Click to select images',
                                       style: const TextStyle(
                                           decoration: TextDecoration.underline,
-                                          fontSize: 15,
+                                          fontSize: 20,
                                           color: Colors.black),
                                     ),
                               onTap: () => _pickImages(),

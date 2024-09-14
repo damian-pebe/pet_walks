@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:petwalks_app/guest_views/funcion_guest.dart';
 import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/login.dart';
 import 'package:petwalks_app/services/auth_service.dart';
@@ -142,8 +143,7 @@ class _OpcionesState extends State<Opciones> {
                         onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const LogIn(), // MODIFICAR PARA INVITADO
+                            builder: (context) => const FuncionGuest(),
                           ),
                         ),
                         style: OutlinedButton.styleFrom(

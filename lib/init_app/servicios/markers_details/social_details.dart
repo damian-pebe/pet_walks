@@ -97,7 +97,9 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              description,
+                              lang!
+                                  ? 'Descripcion: $description'
+                                  : 'Description: $description',
                               style: const TextStyle(
                                   fontSize: 15, color: Colors.black),
                             ),
@@ -257,7 +259,9 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                description,
+                                lang!
+                                    ? 'Descripcion: $description'
+                                    : 'Description: $description',
                                 style: const TextStyle(
                                     fontSize: 15, color: Colors.black),
                               ),

@@ -195,7 +195,9 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                       if (status) {
                                         updateHistory(
                                             manageEndWalkInfo['idHistory'],
-                                            'done');
+                                            'done',
+                                            DateTime.now(),
+                                            false); //false because its end
 
                                         toastF(lang!
                                             ? 'Viaje terminado'

@@ -170,7 +170,9 @@ class _AddPostState extends State<AddPost> {
                                   ),
                                 ),
                                 Text(
-                                  isToggledText(),
+                                  isToggledText() == 'Adopcion'
+                                      ? (lang! ? 'Adopcion' : 'Adoption')
+                                      : (lang! ? 'Extravio' : 'Stray'),
                                   style: const TextStyle(
                                       fontSize: 12, color: Colors.black),
                                 )
@@ -194,7 +196,7 @@ class _AddPostState extends State<AddPost> {
                                           : 'Click to select images',
                                       style: const TextStyle(
                                           decoration: TextDecoration.underline,
-                                          fontSize: 15,
+                                          fontSize: 20,
                                           color: Colors.black),
                                     ),
                               onTap: () => _pickImages(),

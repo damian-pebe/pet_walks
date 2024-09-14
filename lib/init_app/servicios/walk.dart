@@ -148,10 +148,12 @@ class _PasearState extends State<Pasear> {
     try {
       geo.Position position = await geo.Geolocator.getCurrentPosition(
           desiredAccuracy: geo.LocationAccuracy.high);
-      setState(() {
-        _center = LatLng(position.latitude, position.longitude);
-        _isPermissionGranted = true;
-      });
+      if (mounted) {
+        setState(() {
+          _center = LatLng(position.latitude, position.longitude);
+          _isPermissionGranted = true;
+        });
+      }
     } catch (e) {
       print("ERROR CON UBICACION: $e");
     }

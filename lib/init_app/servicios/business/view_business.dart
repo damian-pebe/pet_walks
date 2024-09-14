@@ -23,7 +23,6 @@ class _ViewBusinessState extends State<ViewBusiness> {
 
   Future<void> _getLanguage() async {
     lang = await getLanguage();
-    // Fetch business data after language is set
     setState(() {
       _businessDataFuture = _fetchAllBusinessData();
     });
@@ -64,7 +63,7 @@ class _ViewBusinessState extends State<ViewBusiness> {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          EmptyBox(w: 10),
+                          const EmptyBox(w: 10),
                           IconButton(
                             icon: const Icon(Icons.delete,
                                 color: Colors.black, size: 35),
@@ -131,7 +130,6 @@ class _ViewBusinessState extends State<ViewBusiness> {
                           Text(info['name'] ??
                               (lang! ? 'Sin nombre' : 'No name')),
                           EmptyBox(w: 20),
-                          // Uncomment and handle navigation if needed
                           IconButton(
                               onPressed: () {
                                 if (!mounted) return;
@@ -190,6 +188,7 @@ class _BusinessState extends State<Business> {
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Stack(
                       children: [
@@ -216,7 +215,11 @@ class _BusinessState extends State<Business> {
                         ),
                       ],
                     ),
-                    const Expanded(child: ViewBusiness()),
+                    const Expanded(
+                        child: Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: ViewBusiness(),
+                    )),
                   ],
                 ),
         ));

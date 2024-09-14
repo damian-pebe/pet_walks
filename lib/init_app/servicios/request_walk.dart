@@ -316,7 +316,7 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
                               borderRadius: BorderRadius.circular(15.0),
                             ),
                             child: Text(
-                              lang! ? 'Tiempo paseo (min):' : 'Walk time (min)',
+                              lang! ? 'Tiempo(min):' : 'Walk time (min)',
                               style: TextStyle(
                                 fontSize: 16.0,
                                 color: Colors.black,
@@ -442,7 +442,7 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
                                 width: 2,
                               ),
                             ),
-                            child: Text('Si',
+                            child: Text(lang! ? 'SI' : 'YES',
                                 style: TextStyle(
                                   color: walkWFriends == 'Si'
                                       ? Colors.black
@@ -463,7 +463,7 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
                                 width: 2,
                               ),
                             ),
-                            child: Text('No',
+                            child: Text('NO',
                                 style: TextStyle(
                                   color: walkWFriends == 'No'
                                       ? Colors.black

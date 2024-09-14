@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_end_walk.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_requests.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_start_walk.dart';
@@ -6,7 +7,6 @@ import 'package:petwalks_app/init_app/servicios/requests/view_request.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:petwalks_app/widgets/toast.dart';
 
 class Historial extends StatefulWidget {
   const Historial({super.key});
@@ -63,12 +63,13 @@ class _HistorialState extends State<Historial> {
       setState(() {
         _currentPage++;
       });
-      _pageController.animateToPage(
-        _currentPage,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-      setState(() {});
+      setState(() {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
     }
   }
 
@@ -77,12 +78,13 @@ class _HistorialState extends State<Historial> {
       setState(() {
         _currentPage--;
       });
-      _pageController.animateToPage(
-        _currentPage,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-      setState(() {});
+      setState(() {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
     }
   }
 
@@ -418,8 +420,8 @@ class _HistorialState extends State<Historial> {
                                                     children: [
                                                       Text(
                                                         lang!
-                                                            ? 'Fecha y hora'
-                                                            : 'Time',
+                                                            ? 'Estatus'
+                                                            : 'Status',
                                                         style: const TextStyle(
                                                             fontSize: 16,
                                                             fontWeight:
@@ -428,10 +430,19 @@ class _HistorialState extends State<Historial> {
                                                                 Colors.black),
                                                       ),
                                                       Text(
-                                                        walkData['timeStart'] ??
-                                                            (lang!
+                                                        history['status'] ==
+                                                                'awaiting'
+                                                            ? (lang!
                                                                 ? 'Esperando'
-                                                                : 'Awaiting'),
+                                                                : 'Awaiting')
+                                                            : history['status'] ==
+                                                                    'walking'
+                                                                ? (lang!
+                                                                    ? 'Paseando'
+                                                                    : 'Walking')
+                                                                : (lang!
+                                                                    ? 'Finalizado'
+                                                                    : 'Done'),
                                                         style: const TextStyle(
                                                             fontSize: 16,
                                                             color:
@@ -440,6 +451,44 @@ class _HistorialState extends State<Historial> {
                                                     ],
                                                   ),
                                                 ],
+                                              ),
+                                              Text(
+                                                (history['timeStart'] == null ||
+                                                        history['timeStart']
+                                                            .toString()
+                                                            .isEmpty)
+                                                    ? (lang!
+                                                        ? 'Esperando'
+                                                        : 'Awaiting')
+                                                    : (history['timeStart']
+                                                            is Timestamp)
+                                                        ? () {
+                                                            return DateFormat(
+                                                                    'd/M/y h:mm a')
+                                                                .format((history[
+                                                                            'timeStart']
+                                                                        as Timestamp)
+                                                                    .toDate());
+                                                          }()
+                                                        : DateTime.tryParse(history[
+                                                                        'timeStart']
+                                                                    .toString()) !=
+                                                                null
+                                                            ? () {
+                                                                return DateFormat(
+                                                                        'd/M/y h:mm a')
+                                                                    .format(DateTime.parse(
+                                                                        history['timeStart']
+                                                                            .toString()));
+                                                              }()
+                                                            : () {
+                                                                return history[
+                                                                        'timeStart']
+                                                                    .toString();
+                                                              }(),
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black),
                                               ),
                                             ],
                                           ),
@@ -540,21 +589,24 @@ class _HistorialState extends State<Historial> {
                                           ),
                                           IconButton(
                                             onPressed: () {
-                                              toastF('view info');
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       ViewRequest(
-                                                    emailOwner:
-                                                        history['emailOwner'],
-                                                    emailWalker:
-                                                        history['emailWalker'],
-                                                    idWalk: history['idWalk'],
-                                                    idBusiness:
-                                                        history['idBusiness'] ??
-                                                            '',
-                                                  ),
+                                                          emailOwner: history[
+                                                              'emailOwner'],
+                                                          emailWalker: history[
+                                                              'emailWalker'],
+                                                          idWalk:
+                                                              history['idWalk'],
+                                                          idBusiness: history[
+                                                                  'idBusiness'] ??
+                                                              '',
+                                                          status:
+                                                              history['status'],
+                                                          timeStart: history[
+                                                              'timeStart']),
                                                 ),
                                               );
                                             },
@@ -605,7 +657,7 @@ class _HistorialState extends State<Historial> {
                           ? const Center(child: CircularProgressIndicator())
                           : _buildPendingRequest(
                               title: lang!
-                                  ? 'Solicituddes pendientes'
+                                  ? 'Solicitudes pendientes'
                                   : 'Pending requests',
                               futurePendingRequests: pendingRequests,
                               index: 0,

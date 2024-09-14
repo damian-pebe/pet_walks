@@ -16,7 +16,7 @@ class _PendingRequestsNotificationsState
   String? email;
   List<Map<String, dynamic>> pendingRequestsData = [];
   bool isLoading = true;
-  bool? lang; // true for Spanish, false for English
+  bool? lang;
 
   @override
   void initState() {
@@ -37,7 +37,6 @@ class _PendingRequestsNotificationsState
         await _fetchAndShowNotifications(email!);
       }
     } catch (e) {
-      // Handle error, e.g., show an error message
       toastF(lang! ? 'Error al obtener datos' : 'Error fetching data');
     } finally {
       setState(() {
@@ -84,7 +83,6 @@ class _PendingRequestsNotificationsState
           });
         }
       } catch (e) {
-        // Handle error, e.g., show an error message
         toastF(lang!
             ? 'Error al obtener datos del paseador'
             : 'Error fetching walker data');
@@ -116,7 +114,7 @@ class _PendingRequestsNotificationsState
         final name = data['name'];
 
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5.0),
           child: Material(
             color: Colors.transparent,
             child: Container(

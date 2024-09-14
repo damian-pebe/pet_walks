@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/init_app/ajustes/edit_user.dart';
 import 'package:petwalks_app/init_app/ajustes/pets.dart';
+import 'package:petwalks_app/main.dart';
 import 'package:petwalks_app/pages/opciones/options.dart';
 import 'package:petwalks_app/services/auth_service.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
-import 'package:petwalks_app/services/wrapper.dart';
 import 'package:petwalks_app/widgets/box.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
@@ -96,12 +96,17 @@ class _AjustesState extends State<Ajustes> {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    updateLanguage(!lang!);
-                                    _getLanguage();
+                                    lang! == true
+                                        ? updateLanguage(false)
+                                        : updateLanguage(true);
+
+                                    setState(() {
+                                      _getLanguage();
+                                    });
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => const Wrapper(),
+                                        builder: (context) => const MainApp(),
                                       ),
                                     );
                                   },

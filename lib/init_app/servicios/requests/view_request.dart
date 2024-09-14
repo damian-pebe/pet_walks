@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/rate_dialog.dart';
@@ -11,11 +13,15 @@ class ViewRequest extends StatefulWidget {
   final String emailWalker;
   final String idBusiness;
   final String idWalk;
+  final String status;
+  final Timestamp? timeStart;
   const ViewRequest(
       {required this.idBusiness,
       required this.emailOwner,
       required this.idWalk,
       required this.emailWalker,
+      required this.status,
+      required this.timeStart,
       super.key});
 
   @override
@@ -154,23 +160,63 @@ class _ViewRequestState extends State<ViewRequest> {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          Column(
                             children: [
-                              Text(
-                                  lang!
-                                      ? 'Fecha y hora: ${info['startDate'].toString()}'
-                                      : 'Date & Time: ${info['startDate'].toString()}',
-                                  style: _textStyle),
                               Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  const Icon(Icons.price_change),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(info['price'].toString(),
+                                  Text(
+                                      (widget.timeStart == null ||
+                                              widget.timeStart
+                                                  .toString()
+                                                  .isEmpty)
+                                          ? (lang! ? 'Esperando' : 'Awaiting')
+                                          : (widget.timeStart is Timestamp)
+                                              ? () {
+                                                  return DateFormat(
+                                                          'd/M/y h:mm a')
+                                                      .format((widget.timeStart
+                                                              as Timestamp)
+                                                          .toDate());
+                                                }()
+                                              : DateTime.tryParse(widget
+                                                          .timeStart
+                                                          .toString()) !=
+                                                      null
+                                                  ? () {
+                                                      return DateFormat(
+                                                              'd/M/y h:mm a')
+                                                          .format(DateTime
+                                                              .parse(widget
+                                                                  .timeStart
+                                                                  .toString()));
+                                                    }()
+                                                  : () {
+                                                      return widget.timeStart
+                                                          .toString();
+                                                    }(),
                                       style: _textStyle),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.price_change),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(info['price'].toString(),
+                                          style: _textStyle),
+                                    ],
+                                  ),
                                 ],
+                              ),
+                              Text(
+                                (lang! ? 'Estatus: ' : 'Status: ') +
+                                    (widget.status == 'awaiting'
+                                        ? (lang! ? 'Esperando' : 'Awaiting')
+                                        : widget.status == 'walking'
+                                            ? (lang! ? 'Paseando' : 'Walking')
+                                            : (lang! ? 'Finalizado' : 'Done')),
+                                style: _textStyle,
                               ),
                             ],
                           ),
@@ -277,7 +323,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(lang! ? 'Paseador:' : 'Walker:',
+                                      Text(lang! ? '  Paseador:' : '  Walker:',
                                           style: _textStyle),
                                       const SizedBox(
                                         height: 5,
@@ -391,22 +437,50 @@ class _ViewRequestState extends State<ViewRequest> {
                               )
                             ],
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          Column(
                             children: [
-                              Text('This will be the onTimeTracking func',
-                                  style: _textStyle),
-                              IconButton(
-                                onPressed: () {
-                                  toastF(
-                                    lang! ? 'Denunciar' : 'Report',
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.report_problem,
-                                  color: Colors.black,
-                                ),
-                              )
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  widget.status == 'awaiting'
+                                      ? Text(
+                                          lang!
+                                              ? 'Esperando inicio'
+                                              : 'Awaiting',
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.black),
+                                        )
+                                      : widget.status == 'walking'
+                                          ? OutlinedButton(
+                                              onPressed: () {},
+                                              child: Text(
+                                                  lang!
+                                                      ? 'Ver ruta activa'
+                                                      : 'View active route',
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.black)))
+                                          : Text(
+                                              lang! ? 'Esperando' : 'Awaiting',
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black),
+                                            ),
+                                  IconButton(
+                                    onPressed: () {
+                                      toastF(
+                                        lang! ? 'Denunciar' : 'Report',
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.report_problem,
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                ],
+                              ),
                             ],
                           )
                         ],
@@ -439,26 +513,31 @@ class _ViewRequestState extends State<ViewRequest> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(lang! ? 'Dueño:' : 'Owner:',
-                                        style: _textStyle),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                        lang!
-                                            ? 'Nombre: ${info['name'] ?? ''}'
-                                            : 'Name: ${info['name'] ?? ''}',
-                                        style: _textStyle),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                        lang!
-                                            ? 'Teléfono: ${info['phone'] ?? ''}'
-                                            : 'Phone: ${info['phone'] ?? ''}',
-                                        style: _textStyle),
-                                  ],
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5.0),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(lang! ? '  Dueño:' : '  Owner:',
+                                          style: _textStyle),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                          lang!
+                                              ? 'Nombre: ${info['name'] ?? ''}'
+                                              : 'Name: ${info['name'] ?? ''}',
+                                          style: _textStyle),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                          lang!
+                                              ? 'Teléfono: ${info['phone'] ?? ''}'
+                                              : 'Phone: ${info['phone'] ?? ''}',
+                                          style: _textStyle),
+                                    ],
+                                  ),
                                 ),
                               ),
                               Column(
@@ -548,6 +627,13 @@ class _ViewRequestState extends State<ViewRequest> {
                               )
                             ],
                           ),
+                          const SizedBox(height: 5),
+                          Text(
+                              lang!
+                                  ? 'Domicilio:: ${info['address'] ?? ''}'
+                                  : 'Address: ${info['address'] ?? ''}',
+                              style: _textStyle),
+                          const SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -628,30 +714,35 @@ class _ViewRequestState extends State<ViewRequest> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(lang! ? 'Empresa:' : 'Company:',
-                                          style: _textStyle),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                          lang!
-                                              ? 'Nombre: ${info['name'] ?? ''}'
-                                              : 'Name: ${info['name'] ?? ''}',
-                                          style: _textStyle),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                          lang!
-                                              ? 'Teléfono: ${info['phone'] ?? ''}'
-                                              : 'Phone: ${info['phone'] ?? ''}',
-                                          style: _textStyle),
-                                    ],
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 5.0),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                            lang! ? '  Empresa:' : '  Company:',
+                                            style: _textStyle),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                            lang!
+                                                ? 'Nombre: ${info['name'] ?? ''}'
+                                                : 'Name: ${info['name'] ?? ''}',
+                                            style: _textStyle),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                            lang!
+                                                ? 'Teléfono: ${info['phone'] ?? ''}'
+                                                : 'Phone: ${info['phone'] ?? ''}',
+                                            style: _textStyle),
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 Column(
@@ -744,9 +835,27 @@ class _ViewRequestState extends State<ViewRequest> {
                                 )
                               ],
                             ),
+                            const SizedBox(height: 5),
+                            Text(
+                                lang!
+                                    ? 'Domicilio:: ${info['address'] ?? ''}'
+                                    : 'Address: ${info['address'] ?? ''}',
+                                style: _textStyle),
+                            const SizedBox(height: 5),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
+                                IconButton(
+                                  onPressed: () {
+                                    toastF(
+                                      lang! ? 'Denunciar' : 'Report',
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.report_problem,
+                                    color: Colors.black,
+                                  ),
+                                ),
                                 ValueListenableBuilder<LatLng?>(
                                   valueListenable: businessNotifier,
                                   builder: (context, business, child) {
@@ -777,17 +886,6 @@ class _ViewRequestState extends State<ViewRequest> {
                                           child: CircularProgressIndicator());
                                     }
                                   },
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    toastF(
-                                      lang! ? 'Denunciar' : 'Report',
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.report_problem,
-                                    color: Colors.black,
-                                  ),
                                 )
                               ],
                             )

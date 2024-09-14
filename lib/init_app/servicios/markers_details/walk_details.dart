@@ -82,10 +82,10 @@ class _WalkDetailsState extends State<WalkDetails> {
   Future<void> updateInfoCarrousel(List<dynamic> imageUrls,
       List<dynamic> commentsPets, double rating, String name) async {
     setState(() {
-      imageUrls = List<String>.from(imageUrls);
-      commentsPets = List<String>.from(commentsPets);
-      rating = rating;
-      name = name;
+      this.imageUrls = List<String>.from(imageUrls);
+      this.commentsPets = List<String>.from(commentsPets);
+      this.rating = rating;
+      this.name = name;
     });
   }
 
@@ -164,7 +164,7 @@ class _WalkDetailsState extends State<WalkDetails> {
                           TextButton(
                             onPressed: () {
                               showCommentsDialog(context, commentsPets, 'walks',
-                                  widget.id, true);
+                                  widget.id, false);
                             },
                             child: Text(
                               lang! ? "Comentarios" : "Comments",
@@ -223,10 +223,22 @@ class _WalkDetailsState extends State<WalkDetails> {
                                                   : null,
                                         ),
                                         onTap: () {
+                                          List<double> ratings =
+                                              (petInfos['rating']
+                                                      as List<dynamic>)
+                                                  .map((e) => e is int
+                                                      ? e.toDouble()
+                                                      : e as double)
+                                                  .toList();
+                                          double rating = ratings.isNotEmpty
+                                              ? (ratings
+                                                      .reduce((a, b) => a + b) /
+                                                  ratings.length)
+                                              : 0.0;
                                           updateInfoCarrousel(
                                             petInfos['imageUrls'] ?? {},
                                             petInfos['comments'] ?? {},
-                                            petInfos['rating'] ?? 0.0,
+                                            rating,
                                             petInfos['name'] ??
                                                 (lang!
                                                     ? 'Desconocido'

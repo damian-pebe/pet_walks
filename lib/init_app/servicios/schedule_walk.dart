@@ -355,7 +355,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                               borderRadius: BorderRadius.circular(15.0),
                             ),
                             child: Text(
-                              lang! ? 'Tiempo paseo (min):' : 'Walk time (min)',
+                              lang! ? 'Tiempo(min):' : 'Walk time (min)',
                               style: TextStyle(
                                 fontSize: 16.0,
                                 color: Colors.black,

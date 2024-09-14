@@ -195,7 +195,9 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                             manageStartWalkInfo['idHistory']);
                                         updateHistory(
                                             manageStartWalkInfo['idHistory'],
-                                            'walking');
+                                            'walking',
+                                            DateTime.now(),
+                                            true); //true because its start
                                         toastF(lang!
                                             ? 'Viaje iniciado'
                                             : 'Walk started');

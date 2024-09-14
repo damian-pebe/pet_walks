@@ -256,10 +256,14 @@ Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
         Map<String, dynamic>? data = petDoc.data();
         if (data != null) {
           List<dynamic>? imageUrls = data['imageUrls'];
-          List<double> rating =
-              data['rating'] ?? 0.0; // Default to 0.0 if not present
-          String name =
-              data['name'] ?? ''; // Default to an empty string if not present
+
+          // Check if rating is a List<double>
+          List<double>? rating;
+          if (data['rating'] is List) {
+            rating = List<double>.from(data['rating'].map((r) => r.toDouble()));
+          }
+
+          String name = data['name'] ?? '';
           List<String>? comments = List<String>.from(data['comments'] ?? []);
 
           print(
@@ -269,7 +273,7 @@ Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
             'imageUrls': imageUrls,
             'name': name,
             'comments': comments,
-            'rating': rating,
+            'rating': rating ?? [],
             'id': element,
           };
         }
@@ -278,6 +282,7 @@ Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
       }
     }
   }
+
   return allPetsData;
 }
 
@@ -766,7 +771,7 @@ Future<String> newHistoryWalk(
     "emailOwner": emailOwner,
     "emailWalker": emailWalker,
     "position": idBusiness ?? "",
-    "status": 'awaiting' // 'awaiting', 'walking', 'done'
+    "status": 'awaiting', // 'awaiting', 'walking', 'done',
   });
 
   return userDoc.id;
@@ -1273,10 +1278,19 @@ Future<void> deleteStartHistory(String requestId, bool col) async {
       .delete();
 }
 
-Future<void> updateHistory(String id, String type) async {
+Future<void> updateHistory(
+    String id, String type, DateTime startOrEnd, bool start) async {
   await db.collection('history').doc(id).update({
     "status": type,
   });
+
+  start
+      ? await db.collection('history').doc(id).update({
+          "timeStart": startOrEnd,
+        })
+      : await db.collection('history').doc(id).update({
+          "timeEnd": startOrEnd,
+        });
 }
 
 Future<Map<String, dynamic>> getInfoCollectionWithId(
