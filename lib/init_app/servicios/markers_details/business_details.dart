@@ -59,7 +59,7 @@ class _BusinessDetailsState extends State<BusinessDetails> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
       ),
       child: lang == null
-          ? null
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -51,7 +51,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
       ),
       home: Scaffold(
         body: lang == null
-            ? null
+            ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
                   Stack(children: [

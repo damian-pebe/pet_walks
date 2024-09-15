@@ -43,7 +43,7 @@ class _CommentsDialogState extends State<CommentsDialog> {
   Widget build(BuildContext context) {
     return Center(
       child: lang == null
-          ? null
+          ? const Center(child: CircularProgressIndicator())
           : Material(
               borderRadius: BorderRadius.circular(20.0),
               elevation: 10,

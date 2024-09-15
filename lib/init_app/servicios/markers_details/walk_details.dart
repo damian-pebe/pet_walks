@@ -116,7 +116,7 @@ class _WalkDetailsState extends State<WalkDetails> {
     return FractionallySizedBox(
       heightFactor: 0.75,
       child: lang == null
-          ? null
+          ? const Center(child: CircularProgressIndicator())
           : Container(
               padding: const EdgeInsets.all(16.0),
               decoration: const BoxDecoration(

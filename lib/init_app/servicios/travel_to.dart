@@ -299,7 +299,7 @@ class _TravelToState extends State<TravelTo> {
       ),
       home: Scaffold(
         body: lang == null
-            ? null
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),

@@ -269,7 +269,7 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
       home: Scaffold(
         body: SingleChildScrollView(
           child: lang == null
-              ? null
+              ? const Center(child: CircularProgressIndicator())
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(

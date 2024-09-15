@@ -84,7 +84,7 @@ class _AgreementState extends State<Agreement> {
             scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
-              ? null
+              ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
                     Stack(

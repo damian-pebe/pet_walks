@@ -57,5 +57,6 @@ flutter:
   assets:
     - assets/
     - assets/agreement/
+    - assets/about_us/
     - assets/mexico.png
     - assets/eu.png

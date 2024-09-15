@@ -307,7 +307,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
       ),
       home: Scaffold(
         body: lang == null
-            ? null
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),

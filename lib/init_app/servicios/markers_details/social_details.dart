@@ -55,7 +55,7 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
         return FractionallySizedBox(
           heightFactor: 1.7,
           child: lang == null
-              ? null
+              ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(
                   child: Column(
                     children: posts.map((post) {
@@ -210,7 +210,7 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
         return FractionallySizedBox(
           heightFactor: 1,
           child: lang == null
-              ? null
+              ? const Center(child: CircularProgressIndicator())
               : Container(
                   decoration: BoxDecoration(
                     color: Colors.white,

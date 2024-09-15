@@ -362,7 +362,7 @@ class _ServiciosState extends State<Servicios> {
             scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
-              ? null
+              ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
                     titleW(title: lang! ? 'Servicios' : 'Services'),

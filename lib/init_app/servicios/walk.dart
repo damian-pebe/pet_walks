@@ -187,7 +187,7 @@ class _PasearState extends State<Pasear> {
               backgroundColor: const Color.fromRGBO(169, 200, 149, 1),
             ),
       body: lang == null
-          ? null
+          ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
                 if (_isPermissionGranted)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:petwalks_app/init_app/servicios/about_us.dart';
 import 'package:petwalks_app/init_app/servicios/agreement.dart';
 import 'package:petwalks_app/init_app/servicios/edit_user.dart';
 import 'package:petwalks_app/init_app/ajustes/pets.dart';
@@ -42,7 +43,7 @@ class _AjustesState extends State<Ajustes> {
             scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
-              ? null
+              ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
                     titleW(title: lang! ? 'Configuracion' : 'Configuration'),
@@ -226,7 +227,12 @@ class _AjustesState extends State<Ajustes> {
                                 )),
                             const EmptyBox(w: 0, h: 30),
                             OutlinedButton(
-                                onPressed: () async {},
+                                onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const AboutUs(),
+                                      ),
+                                    ),
                                 style: customOutlinedButtonStyle(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,

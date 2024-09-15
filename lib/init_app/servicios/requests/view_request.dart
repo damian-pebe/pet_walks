@@ -102,7 +102,7 @@ class _ViewRequestState extends State<ViewRequest> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 163, 114, 96),
       body: lang == null
-          ? null
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 children: [

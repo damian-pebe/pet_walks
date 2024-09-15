@@ -70,7 +70,7 @@ class _ViewPetsState extends State<ViewPets> {
                 var petInfo = showData[id] ?? {};
 
                 return lang == null
-                    ? null
+                    ? const Center(child: CircularProgressIndicator())
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [

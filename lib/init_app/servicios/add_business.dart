@@ -289,7 +289,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
             scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
-              ? null
+              ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(
                   child: Column(
                     children: [

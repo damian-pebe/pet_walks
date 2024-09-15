@@ -183,7 +183,7 @@ class _SocialNetwork extends State<SocialNetwork> {
 
     return Scaffold(
       body: lang == null
-          ? null
+          ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
                 if (_isPermissionGranted)

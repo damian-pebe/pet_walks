@@ -113,7 +113,7 @@ class _AddPetsState extends State<AddPets> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 30, left: 15, right: 15),
       child: lang == null
-          ? null
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 GestureDetector(

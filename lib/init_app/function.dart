@@ -54,7 +54,7 @@ class _FuncionState extends State<Funcion> {
                 ],
               ),
         bottomNavigationBar: lang == null
-            ? null
+            ? const Center(child: CircularProgressIndicator())
             : ConvexAppBar(
                 items: [
                   TabItem(

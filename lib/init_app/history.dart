@@ -298,7 +298,7 @@ class _HistorialState extends State<Historial> {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
       body: lang == null
-          ? null
+          ? const Center(child: CircularProgressIndicator())
           : GestureDetector(
               onPanUpdate: (details) {
                 if (details.delta.dx < -10) {
