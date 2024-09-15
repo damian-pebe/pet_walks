@@ -156,11 +156,8 @@ class _CommentsDialogState extends State<CommentsDialog> {
                                 setState(() {
                                   widget.comments.add(_commentController.text);
                                 });
-                                addComment(
-                                    email!,
-                                    _commentController.toString(),
-                                    widget.collection,
-                                    widget.id);
+                                addComment(email!, _commentController.text,
+                                    widget.collection, widget.id);
                                 _commentController.clear();
                               }
                             },

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:petwalks_app/init_app/servicios/agreement.dart';
 import 'package:petwalks_app/init_app/servicios/edit_user.dart';
 import 'package:petwalks_app/init_app/ajustes/pets.dart';
+import 'package:petwalks_app/init_app/servicios/suggestions.dart';
 import 'package:petwalks_app/main.dart';
 import 'package:petwalks_app/pages/opciones/options.dart';
 import 'package:petwalks_app/services/auth_service.dart';
@@ -193,7 +195,12 @@ class _AjustesState extends State<Ajustes> {
                                 )),
                             const EmptyBox(w: 0, h: 30),
                             OutlinedButton(
-                                onPressed: () async {},
+                                onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Agreement(),
+                                      ),
+                                    ),
                                 style: customOutlinedButtonStyle(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
@@ -245,7 +252,13 @@ class _AjustesState extends State<Ajustes> {
                                 )),
                             const EmptyBox(w: 0, h: 30),
                             OutlinedButton(
-                                onPressed: () async {},
+                                onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const Suggestions(),
+                                      ),
+                                    ),
                                 style: customOutlinedButtonStyle(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,

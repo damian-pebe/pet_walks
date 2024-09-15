@@ -307,7 +307,8 @@ Future<void> newUser(
       "profilePhoto": '',
       "activeServices": ['walk', 'request', 'business'],
       "language": true, //true == sp/ false == en
-      "rating": rating
+      "rating": rating,
+      "docs": 'unverified'
     });
   }
 }
@@ -796,6 +797,15 @@ Future<Set<Map<String, dynamic>>> getHistory(List<String> listOfHistory) async {
   }
 
   return history;
+}
+
+Future<List<String>> getSuggestions() async {
+  var doc = await db.collection('suggestions').doc('suggestions').get();
+
+  List<String> suggestions =
+      List<String>.from(doc.data()?['suggestions'] ?? []);
+
+  return suggestions;
 }
 
 Future<Set<Map<String, dynamic>>> getBusiness() async {
@@ -1324,6 +1334,22 @@ Future<void> addComment(
   await db.collection(collection).doc(doc.id).update({"comments": comments});
 }
 
+Future<void> addSuggestion(String suggestion) async {
+  var doc = await db.collection('suggestions').doc('suggestions').get();
+
+  List<String> suggestions =
+      List<String>.from(doc.data()?['suggestions'] ?? []);
+
+  if (suggestions.isNotEmpty) {
+    suggestions.add(suggestion);
+  }
+
+  await db
+      .collection('suggestions')
+      .doc(doc.id)
+      .update({"suggestions": suggestions});
+}
+
 Future<void> addRateToUser(double rate, String collection, String id) async {
   var doc = await db.collection(collection).doc(id).get();
 
@@ -1352,4 +1378,33 @@ Future<void> saveLanguagePreference(bool lang) async {
 Future<bool> getLanguagePreference() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.getBool('lang')!; // Default value, if not set
+}
+//shared preferences
+
+Future<void> updateINEUser(String url, String id) async {
+  await db.collection('users').doc(id).update({"ine": url});
+}
+
+Future<void> updateAdressProofUser(String url, String id) async {
+  await db.collection('users').doc(id).update({"addressProof": url});
+}
+
+Future<void> uploadAgreementUserStatus(String id, String status) async {
+  await db
+      .collection('users')
+      .doc(id)
+      .update({"docs": status}); //unverified, inCheck, verified
+}
+
+Future<String> getAgreementStatus(String id) async {
+  DocumentSnapshot docSnapshot =
+      await FirebaseFirestore.instance.collection('users').doc(id).get();
+
+  if (docSnapshot.exists) {
+    final data = docSnapshot.data() as Map<String, dynamic>;
+
+    return data['docs'];
+  } else {
+    return '';
+  }
 }

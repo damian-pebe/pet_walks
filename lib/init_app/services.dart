@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/init_app/servicios/add_business.dart';
+import 'package:petwalks_app/init_app/servicios/agreement.dart';
 import 'package:petwalks_app/init_app/servicios/business/view_business.dart';
 import 'package:petwalks_app/init_app/servicios/walk.dart';
 import 'package:petwalks_app/init_app/servicios/schedule_walk.dart';
@@ -9,6 +9,7 @@ import 'package:petwalks_app/init_app/servicios/request_walk.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
+import 'package:petwalks_app/widgets/toast.dart';
 import 'package:petwalks_app/widgets/vibrate_container.dart';
 
 class Servicios extends StatefulWidget {
@@ -54,18 +55,19 @@ class _ServiciosState extends State<Servicios> {
 
   //FETCH EMAIL FROM USER
   String? email;
-  Future<void> fetchUserEmail() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      email = user.email;
-      fetchServices();
-    }
+  String? idUser;
+  String? agreementStatus;
+  Future<void> _fetchUserEmail() async {
+    email = await fetchUserEmail();
+    fetchServices();
+    idUser = await findMatchingUserId(email!);
+    agreementStatus = await getAgreementStatus(idUser!);
   }
 
   @override
   void initState() {
     super.initState();
-    fetchUserEmail();
+    _fetchUserEmail();
     _getLanguage();
   }
 
@@ -75,6 +77,75 @@ class _ServiciosState extends State<Servicios> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void DialogAgreement() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.white.withOpacity(0.65),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color.fromRGBO(244, 210, 248, .30),
+          actions: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 50),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Center(
+                    child: Text(
+                      lang!
+                          ? 'Para asegurar la integridad tanto de los paseadores como de los dueños es necesario llenar la solicitud para unirse al programa, al ser aceptado se le notificara y podra hacer uso de todos los servicios'
+                          : 'To ensure the integrity of both walkers and owners, it is necessary to fill out the application to join the program. Once accepted, you will be notified and can avail yourself of all the services.',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  OutlinedButton(
+                      onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Agreement(),
+                            ),
+                          ),
+                      style: customOutlinedButtonStyle(),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Text(
+                            lang! ? 'Ir a contrato' : 'Go to agreement',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 18.0,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Icon(
+                            Icons.document_scanner,
+                            size: 20,
+                            color: Colors.black,
+                          ),
+                        ],
+                      )),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void Paseo() {
@@ -96,7 +167,7 @@ class _ServiciosState extends State<Servicios> {
                   Center(
                     child: Text(
                       lang!
-                          ? '¿Desea programar \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\to\n solicitar un paseo?'
+                          ? '¿Desea programar \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tor\n solicitar un paseo?'
                           : 'Do you want to schedule\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\to\n request a new walk?',
                       style: const TextStyle(
                         fontSize: 20,
@@ -341,7 +412,17 @@ class _ServiciosState extends State<Servicios> {
                                       visible: !_getIconRequest,
                                       child: OutlinedButton(
                                           onPressed: () {
-                                            Paseo();
+                                            if (agreementStatus ==
+                                                'unverified') {
+                                              DialogAgreement();
+                                            } else if (agreementStatus ==
+                                                'inCheck') {
+                                              toastF(lang!
+                                                  ? 'Espera la respuesta de tu solicitud para entrar al programa'
+                                                  : '"Wait for the response to your request about joining to the program"');
+                                            } else {
+                                              Paseo();
+                                            }
                                           },
                                           style: customOutlinedButtonStyle(),
                                           child: Row(
@@ -374,13 +455,25 @@ class _ServiciosState extends State<Servicios> {
                                     Visibility(
                                       visible: !_getIconWalk,
                                       child: OutlinedButton(
-                                          onPressed: () => Navigator.push(
+                                          onPressed: () {
+                                            if (agreementStatus ==
+                                                'unverified') {
+                                              DialogAgreement();
+                                            } else if (agreementStatus ==
+                                                'inCheck') {
+                                              toastF(lang!
+                                                  ? 'Espera la respuesta de tu solicitud para entrar al programa'
+                                                  : '"Wait for the response to your request about joining to the program"');
+                                            } else {
+                                              Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       const Pasear(),
                                                 ),
-                                              ),
+                                              );
+                                            }
+                                          },
                                           style: customOutlinedButtonStyle(),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.max,
@@ -412,7 +505,19 @@ class _ServiciosState extends State<Servicios> {
                                     Visibility(
                                       visible: !_getIconBusiness,
                                       child: OutlinedButton(
-                                          onPressed: () => Empresa(),
+                                          onPressed: () {
+                                            if (agreementStatus ==
+                                                'unverified') {
+                                              DialogAgreement();
+                                            } else if (agreementStatus ==
+                                                'inCheck') {
+                                              toastF(lang!
+                                                  ? 'Espera la respuesta de tu solicitud para entrar al programa'
+                                                  : '"Wait for the response to your request about joining to the program"');
+                                            } else {
+                                              Empresa();
+                                            }
+                                          },
                                           style: customOutlinedButtonStyle(),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.max,

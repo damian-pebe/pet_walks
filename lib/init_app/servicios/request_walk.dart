@@ -232,7 +232,7 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
                     style: customOutlinedButtonStyle(),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Icon(
                           Icons.checklist_rtl_sharp,
                           size: 28,
@@ -240,7 +240,7 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          'Aceptar',
+                          lang! ? 'Aceptar' : 'Accept',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 18.0,
