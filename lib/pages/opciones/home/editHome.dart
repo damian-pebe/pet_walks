@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'package:petwalks_app/env.dart';
+import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'dart:convert';
 import 'package:petwalks_app/widgets/titleW.dart';
@@ -16,6 +18,24 @@ class EditHome extends StatefulWidget {
 }
 
 class _EditHomeState extends State<EditHome> {
+  bool lang = true;
+  void _getLanguage() async {
+    if (await isUserLoggedIn()) {
+      lang = await getLanguage();
+      if (mounted) setState(() {});
+    } else {
+      bool savedLang = await getLanguagePreference();
+      setState(() {
+        lang = savedLang;
+      });
+    }
+  }
+
+  Future<bool> isUserLoggedIn() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    return user != null;
+  }
+
   late TextEditingController homeController;
   late String apiKey = googleAPIKey; // Coloca tu API Key aquí
 
@@ -23,6 +43,8 @@ class _EditHomeState extends State<EditHome> {
   void initState() {
     super.initState();
     homeController = TextEditingController(text: widget.homeToEdit);
+
+    _getLanguage();
   }
 
   @override
@@ -62,7 +84,9 @@ class _EditHomeState extends State<EditHome> {
             children: [
               Stack(
                 children: [
-                  const titleW(title: 'Editar domicilio'),
+                  titleW(
+                    title: lang ? 'Editar domicilio' : 'Edit adress',
+                  ),
                   Positioned(
                       left: 30,
                       top: 70,
@@ -73,8 +97,8 @@ class _EditHomeState extends State<EditHome> {
                             icon: const Icon(Icons.arrow_back_ios,
                                 size: 30, color: Colors.black),
                           ),
-                          const Text(
-                            'Regresar',
+                          Text(
+                            lang ? 'Regresar' : 'Back',
                             style: TextStyle(fontSize: 10),
                           )
                         ],
@@ -89,7 +113,9 @@ class _EditHomeState extends State<EditHome> {
                 child: TypeAheadField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
                       controller: homeController,
-                      decoration: StyleTextField('Domicilio')),
+                      decoration: StyleTextField(
+                        lang ? 'Domicilio' : 'Address',
+                      )),
                   suggestionsCallback: (pattern) async {
                     return await _getSuggestions(pattern);
                   },
@@ -121,11 +147,11 @@ class _EditHomeState extends State<EditHome> {
                   ),
                   backgroundColor: Colors.grey[200],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Aceptar',
+                      lang ? 'Aceptar' : 'Accept',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18.0,

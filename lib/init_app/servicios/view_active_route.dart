@@ -8,7 +8,6 @@ import 'package:petwalks_app/utils/constans.dart';
 import 'package:petwalks_app/utils/utils.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:petwalks_app/widgets/decorations.dart';
-import 'package:petwalks_app/widgets/titleW.dart';
 
 class RouteMap extends StatefulWidget {
   final String idWalk;

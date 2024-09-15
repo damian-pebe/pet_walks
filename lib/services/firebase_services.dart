@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -1339,4 +1340,16 @@ Future<void> addRateToUser(double rate, String collection, String id) async {
   ratingList.add(rate);
 
   await db.collection(collection).doc(id).update({"rating": ratingList});
+}
+
+//shared preferences
+
+Future<void> saveLanguagePreference(bool lang) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('lang', lang);
+}
+
+Future<bool> getLanguagePreference() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('lang')!; // Default value, if not set
 }

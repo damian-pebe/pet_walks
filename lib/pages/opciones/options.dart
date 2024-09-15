@@ -18,6 +18,25 @@ class Opciones extends StatefulWidget {
 }
 
 class _OpcionesState extends State<Opciones> {
+  bool lang = true;
+
+  @override
+  void initState() {
+    super.initState();
+    getLang();
+  }
+
+  Future<void> getLang() async {
+    bool savedLang = await getLanguagePreference();
+    setState(() {
+      lang = savedLang;
+    });
+  }
+
+  Future<void> saveLang(bool langValue) async {
+    await saveLanguagePreference(langValue);
+  }
+
   final _auth = AuthService();
   String? email;
 
@@ -74,7 +93,7 @@ class _OpcionesState extends State<Opciones> {
                           ),
                         ),
                         style: customOutlinedButtonStyle(),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
@@ -84,7 +103,7 @@ class _OpcionesState extends State<Opciones> {
                             ),
                             SizedBox(width: 30),
                             Text(
-                              'Iniciar sesión',
+                              lang ? 'Iniciar sesión' : '  Log in  ',
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 20,
@@ -110,7 +129,7 @@ class _OpcionesState extends State<Opciones> {
                           ),
                         ),
                         style: customOutlinedButtonStyle(),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
@@ -120,7 +139,7 @@ class _OpcionesState extends State<Opciones> {
                             ),
                             SizedBox(width: 30),
                             Text(
-                              'Registrarme',
+                              lang ? 'Registrarme' : '  Sign up  ',
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 20,
@@ -153,13 +172,74 @@ class _OpcionesState extends State<Opciones> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 50, vertical: 30),
                         ),
-                        child: const Text(
-                          'Ingresar como invitado',
+                        child: Text(
+                          lang ? 'Ingresar como invitado' : 'View as guest',
                           style: TextStyle(
                               decoration: TextDecoration.underline,
                               fontSize: 15,
                               color: Colors.black),
                         ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 24.0),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              border: Border.all(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  lang ? 'Idioma' : 'Language',
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.black,
+                                    letterSpacing: 1.2,
+                                    shadows: [
+                                      Shadow(
+                                        offset: Offset(1.0, 1.0),
+                                        blurRadius: 2.0,
+                                        color: Colors.grey,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Icon(
+                                  Icons.language_outlined,
+                                  size: 25,
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              saveLang(!lang); // Toggle language
+                              setState(() {
+                                lang = !lang;
+                              });
+                            },
+                            child: SizedBox(
+                              height: 40,
+                              child: Image.asset(
+                                lang ? 'assets/mexico.png' : 'assets/eu.png',
+                                fit: BoxFit.cover,
+                                height: 30,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

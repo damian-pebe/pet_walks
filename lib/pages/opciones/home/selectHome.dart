@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:geocoding/geocoding.dart';
+import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/utils/constans.dart';
 import 'package:petwalks_app/utils/utils.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -16,6 +18,24 @@ class SelectHome extends StatefulWidget {
 }
 
 class _SelectHome extends State<SelectHome> {
+  bool lang = true;
+  void _getLanguage() async {
+    if (await isUserLoggedIn()) {
+      lang = await getLanguage();
+      if (mounted) setState(() {});
+    } else {
+      bool savedLang = await getLanguagePreference();
+      setState(() {
+        lang = savedLang;
+      });
+    }
+  }
+
+  Future<bool> isUserLoggedIn() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    return user != null;
+  }
+
   Completer<GoogleMapController> googleMapController = Completer();
   Set<Marker> markers = {};
   late CameraPosition initialCameraPosition;
@@ -28,6 +48,7 @@ class _SelectHome extends State<SelectHome> {
 
   @override
   void initState() {
+    _getLanguage();
     super.initState();
     initialCameraPosition = const CameraPosition(
       target: LatLng(0, 0),
@@ -150,11 +171,11 @@ class _SelectHome extends State<SelectHome> {
                   ),
                   backgroundColor: Colors.grey[200],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Aceptar',
+                      lang ? 'Aceptar' : 'Accept',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18.0,
@@ -188,7 +209,11 @@ class _SelectHome extends State<SelectHome> {
                 borderRadius: BorderRadius.circular(15.0),
               ),
               child: Text(
-                domicilio == null ? 'Seleccion: ' : 'Seleccion: ' + domicilio!,
+                domicilio == null
+                    ? 'Seleccion: '
+                    : lang
+                        ? 'Seleccion: $domicilio'
+                        : 'Selection: $domicilio',
                 style: TextStyle(
                   fontSize: 16.0,
                   color: Colors.black,

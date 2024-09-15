@@ -16,6 +16,14 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
+  bool lang = true;
+  Future<void> getLang() async {
+    bool savedLang = await getLanguagePreference();
+    setState(() {
+      lang = savedLang;
+    });
+  }
+
   TextEditingController emailController = TextEditingController(text: "");
   TextEditingController passwordController = TextEditingController(text: "");
   String encryptedPassword = '';
@@ -122,6 +130,7 @@ class _LogInState extends State<LogIn> {
 
   @override
   void initState() {
+    getLang();
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FirebaseAuth.instance.authStateChanges().listen((User? user) {
@@ -147,7 +156,9 @@ class _LogInState extends State<LogIn> {
             children: [
               Stack(
                 children: [
-                  const titleW(title: 'Iniciar sesion'),
+                  titleW(
+                    title: lang ? 'Iniciar sesion' : 'Log in',
+                  ),
                   Positioned(
                       left: 30,
                       top: 70,
@@ -158,8 +169,8 @@ class _LogInState extends State<LogIn> {
                             icon: const Icon(Icons.arrow_back_ios,
                                 size: 30, color: Colors.black),
                           ),
-                          const Text(
-                            'Regresar',
+                          Text(
+                            lang ? 'Regresar' : 'Back',
                             style: TextStyle(fontSize: 10),
                           )
                         ],
@@ -174,7 +185,7 @@ class _LogInState extends State<LogIn> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          "Hola de nuevo!",
+                          lang ? 'Hola de nuevo!' : 'Hi, welcome again!',
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
@@ -191,7 +202,9 @@ class _LogInState extends State<LogIn> {
                         Visibility(
                           visible: !_isEmail,
                           child: Text(
-                            "* Falta email del usuario",
+                            lang
+                                ? '* Falta email del usuario'
+                                : '* Missing user\'s email',
                             style: TextStyle(color: Colors.red, fontSize: 10),
                           ),
                         ),
@@ -201,11 +214,15 @@ class _LogInState extends State<LogIn> {
                         TextField(
                             obscureText: _obscureText,
                             controller: passwordController,
-                            decoration: StyleTextField('Contraseña')),
+                            decoration: StyleTextField(
+                              lang ? 'Contraseña' : 'Password',
+                            )),
                         Visibility(
                           visible: !_isPassword,
                           child: Text(
-                            "* Las contraseñas ingresadas no son validas o no coinciden",
+                            lang
+                                ? '* Las contraseñas ingresadas no son validas o no coinciden'
+                                : '* Invalid or different passwords',
                             style: TextStyle(color: Colors.red, fontSize: 10),
                           ),
                         ),
@@ -237,7 +254,7 @@ class _LogInState extends State<LogIn> {
                               }
                             },
                             style: customOutlinedButtonStyle(),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
@@ -249,7 +266,7 @@ class _LogInState extends State<LogIn> {
                                   width: 30,
                                 ),
                                 Text(
-                                  'Iniciar sesion',
+                                  lang ? 'Iniciar sesion' : 'Log in',
                                   style: TextStyle(
                                       fontStyle: FontStyle.italic,
                                       fontWeight: FontWeight.bold,
@@ -287,7 +304,9 @@ class _LogInState extends State<LogIn> {
                                   width: 2),
                             ),
                             child: Text(
-                              '¿No tienes cuenta? Registrate aqui!',
+                              lang
+                                  ? '¿No tienes cuenta? Registrate aqui!'
+                                  : 'Don\'t have an account? Register here!',
                               style: TextStyle(
                                   decoration: TextDecoration.underline,
                                   fontSize: 13,
