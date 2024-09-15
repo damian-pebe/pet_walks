@@ -1377,7 +1377,7 @@ Future<void> saveLanguagePreference(bool lang) async {
 
 Future<bool> getLanguagePreference() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getBool('lang')!; // Default value, if not set
+  return prefs.getBool('lang') ?? true; // Default value, if not set
 }
 //shared preferences
 

@@ -4,6 +4,7 @@ import 'package:petwalks_app/init_app/servicios/about_us.dart';
 import 'package:petwalks_app/init_app/servicios/agreement.dart';
 import 'package:petwalks_app/init_app/servicios/edit_user.dart';
 import 'package:petwalks_app/init_app/ajustes/pets.dart';
+import 'package:petwalks_app/init_app/servicios/premium.dart';
 import 'package:petwalks_app/init_app/servicios/suggestions.dart';
 import 'package:petwalks_app/main.dart';
 import 'package:petwalks_app/pages/opciones/options.dart';
@@ -295,7 +296,12 @@ class _AjustesState extends State<Ajustes> {
                                 Column(
                                   children: [
                                     IconButton(
-                                      onPressed: () {},
+                                      onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const Premium(),
+                                        ),
+                                      ),
                                       icon: const Icon(
                                         Icons.workspace_premium,
                                         size: 35,
