@@ -53,12 +53,16 @@ class _PendingRequestsNotificationsState
 
     for (var doc in pendingRequests) {
       String requestId = doc.id;
-      String emailWalker = doc['emailWalker'];
-
+      String viewUser;
+      if (email == doc['emailWalker']) {
+        viewUser = doc['emailOwner'];
+      } else {
+        viewUser = doc['emailWalker'];
+      }
       try {
         QuerySnapshot walkerSnapshot = await FirebaseFirestore.instance
             .collection('users')
-            .where("email", isEqualTo: emailWalker)
+            .where("email", isEqualTo: viewUser)
             .get();
 
         if (walkerSnapshot.docs.isNotEmpty) {

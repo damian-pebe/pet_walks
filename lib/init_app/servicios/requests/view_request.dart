@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:petwalks_app/init_app/servicios/view_active_route.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/rate_dialog.dart';
@@ -13,6 +14,7 @@ class ViewRequest extends StatefulWidget {
   final String emailWalker;
   final String idBusiness;
   final String idWalk;
+  final String idHistory;
   final String status;
   final Timestamp? timeStart;
   const ViewRequest(
@@ -20,6 +22,7 @@ class ViewRequest extends StatefulWidget {
       required this.emailOwner,
       required this.idWalk,
       required this.emailWalker,
+      required this.idHistory,
       required this.status,
       required this.timeStart,
       super.key});
@@ -452,22 +455,25 @@ class _ViewRequestState extends State<ViewRequest> {
                                               fontSize: 16,
                                               color: Colors.black),
                                         )
-                                      : widget.status == 'walking'
-                                          ? OutlinedButton(
-                                              onPressed: () {},
-                                              child: Text(
-                                                  lang!
-                                                      ? 'Ver ruta activa'
-                                                      : 'View active route',
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.black)))
-                                          : Text(
-                                              lang! ? 'Esperando' : 'Awaiting',
+                                      : OutlinedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => RouteMap(
+                                                  idWalk: widget.idHistory,
+                                                  lang: lang!,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Text(
+                                              lang!
+                                                  ? 'Ver ruta de paseo'
+                                                  : 'View walk route',
                                               style: const TextStyle(
                                                   fontSize: 16,
-                                                  color: Colors.black),
-                                            ),
+                                                  color: Colors.black))),
                                   IconButton(
                                     onPressed: () {
                                       toastF(

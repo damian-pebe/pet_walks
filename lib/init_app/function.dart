@@ -19,6 +19,7 @@ class _FuncionState extends State<Funcion> {
   @override
   void initState() {
     super.initState();
+    print('funcion language');
     _getLanguage();
   }
 

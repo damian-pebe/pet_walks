@@ -62,12 +62,16 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
       itemBuilder: (context, index) {
         final doc = _pendingRequests[index];
         final requestId = doc.id;
-        final emailWalker = doc['emailWalker'];
-
+        String viewUser;
+        if (email == doc['emailWalker']) {
+          viewUser = doc['emailOwner'];
+        } else {
+          viewUser = doc['emailWalker'];
+        }
         return FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance
               .collection('users')
-              .where("email", isEqualTo: emailWalker)
+              .where("email", isEqualTo: viewUser)
               .limit(1)
               .get()
               .then((snapshot) => snapshot.docs.first),

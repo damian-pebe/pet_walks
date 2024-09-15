@@ -62,12 +62,18 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
       itemBuilder: (context, index) {
         final doc = _pendingRequests[index];
         final requestId = doc.id;
-        final emailWalker = doc['emailWalker'];
+
+        String viewUser;
+        if (email == doc['emailWalker']) {
+          viewUser = doc['emailOwner'];
+        } else {
+          viewUser = doc['emailWalker'];
+        }
 
         return FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance
               .collection('users')
-              .where("email", isEqualTo: emailWalker)
+              .where("email", isEqualTo: viewUser)
               .limit(1)
               .get()
               .then((snapshot) => snapshot.docs.first),
@@ -220,8 +226,8 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                       if (await getOwnerStatus(
                                           requestId, false)) {
                                         toastF(lang!
-                                            ? 'Viaje iniciado'
-                                            : 'Walk started');
+                                            ? 'Viaje terminado'
+                                            : 'Walk finished');
                                       } else {
                                         updateWalker(false, requestId, false);
                                         toastF(lang!

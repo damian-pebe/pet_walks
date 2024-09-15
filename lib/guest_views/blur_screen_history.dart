@@ -35,7 +35,7 @@ class _BlurScreenState extends State<BlurScreenHistory> {
                       builder: (context) => const Sign_Up(),
                     ),
                   ),
-                  child: const Text('Iniciar sesion para continuar',
+                  child: const Text('Log in to use this function',
                       style: TextStyle(
                           decoration: TextDecoration.underline,
                           fontSize: 18,

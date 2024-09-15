@@ -444,9 +444,8 @@ Future<bool> getLanguage() async {
   } else if (languajeValue is bool) {
     languaje = languajeValue;
   } else {
-    throw Exception('Unexpected type for languaje field');
+    return true;
   }
-
   return languaje;
 }
 
@@ -766,15 +765,19 @@ Future<String> newHistoryWalk(
   String emailWalker,
   String? idBusiness,
 ) async {
-  DocumentReference userDoc = await db.collection("history").add({
+  DocumentReference newHistoryDoc = await db.collection("history").add({
     "idWalk": idWalk,
     "emailOwner": emailOwner,
     "emailWalker": emailWalker,
-    "position": idBusiness ?? "",
+    "idBusiness": idBusiness ?? "",
     "status": 'awaiting', // 'awaiting', 'walking', 'done',
   });
 
-  return userDoc.id;
+  await db.collection("history").doc(newHistoryDoc.id).update({
+    "id": newHistoryDoc.id,
+  });
+
+  return newHistoryDoc.id;
 }
 
 Future<Set<Map<String, dynamic>>> getHistory(List<String> listOfHistory) async {
@@ -1197,6 +1200,7 @@ Future<Map<String, dynamic>> manageEndWalk(String id) async {
       'emailOwner': data['emailOwner'] ?? '',
       'emailWalker': data['emailWalker'] ?? '',
       'idBusiness': data['idBusiness'] ?? '',
+      'idHistory': data['idHistory'] ?? '',
     };
   } else {
     return {};

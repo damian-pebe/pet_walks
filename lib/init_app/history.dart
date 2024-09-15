@@ -51,10 +51,13 @@ class _HistorialState extends State<Historial> {
     if (mounted) setState(() {});
   }
 
-  void _refreshData() {
+  void _refreshData() async {
+    List<String> ids = await fetchHistoryIds(email!);
+
     pendingRequests = fetchPendingRequests(email!);
     futureStartRequests = fetchPendingRequestStart(email!);
     futureEndRequests = fetchPendingRequestEnd(email!);
+    _futureHistory = getHistory(ids);
     setState(() {});
   }
 
@@ -300,8 +303,10 @@ class _HistorialState extends State<Historial> {
               onPanUpdate: (details) {
                 if (details.delta.dx < -10) {
                   _onSwipeLeft();
+                  _refreshData();
                 } else if (details.delta.dx > 10) {
                   _onSwipeRight();
+                  _refreshData();
                 }
               },
               child: PageView(
@@ -322,6 +327,7 @@ class _HistorialState extends State<Historial> {
                                         size: 30, color: Colors.black),
                                     onPressed: () => setState(() {
                                       _onSwipeLeft();
+                                      _refreshData();
                                     }),
                                   ),
                                   Text(
@@ -603,6 +609,8 @@ class _HistorialState extends State<Historial> {
                                                           idBusiness: history[
                                                                   'idBusiness'] ??
                                                               '',
+                                                          idHistory:
+                                                              history['id'],
                                                           status:
                                                               history['status'],
                                                           timeStart: history[
@@ -641,6 +649,7 @@ class _HistorialState extends State<Historial> {
                                   IconButton(
                                     onPressed: () => setState(() {
                                       _onSwipeRight();
+                                      _refreshData();
                                     }),
                                     icon: const Icon(Icons.swipe_left,
                                         size: 30, color: Colors.black),

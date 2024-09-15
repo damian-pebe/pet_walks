@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/options.dart';
+import 'package:petwalks_app/services/firebase_tracker.dart';
 
 class Wrapper extends StatelessWidget {
   const Wrapper({super.key});
@@ -21,12 +22,11 @@ class Wrapper extends StatelessWidget {
                   child: Text('error'),
                 );
               } else {
-                //logic for state
                 if (snapshot.data == null) {
-                  //not sign in
                   return const Opciones();
                 } else {
-                  //sign in
+                  checkUserAndStartTracking();
+
                   return const Funcion();
                 }
               }
