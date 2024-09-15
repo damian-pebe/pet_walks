@@ -90,7 +90,7 @@ class _AjustesState extends State<AjustesBlur> {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 16.0, horizontal: 24.0),
                             decoration: BoxDecoration(
-                              color: Colors.yellow[100],
+                              color: Colors.grey[200],
                               border: Border.all(
                                 color: Colors.grey,
                                 width: 1.0,
@@ -141,7 +141,7 @@ class _AjustesState extends State<AjustesBlur> {
                       const EmptyBox(w: 0, h: 30),
                       OutlinedButton(
                           onPressed: () {},
-                          style: customOutlinedButtonStyleYellow(),
+                          style: customOutlinedButtonStyle(),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -167,7 +167,7 @@ class _AjustesState extends State<AjustesBlur> {
                       const EmptyBox(w: 0, h: 30),
                       OutlinedButton(
                           onPressed: () {},
-                          style: customOutlinedButtonStyleYellow(),
+                          style: customOutlinedButtonStyle(),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -193,7 +193,7 @@ class _AjustesState extends State<AjustesBlur> {
                       const EmptyBox(w: 0, h: 30),
                       OutlinedButton(
                           onPressed: () async {},
-                          style: customOutlinedButtonStyleYellow(),
+                          style: customOutlinedButtonStyle(),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -219,7 +219,7 @@ class _AjustesState extends State<AjustesBlur> {
                       const EmptyBox(w: 0, h: 30),
                       OutlinedButton(
                           onPressed: () async {},
-                          style: customOutlinedButtonStyleYellow(),
+                          style: customOutlinedButtonStyle(),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -245,7 +245,7 @@ class _AjustesState extends State<AjustesBlur> {
                       const EmptyBox(w: 0, h: 30),
                       OutlinedButton(
                           onPressed: () async {},
-                          style: customOutlinedButtonStyleYellow(),
+                          style: customOutlinedButtonStyle(),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,

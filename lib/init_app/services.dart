@@ -28,11 +28,13 @@ class _ServiciosState extends State<Servicios> {
 
   void fetchServices() async {
     services = await getServices(email!);
-    setState(() {
-      _getIconRequest = services.contains('request');
-      _getIconWalk = services.contains('walk');
-      _getIconBusiness = services.contains('business');
-    });
+    if (mounted) {
+      setState(() {
+        _getIconRequest = services.contains('request');
+        _getIconWalk = services.contains('walk');
+        _getIconBusiness = services.contains('business');
+      });
+    }
   }
 
   void _updateServices() async {
@@ -70,7 +72,9 @@ class _ServiciosState extends State<Servicios> {
   bool? lang;
   void _getLanguage() async {
     lang = await getLanguage();
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void Paseo() {

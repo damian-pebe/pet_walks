@@ -563,43 +563,7 @@ class _EditUserState extends State<EditUser> {
                                     ),
                                   ],
                                 ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 16.0, horizontal: 24.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                  child: Text(
-                                    "Domicilio: " + homeController.text,
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      color: Colors.black,
-                                      letterSpacing: 1.2,
-                                      shadows: [
-                                        Shadow(
-                                          offset: Offset(1.0, 1.0),
-                                          blurRadius: 2.0,
-                                          color: Colors.grey,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
                               ],
-                            ),
-                            const SizedBox(height: 5),
-                            Visibility(
-                              visible: !_isHome,
-                              child: Text(
-                                "* ${lang! ? 'El domicilio no puede estar vacio' : 'Address cannot be empty'}",
-                                style: const TextStyle(
-                                    color: Colors.red, fontSize: 10),
-                              ),
                             ),
                             const SizedBox(height: 5),
                             Container(
@@ -627,7 +591,14 @@ class _EditUserState extends State<EditUser> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 30),
+                            Visibility(
+                              visible: !_isHome,
+                              child: Text(
+                                "* ${lang! ? 'Domicilio no puede ser vacio' : 'Missing address'}",
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 10),
+                              ),
+                            ),
                             const SizedBox(height: 10),
                             OutlinedButton(
                               onPressed: _isLoading

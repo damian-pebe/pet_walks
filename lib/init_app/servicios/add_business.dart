@@ -275,7 +275,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
     return true;
   }
 
-  bool _isName = false;
+  bool _isName = true;
   bool _isVerified = false;
   bool _isHome = false;
   final _isSame = false;
@@ -340,8 +340,8 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                             VisibilityW(
                               boolean: _isName,
                               string: lang!
-                                  ? 'Falta nombre del usuario'
-                                  : ' Missing user name ',
+                                  ? 'Falta nombre de la empresa'
+                                  : ' Missing business name ',
                             ),
                             const SizedBox(height: 10),
                             GestureDetector(

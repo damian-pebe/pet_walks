@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:petwalks_app/init_app/ajustes/edit_user.dart';
+import 'package:petwalks_app/init_app/servicios/edit_user.dart';
 import 'package:petwalks_app/init_app/ajustes/pets.dart';
 import 'package:petwalks_app/main.dart';
 import 'package:petwalks_app/pages/opciones/options.dart';
@@ -59,7 +59,7 @@ class _AjustesState extends State<Ajustes> {
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 16.0, horizontal: 24.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.yellow[100],
+                                    color: Colors.grey[200],
                                     border: Border.all(
                                       color: Colors.grey,
                                       width: 1.0,
@@ -133,13 +133,15 @@ class _AjustesState extends State<Ajustes> {
                                         builder: (context) => const EditUser(),
                                       ),
                                     ),
-                                style: customOutlinedButtonStyleYellow(),
+                                style: customOutlinedButtonStyle(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      lang! ? 'Editar perfil' : 'Language',
+                                      lang!
+                                          ? 'Editar perfil'
+                                          : 'Edit user info',
                                       style: const TextStyle(
                                         color: Colors.black,
                                         fontSize: 18.0,
@@ -164,7 +166,7 @@ class _AjustesState extends State<Ajustes> {
                                         builder: (context) => const Mascotas(),
                                       ),
                                     ),
-                                style: customOutlinedButtonStyleYellow(),
+                                style: customOutlinedButtonStyle(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -192,15 +194,13 @@ class _AjustesState extends State<Ajustes> {
                             const EmptyBox(w: 0, h: 30),
                             OutlinedButton(
                                 onPressed: () async {},
-                                style: customOutlinedButtonStyleYellow(),
+                                style: customOutlinedButtonStyle(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      lang!
-                                          ? 'Tutorial de uso'
-                                          : 'Usage tutorial',
+                                      lang! ? 'Contrato' : 'Agreement',
                                       style: const TextStyle(
                                         color: Colors.black,
                                         fontSize: 18.0,
@@ -211,7 +211,7 @@ class _AjustesState extends State<Ajustes> {
                                       width: 10,
                                     ),
                                     const Icon(
-                                      Icons.video_camera_front_outlined,
+                                      Icons.data_usage,
                                       size: 25,
                                       color: Colors.black,
                                     ),
@@ -220,7 +220,7 @@ class _AjustesState extends State<Ajustes> {
                             const EmptyBox(w: 0, h: 30),
                             OutlinedButton(
                                 onPressed: () async {},
-                                style: customOutlinedButtonStyleYellow(),
+                                style: customOutlinedButtonStyle(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -246,7 +246,7 @@ class _AjustesState extends State<Ajustes> {
                             const EmptyBox(w: 0, h: 30),
                             OutlinedButton(
                                 onPressed: () async {},
-                                style: customOutlinedButtonStyleYellow(),
+                                style: customOutlinedButtonStyle(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
