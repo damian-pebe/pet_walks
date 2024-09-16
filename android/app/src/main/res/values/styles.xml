@@ -5,7 +5,7 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
-    <style name="NormalTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="NormalTheme" parent="Theme.MaterialComponents">
         <!-- Customize your normal screen background color here -->
         <item name="android:windowBackground">@color/white</item>
     </style>

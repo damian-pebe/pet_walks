@@ -1,20 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/services/stripe_services.dart';
+import 'package:petwalks_app/widgets/decorations.dart';
 
-class Premium extends StatelessWidget {
+class Premium extends StatefulWidget {
   const Premium({super.key});
+
+  @override
+  State<Premium> createState() => _PremiumState();
+}
+
+class _PremiumState extends State<Premium> {
+  @override
+  void initState() {
+    super.initState();
+    _getLanguage();
+  }
+
+  bool? lang;
+  void _getLanguage() async {
+    lang = await getLanguage();
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1),
+          scaffoldBackgroundColor: Colors.black,
         ),
         home: Scaffold(
-          body: Center(
-            child:
-                OutlinedButton(onPressed: () {}, child: Text('payment method')),
-          ),
+          body: lang == null
+              ? const CircularProgressIndicator(
+                  color: Colors.white,
+                )
+              : Stack(
+                  children: [
+                    Image.asset(
+                      'assets/premium_background.jpg',
+                      width: double.infinity,
+                      fit: BoxFit.fill,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(40.0),
+                              child: Text(
+                                lang!
+                                    ? 'Esta es la suscripción mensual a Pet Walks Premium por 29 MXN'
+                                    : 'This is the montlhy subscription to Pet Walks Premium for 29 MXN',
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
+                            ),
+                            Image.asset(
+                              'assets/premium.png',
+                              height: 300,
+                              fit: BoxFit.fill,
+                            ),
+                            OutlinedButton(
+                              onPressed: () {
+                                StripeService.instance
+                                    .makePaymentPremium(context);
+                              },
+                              style: customOutlinedButtonStyle(),
+                              child: Text(
+                                lang!
+                                    ? 'Comprar PetWalks Premium'
+                                    : 'Buy PetWalks Premium',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                            ),
+                            OutlinedButton(
+                              onPressed: () {
+                                StripeService.instance.makePayment(context);
+                              },
+                              style: customOutlinedButtonStyle(),
+                              child: Text(
+                                'paayment',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
         ));
   }
 }
