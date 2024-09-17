@@ -779,7 +779,24 @@ Future<String> newHistoryWalk(
     "id": newHistoryDoc.id,
   });
 
+  Map<String, dynamic> data = await getInfoWalk(idWalk);
+  String payMethod = data['payMethod'];
+  if (payMethod == 'card') {
+    await db.collection("history").doc(newHistoryDoc.id).update({
+      "payment": 'awaiting',
+    });
+  }
+
   return newHistoryDoc.id;
+}
+
+Future<String?> getPaymentMethod(String idHistory) async {
+  Map<String, dynamic> data = await getOneHistory(idHistory);
+  String? payMethod = data['payment'];
+  if (payMethod != null) {
+    return payMethod;
+  }
+  return null;
 }
 
 Future<Set<Map<String, dynamic>>> getHistory(List<String> listOfHistory) async {
@@ -794,6 +811,18 @@ Future<Set<Map<String, dynamic>>> getHistory(List<String> listOfHistory) async {
         history.add(docSnapshot.data() as Map<String, dynamic>);
       }
     }
+  }
+
+  return history;
+}
+
+Future<Map<String, dynamic>> getOneHistory(String id) async {
+  Map<String, dynamic> history = {};
+  CollectionReference collectionReferenceHistory = db.collection('history');
+
+  DocumentSnapshot docSnapshot = await collectionReferenceHistory.doc(id).get();
+  if (docSnapshot.exists) {
+    history = docSnapshot.data() as Map<String, dynamic>;
   }
 
   return history;
@@ -1407,4 +1436,25 @@ Future<String> getAgreementStatus(String id) async {
   } else {
     return '';
   }
+}
+
+Future<void> updateHistoryPaymentStatus(
+  String? idHistory,
+) async {
+  String fetchedEmail = await fetchUserEmail();
+  var userDoc = await db
+      .collection("users")
+      .where("email", isEqualTo: fetchedEmail)
+      .get();
+  var user = userDoc.docs.first;
+
+  idHistory == null
+      ? await db
+          .collection('users')
+          .doc(user.id)
+          .update({"Premium": 'active', "startPremium": DateTime.now()})
+      : await db
+          .collection('history')
+          .doc(idHistory)
+          .update({"payment": 'done'});
 }

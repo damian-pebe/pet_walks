@@ -42,6 +42,14 @@ class _PremiumState extends State<Premium> {
                       width: double.infinity,
                       fit: BoxFit.fill,
                     ),
+                    Positioned(
+                        left: 10,
+                        top: 40,
+                        child: IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back_ios,
+                              size: 30, color: Colors.white),
+                        )),
                     Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Center(
@@ -75,16 +83,6 @@ class _PremiumState extends State<Premium> {
                                 lang!
                                     ? 'Comprar PetWalks Premium'
                                     : 'Buy PetWalks Premium',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                            ),
-                            OutlinedButton(
-                              onPressed: () {
-                                StripeService.instance.makePayment(context);
-                              },
-                              style: customOutlinedButtonStyle(),
-                              child: Text(
-                                'paayment',
                                 style: const TextStyle(color: Colors.black),
                               ),
                             ),

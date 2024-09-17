@@ -49,6 +49,16 @@ ButtonStyle customOutlinedButtonStyleYellow() {
   );
 }
 
+ButtonStyle customOutlinedButtonStyleGreen() {
+  return OutlinedButton.styleFrom(
+    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15.0),
+    ),
+    backgroundColor: const Color.fromRGBO(169, 200, 149, 1),
+  );
+}
+
 Container containerStyle(String msg) {
   return Container(
     width: 300.0,

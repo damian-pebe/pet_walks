@@ -2,15 +2,19 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:petwalks_app/env.dart';
+import 'package:petwalks_app/init_app/servicios/requests/payment_status.dart';
+import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/widgets/toast.dart';
 
 class StripeService {
   StripeService._();
   static final StripeService instance = StripeService._();
 
-  Future<void> makePayment(BuildContext context) async {
+  Future<void> makePayment(
+      BuildContext context, int price, String idHistory) async {
     try {
       String? paymentIntentClientSecret =
-          await _createPaymentIntent(100, 'mxn');
+          await _createPaymentIntent(price, 'mxn');
 
       if (paymentIntentClientSecret == null) return;
 
@@ -19,9 +23,61 @@ class StripeService {
               paymentIntentClientSecret: paymentIntentClientSecret,
               merchantDisplayName: 'PetWalks Enterprise'));
 
-      await _processPayment(context);
+      await _processPayment(context, idHistory);
     } catch (e) {
-      _navigateToStatusScreen(context, 'Error', e.toString());
+      _navigateToStatusScreen(
+        context,
+        'Error',
+        null,
+      );
+    }
+  }
+
+  Future<void> _processPayment(BuildContext context, String? idHistory) async {
+    try {
+      await Stripe.instance.presentPaymentSheet();
+      _navigateToStatusScreen(
+        context,
+        'Success',
+        idHistory,
+      );
+    } catch (e) {
+      _navigateToStatusScreen(
+        context,
+        'Error',
+        null,
+      );
+    }
+  }
+
+  Future<void> makePaymentPremium(BuildContext context) async {
+    try {
+      String? paymentIntentClientSecret = await _createPaymentIntent(29, 'mxn');
+
+      if (paymentIntentClientSecret == null) return;
+
+      await Stripe.instance.initPaymentSheet(
+          paymentSheetParameters: SetupPaymentSheetParameters(
+        paymentIntentClientSecret: paymentIntentClientSecret,
+        merchantDisplayName: 'PetWalks Enterprise',
+      ));
+
+      await _processPayment(context, null);
+    } catch (e) {
+      _navigateToStatusScreen(context, 'Error', null);
+    }
+  }
+
+  Future<void> _navigateToStatusScreen(
+      BuildContext context, String status, String? idHistory) async {
+    if (status == 'Error') {
+      toastF('Error processing payment, please try again');
+    } else {
+      await updateHistoryPaymentStatus(idHistory);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PaymentSuccess()),
+      );
     }
   }
 
@@ -51,134 +107,7 @@ class StripeService {
     }
   }
 
-  Future<void> _processPayment(BuildContext context) async {
-    try {
-      await Stripe.instance.presentPaymentSheet();
-      _navigateToStatusScreen(
-          context, 'Success', 'Payment completed successfully!');
-    } catch (e) {
-      _navigateToStatusScreen(context, 'Error', e.toString());
-    }
-  }
-
   String _calculateAmount(int amount) {
     return (amount * 100).toString();
   }
-
-  Future<void> makePaymentPremium(BuildContext context) async {
-    try {
-      String? paymentIntentClientSecret = await _createPaymentIntent(29, 'mxn');
-
-      if (paymentIntentClientSecret == null) return;
-
-      await Stripe.instance.initPaymentSheet(
-          paymentSheetParameters: SetupPaymentSheetParameters(
-        paymentIntentClientSecret: paymentIntentClientSecret,
-        merchantDisplayName: 'PetWalks Enterprise',
-      ));
-
-      await _processPayment(context);
-    } catch (e) {
-      _navigateToStatusScreen(context, 'Error', e.toString());
-    }
-  }
-
-  void _navigateToStatusScreen(
-      BuildContext context, String status, String message) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) =>
-    //         PaymentStatusScreen(status: status, message: message),
-    //   ),
-    // );
-  }
 }
-
-
-
-// import 'package:flutter/material.dart';
-// import 'package:petwalks_app/services/firebase_services.dart';
-// import 'package:petwalks_app/widgets/decorations.dart';
-
-// class Premium extends StatefulWidget {
-//   const Premium({super.key});
-
-//   @override
-//   State<Premium> createState() => _PremiumState();
-// }
-
-// class _PremiumState extends State<Premium> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     _getLanguage();
-//   }
-
-//   bool? lang;
-//   void _getLanguage() async {
-//     lang = await getLanguage();
-//     if (mounted) setState(() {});
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//         debugShowCheckedModeBanner: false,
-//         theme: ThemeData(
-//           scaffoldBackgroundColor: Colors.black,
-//         ),
-//         home: Scaffold(
-//           body: lang == null
-//               ? const CircularProgressIndicator(
-//                   color: Colors.white,
-//                 )
-//               : Stack(
-//                   children: [
-//                     Image.asset(
-//                       'assets/premium_background.jpg',
-//                       width: double.infinity,
-//                       fit: BoxFit.fill,
-//                     ),
-//                     Padding(
-//                       padding: const EdgeInsets.all(20.0),
-//                       child: Center(
-//                         child: Column(
-//                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                           children: [
-//                             Padding(
-//                               padding: const EdgeInsets.all(40.0),
-//                               child: Text(
-//                                 lang!
-//                                     ? 'Esta es la suscripción mensual a Pet Walks Premium por 29 MXN'
-//                                     : 'This is the montlhy subscription to Pet Walks Premium for 29 MXN',
-//                                 style: TextStyle(
-//                                     fontSize: 25,
-//                                     fontWeight: FontWeight.bold,
-//                                     color: Colors.white),
-//                               ),
-//                             ),
-//                             Image.asset(
-//                               'assets/premium.png',
-//                               height: 300,
-//                               fit: BoxFit.fill,
-//                             ),
-//                             OutlinedButton(
-//                               onPressed: () {},
-//                               style: customOutlinedButtonStyle(),
-//                               child: Text(
-//                                 lang!
-//                                     ? 'Comprar PetWalks Premium'
-//                                     : 'Buy PetWalks Premium',
-//                                 style: const TextStyle(color: Colors.black),
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//         ));
-//   }
-// }

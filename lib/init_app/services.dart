@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/init_app/servicios/add_business.dart';
 import 'package:petwalks_app/init_app/servicios/agreement.dart';
-import 'package:petwalks_app/init_app/servicios/business/view_business.dart';
+import 'package:petwalks_app/init_app/ajustes/business/view_business.dart';
 import 'package:petwalks_app/init_app/servicios/walk.dart';
 import 'package:petwalks_app/init_app/servicios/schedule_walk.dart';
 import 'package:petwalks_app/init_app/servicios/request_walk.dart';
