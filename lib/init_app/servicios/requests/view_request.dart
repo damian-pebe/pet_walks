@@ -130,7 +130,7 @@ class _ViewRequestState extends State<ViewRequest> {
                         child: IconButton(
                             onPressed: () {},
                             icon: const Icon(
-                              Icons.report,
+                              Icons.mark_chat_read_rounded,
                               size: 30,
                               color: Colors.black,
                             )))

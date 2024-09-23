@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:petwalks_app/init_app/servicios/chat.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_end_walk.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_requests.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_start_walk.dart';
 import 'package:petwalks_app/init_app/servicios/requests/view_request.dart';
+import 'package:petwalks_app/init_app/servicios/view_chats.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,8 +19,8 @@ class Historial extends StatefulWidget {
 }
 
 class _HistorialState extends State<Historial> {
-  final PageController _pageController = PageController(initialPage: 0);
-  int _currentPage = 0;
+  final PageController _pageController = PageController(initialPage: 1);
+  int _currentPage = 1;
 
   List<String> selectedPets = [];
   Future<Set<Map<String, dynamic>>>? _futureHistory;
@@ -316,7 +319,218 @@ class _HistorialState extends State<Historial> {
                     children: [
                       Stack(
                         children: [
+                          titleW(title: 'Chats'),
+                          Positioned(
+                              left: 330,
+                              top: 70,
+                              child: Column(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.swipe_right,
+                                        size: 30, color: Colors.black),
+                                    onPressed: () => setState(() {
+                                      _onSwipeLeft();
+                                      _refreshData();
+                                    }),
+                                  ),
+                                  Text(
+                                    lang! ? 'Historial' : 'History',
+                                    style: TextStyle(fontSize: 10),
+                                  )
+                                ],
+                              )),
+                        ],
+                      ),
+                      Expanded(
+                        child: FutureBuilder<Set<Map<String, dynamic>>>(
+                          future: getChats(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return const Text('Error');
+                            } else if (!snapshot.hasData ||
+                                snapshot.data!.isEmpty) {
+                              return Text(lang!
+                                  ? 'Primero inicia un chat'
+                                  : 'First, start a chat');
+                            }
+
+                            List<Map<String, dynamic>> chats =
+                                snapshot.data!.toList();
+
+                            return ListView.builder(
+                              itemCount: chats.length,
+                              itemBuilder: (context, index) {
+                                var chat = chats[index];
+                                String otherUser = email == chat['user1']
+                                    ? chat['user1']
+                                    : chat['user1'];
+
+                                return Container(
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 300),
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 10),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: const BoxDecoration(
+                                    color: Color.fromRGBO(149, 175, 200, 1),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10.0)),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        FutureBuilder<String?>(
+                                          future: getProfilePhoto(otherUser),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return const CircleAvatar(
+                                                radius: 5,
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            } else if (snapshot.hasError) {
+                                              return CircleAvatar(
+                                                radius: 30,
+                                                child: const Icon(Icons.error,
+                                                    size: 50,
+                                                    color: Colors.red),
+                                              );
+                                            } else if (snapshot.hasData &&
+                                                snapshot.data != null) {
+                                              return CircleAvatar(
+                                                radius: 30,
+                                                backgroundImage: NetworkImage(
+                                                    snapshot.data!),
+                                                child: null,
+                                              );
+                                            } else {
+                                              return const CircleAvatar(
+                                                radius: 30,
+                                                child: Icon(Icons.person,
+                                                    size: 50,
+                                                    color: Colors.grey),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                        Column(
+                                          children: [
+                                            FutureBuilder<String?>(
+                                              future: getUserName(otherUser),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Center(
+                                                      child:
+                                                          CircularProgressIndicator());
+                                                } else if (snapshot.hasError) {
+                                                  return Center(
+                                                      child: Text(
+                                                          'Error: ${snapshot.error}'));
+                                                } else if (!snapshot.hasData ||
+                                                    snapshot.data!.isEmpty) {
+                                                  return Center(
+                                                      child: Text(lang!
+                                                          ? 'desconocido'
+                                                          : 'unknown'));
+                                                }
+                                                return Text(
+                                                  snapshot.data!,
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.black),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                );
+                                              },
+                                            ),
+                                            if (chat['messages'].isNotEmpty)
+                                              Align(
+                                                alignment: Alignment.topLeft,
+                                                child: Text(
+                                                  chat['messages'].last['m'],
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.black),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                            Align(
+                                              alignment: Alignment.topLeft,
+                                              child: Text(
+                                                  DateFormat('MM/dd/yy hh:mm a')
+                                                      .format(
+                                                    DateTime
+                                                        .fromMillisecondsSinceEpoch(
+                                                      chat['messages']
+                                                          .last['t'],
+                                                    ),
+                                                  ),
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.black)),
+                                            ),
+                                          ],
+                                        ),
+                                        IconButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ChatView(
+                                                              chatId: chat[
+                                                                  'chatId'])));
+                                            },
+                                            icon: Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 30,
+                                            ))
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Stack(
+                        children: [
                           titleW(title: lang! ? 'Historial' : 'History'),
+                          Positioned(
+                              left: 30,
+                              top: 70,
+                              child: Column(
+                                children: [
+                                  IconButton(
+                                    onPressed: () => setState(() {
+                                      _onSwipeRight();
+                                      _refreshData();
+                                    }),
+                                    icon: const Icon(Icons.swipe_left,
+                                        size: 30, color: Colors.black),
+                                  ),
+                                  Text(
+                                    'Chats',
+                                    style: TextStyle(fontSize: 10),
+                                  )
+                                ],
+                              )),
                           Positioned(
                               left: 330,
                               top: 70,
@@ -655,7 +869,7 @@ class _HistorialState extends State<Historial> {
                                         size: 30, color: Colors.black),
                                   ),
                                   Text(
-                                    lang! ? 'Regresar' : 'Return',
+                                    lang! ? 'Historial' : 'History',
                                     style: TextStyle(fontSize: 10),
                                   )
                                 ],

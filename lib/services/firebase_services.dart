@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geocoding/geocoding.dart';
@@ -494,17 +495,15 @@ Future<void> addPetToUser(String email, String? newPetId) async {
 }
 
 Future<void> addWalkToUser(String email, String? newWalkId) async {
-  try {
-    var userDoc =
-        await db.collection("users").where("email", isEqualTo: email).get();
-    if (userDoc.docs.isNotEmpty) {
-      var user = userDoc.docs.first;
-      var walk = List<String>.from(user.data()['idWalks'] ?? []);
-      walk.add(newWalkId ?? 'Invalid state for walk');
+  var userDoc =
+      await db.collection("users").where("email", isEqualTo: email).get();
+  if (userDoc.docs.isNotEmpty) {
+    var user = userDoc.docs.first;
+    var walk = List<String>.from(user.data()['idWalks'] ?? []);
+    walk.add(newWalkId ?? 'Invalid state for walk');
 
-      await db.collection("users").doc(user.id).update({"idWalks": walk});
-    }
-  } catch (e) {}
+    await db.collection("users").doc(user.id).update({"idWalks": walk});
+  }
 }
 
 Future<void> addBusinessToUser(String email, String? newBusinessId) async {
@@ -1457,4 +1456,121 @@ Future<void> updateHistoryPaymentStatus(
           .collection('history')
           .doc(idHistory)
           .update({"payment": 'done'});
+}
+
+//CHAT
+Future<void> newChat() async {
+  var userDoc = await db.collection("chat").add({
+    "user1": '',
+    "user2": '',
+    "messages": [
+      {
+        "m": "Hello, how are you?",
+        "t": DateTime.now().millisecondsSinceEpoch,
+        "s": "user1",
+      },
+      {
+        "m": "Hello, how are you?",
+        "t": DateTime.now().millisecondsSinceEpoch,
+        "s": "admin",
+      },
+      {
+        "m": "Hello, how are you?",
+        "t": DateTime.now().millisecondsSinceEpoch,
+        "s": "damian.pebe@gmail.com",
+      }
+    ]
+  });
+  await db.collection("users").doc(userDoc.id).update({"chatId": userDoc.id});
+}
+
+// EXAMPLE
+// Map<String, dynamic> newMessage = {
+//   "m": "Hello, how are you?", // Message content
+//   "t": DateTime.now().millisecondsSinceEpoch, // Timestamp
+//   "s": "user1", // Sender identifier (user1 or user2)
+// };
+
+Future<void> updateChatWithNewMessage(
+    String chatId, Map<String, dynamic> newMessage) async {
+  DocumentSnapshot doc = await db.collection("chat").doc(chatId).get();
+
+  Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  List<dynamic> currentMessages = data['messages'] ?? [];
+
+  currentMessages.add(newMessage);
+
+  await db.collection("chat").doc(chatId).update({
+    "messages": currentMessages,
+  });
+}
+
+Future<List<dynamic>> getChat(String chatId, bool type) async {
+  DocumentSnapshot doc = await db.collection("chat").doc(chatId).get();
+
+  Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  List<dynamic> currentMessages = data['messages'] ?? [];
+  return currentMessages;
+}
+
+// the same but as stream builder
+Stream<List<dynamic>> getChatStream(String chatId) {
+  return FirebaseFirestore.instance
+      .collection("chat")
+      .doc(chatId)
+      .snapshots()
+      .map((snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return data['messages'] ?? [];
+  });
+}
+
+Future<Set<Map<String, dynamic>>> getChats() async {
+  String fetchedEmail = await fetchUserEmail();
+
+  QuerySnapshot emailOwnerSnapshot = await FirebaseFirestore.instance
+      .collection('chat')
+      .where('user1', isEqualTo: fetchedEmail)
+      .get();
+
+  QuerySnapshot emailWalkerSnapshot = await FirebaseFirestore.instance
+      .collection('chat')
+      .where('user2', isEqualTo: fetchedEmail)
+      .get();
+
+  List<DocumentSnapshot> combinedDocs = [
+    ...emailOwnerSnapshot.docs,
+    ...emailWalkerSnapshot.docs,
+  ];
+
+  Set<Map<String, dynamic>> allChatsData =
+      combinedDocs.map((doc) => doc.data() as Map<String, dynamic>).toSet();
+
+  return allChatsData;
+}
+
+Future<String?> getProfilePhoto(String emailUser) async {
+  var querySnapshot =
+      await db.collection("users").where("email", isEqualTo: emailUser).get();
+
+  if (querySnapshot.docs.isNotEmpty) {
+    var doc = querySnapshot.docs.first;
+    String urlPhoto = doc['profilePhoto'];
+    return urlPhoto;
+  } else {
+    return null;
+  }
+}
+
+Future<String?> getUserName(String emailUser) async {
+  var querySnapshot =
+      await db.collection("users").where("email", isEqualTo: emailUser).get();
+
+  if (querySnapshot.docs.isNotEmpty) {
+    var doc = querySnapshot.docs.first;
+    String name = doc['name'];
+    return name;
+  } else {
+    return null;
+  }
 }
