@@ -39,9 +39,10 @@ class _PendingRequestsNotificationsState
     } catch (e) {
       toastF(lang! ? 'Error al obtener datos' : 'Error fetching data');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          isLoading = false;
+        });
     }
   }
 
@@ -78,11 +79,15 @@ class _PendingRequestsNotificationsState
               : 0.0;
           String name = walkerDoc['name'] ?? 'Desconocido';
 
+          // Fetching premium status
+          bool isPremium = await getPremiumStatus(viewUser);
+
           newRequestsData.add({
             'requestId': requestId,
             'profilePhoto': profilePhoto,
             'rating': rating,
             'name': name,
+            'isPremium': isPremium,
             'doc': doc,
           });
         }
@@ -116,6 +121,7 @@ class _PendingRequestsNotificationsState
         final profilePhoto = data['profilePhoto'];
         final rating = data['rating'];
         final name = data['name'];
+        final isPremium = data['isPremium'];
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5.0),
@@ -123,7 +129,7 @@ class _PendingRequestsNotificationsState
             color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 112, 69, 69).withOpacity(0.7),
+                color: Color.fromARGB(255, 66, 41, 41).withOpacity(0.7),
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: const [
                   BoxShadow(
@@ -132,6 +138,13 @@ class _PendingRequestsNotificationsState
                     offset: Offset(0, 4),
                   ),
                 ],
+                image: isPremium
+                    ? const DecorationImage(
+                        image: NetworkImage(
+                            'https://img.freepik.com/free-vector/luxury-background-3d-gradient-design_343694-2843.jpg?w=1060&t=st=1727284022~exp=1727284622~hmac=9434f20079f35f6d7dac9ae8bac9b2331dc12262659ab531b428ce45ebd1be59'),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
               child: ListTile(
                 shape: RoundedRectangleBorder(
@@ -147,9 +160,10 @@ class _PendingRequestsNotificationsState
                     Row(
                       children: [
                         CircleAvatar(
-                            backgroundImage: profilePhoto.isEmpty
-                                ? null
-                                : NetworkImage(profilePhoto)),
+                          backgroundImage: profilePhoto.isEmpty
+                              ? null
+                              : NetworkImage(profilePhoto),
+                        ),
                         const SizedBox(width: 10),
                         Row(
                           children: [
@@ -178,68 +192,70 @@ class _PendingRequestsNotificationsState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextButton(
-                        onPressed: () async {
-                          try {
-                            Map<String, dynamic> manageStartWalkInfo =
-                                await managePreHistory(requestId);
-                            String id = await newHistoryWalk(
+                      onPressed: () async {
+                        try {
+                          Map<String, dynamic> manageStartWalkInfo =
+                              await managePreHistory(requestId);
+                          String id = await newHistoryWalk(
+                            manageStartWalkInfo['idWalk'],
+                            manageStartWalkInfo['emailOwner'],
+                            manageStartWalkInfo['emailWalker'],
+                            manageStartWalkInfo['idBusiness'],
+                          );
+                          await newStartWalk(
                               manageStartWalkInfo['idWalk'],
                               manageStartWalkInfo['emailOwner'],
                               manageStartWalkInfo['emailWalker'],
                               manageStartWalkInfo['idBusiness'],
-                            );
-                            await newStartWalk(
-                                manageStartWalkInfo['idWalk'],
-                                manageStartWalkInfo['emailOwner'],
-                                manageStartWalkInfo['emailWalker'],
-                                manageStartWalkInfo['idBusiness'],
-                                id);
-                            toastF(lang! ? 'Aceptado' : 'Accepted');
-                            setState(() {
-                              for (var data in pendingRequestsData) {
-                                deletePreHistory(data['requestId']);
-                              }
-                              pendingRequestsData.clear();
-                            });
-                            setState(() {
-                              _fetchAndShowNotifications(email!);
-                            });
-                          } catch (e) {
-                            toastF(lang!
-                                ? 'Error al aceptar solicitud'
-                                : 'Error accepting request');
-                          }
-                        },
-                        child: Column(
-                          children: [
-                            Icon(Icons.check, color: Colors.white),
-                            Text(
-                              lang! ? 'Aceptar' : 'Accept',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 10),
-                            )
-                          ],
-                        )),
-                    TextButton(
-                        onPressed: () {
-                          toastF(lang! ? 'Denegado' : 'Denied');
-                          deletePreHistory(requestId);
+                              id);
+                          toastF(lang! ? 'Aceptado' : 'Accepted');
                           setState(() {
-                            pendingRequestsData.removeAt(index);
+                            for (var data in pendingRequestsData) {
+                              deletePreHistory(data['requestId']);
+                            }
+                            pendingRequestsData.clear();
                           });
-                        },
-                        child: Column(
-                          children: [
-                            Icon(Icons.close,
-                                color: Color.fromARGB(255, 239, 62, 49)),
-                            Text(
-                              lang! ? 'Denegar' : 'Deny',
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 239, 62, 49),
-                                  fontSize: 10),
-                            )
-                          ],
-                        )),
+                          setState(() {
+                            _fetchAndShowNotifications(email!);
+                          });
+                        } catch (e) {
+                          toastF(lang!
+                              ? 'Error al aceptar solicitud'
+                              : 'Error accepting request');
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          Icon(Icons.check, color: Colors.white),
+                          Text(
+                            lang! ? 'Aceptar' : 'Accept',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 10),
+                          )
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        toastF(lang! ? 'Denegado' : 'Denied');
+                        deletePreHistory(requestId);
+                        setState(() {
+                          pendingRequestsData.removeAt(index);
+                        });
+                      },
+                      child: Column(
+                        children: [
+                          Icon(Icons.close,
+                              color: Color.fromARGB(255, 239, 62, 49)),
+                          Text(
+                            lang! ? 'Denegar' : 'Deny',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 239, 62, 49),
+                                fontSize: 10),
+                          )
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

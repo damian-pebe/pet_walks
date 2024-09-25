@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:petwalks_app/init_app/servicios/chat.dart';
 import 'package:petwalks_app/init_app/servicios/view_active_route.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/services/stripe_services.dart';
@@ -128,9 +129,63 @@ class _ViewRequestState extends State<ViewRequest> {
                         left: 340,
                         top: 70,
                         child: IconButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              //TODO
+                              //!statement if chat is already created
+
+                              String currentUser = await fetchUserEmail();
+                              if (widget.emailOwner == currentUser) {
+                                String? oldChat =
+                                    await getOldChatId(widget.emailWalker);
+                                if (oldChat == null) {
+                                  String idChat =
+                                      await newChat(widget.emailWalker);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatView(
+                                        chatId: idChat,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatView(
+                                        chatId: oldChat,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                String? oldChat =
+                                    await getOldChatId(widget.emailOwner);
+                                if (oldChat == null) {
+                                  String idChat =
+                                      await newChat(widget.emailOwner);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatView(
+                                        chatId: idChat,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatView(
+                                        chatId: oldChat,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
                             icon: const Icon(
-                              Icons.mark_chat_read_rounded,
+                              Icons.chat_sharp,
                               size: 30,
                               color: Colors.black,
                             )))

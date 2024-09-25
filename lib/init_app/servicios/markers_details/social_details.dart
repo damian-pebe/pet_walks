@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:petwalks_app/init_app/servicios/chat.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
@@ -67,6 +68,7 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
                           List<String>.from(post['imageUrls'] ?? []);
                       List<String> comments =
                           List<String>.from(post['comments'] ?? []);
+                      String emailUser2 = post['emailUser'] ?? '';
 
                       return Container(
                         padding: const EdgeInsets.all(16.0),
@@ -118,7 +120,31 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    //working
+                                    String? oldChat =
+                                        await getOldChatId(emailUser2);
+                                    if (oldChat == null) {
+                                      String idChat = await newChat(emailUser2);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatView(
+                                            chatId: idChat,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatView(
+                                            chatId: oldChat,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
@@ -227,6 +253,7 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
                             List<String>.from(post['imageUrls'] ?? []);
                         List<String> comments =
                             List<String>.from(post['comments'] ?? []);
+                        String emailUser2 = post['emailUser'] ?? '';
 
                         return Container(
                           padding: const EdgeInsets.all(16.0),
@@ -267,15 +294,67 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
                               ),
                               const SizedBox(height: 5),
                               Center(
-                                child: TextButton(
-                                  onPressed: () {
-                                    showCommentsDialog(
-                                        context, comments, 'post', id, true);
-                                  },
-                                  child: Text(
-                                    lang! ? "Comentarios" : "Comments",
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
+                                child: Row(
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        showCommentsDialog(context, comments,
+                                            'post', id, true);
+                                      },
+                                      child: Text(
+                                        lang! ? "Comentarios" : "Comments",
+                                        style: const TextStyle(
+                                            color: Colors.black),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        String? oldChat =
+                                            await getOldChatId(emailUser2);
+                                        if (oldChat == null) {
+                                          String idChat =
+                                              await newChat(emailUser2);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ChatView(
+                                                chatId: idChat,
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ChatView(
+                                                chatId: oldChat,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Icon(
+                                            Icons.message,
+                                            size: 20,
+                                            color: Colors.black,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            lang! ? "Chat" : "Chat",
+                                            style: const TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 16),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

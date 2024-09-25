@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:petwalks_app/init_app/servicios/chat.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_end_walk.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_requests.dart';
 import 'package:petwalks_app/init_app/servicios/requests/manage_start_walk.dart';
 import 'package:petwalks_app/init_app/servicios/requests/view_request.dart';
-import 'package:petwalks_app/init_app/servicios/view_chats.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -456,7 +454,8 @@ class _HistorialState extends State<Historial> {
                                               Align(
                                                 alignment: Alignment.topLeft,
                                                 child: Text(
-                                                  chat['messages'].last['m'],
+                                                  chat['messages'].last['m'] ??
+                                                      '',
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       color: Colors.black),
@@ -468,17 +467,23 @@ class _HistorialState extends State<Historial> {
                                             Align(
                                               alignment: Alignment.topLeft,
                                               child: Text(
-                                                  DateFormat('MM/dd/yy hh:mm a')
-                                                      .format(
-                                                    DateTime
-                                                        .fromMillisecondsSinceEpoch(
-                                                      chat['messages']
-                                                          .last['t'],
-                                                    ),
-                                                  ),
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.black)),
+                                                chat['messages'] != null &&
+                                                        chat['messages']
+                                                            .isNotEmpty &&
+                                                        chat['messages']
+                                                                .last['t'] !=
+                                                            null
+                                                    ? DateFormat(
+                                                            'yyyy-MM-dd HH:mm')
+                                                        .format(DateTime
+                                                            .fromMillisecondsSinceEpoch(
+                                                                chat['messages']
+                                                                    .last['t']))
+                                                    : 'No Date Available',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black),
+                                              ),
                                             ),
                                           ],
                                         ),

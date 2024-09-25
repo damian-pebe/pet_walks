@@ -21,6 +21,7 @@ class _PasearState extends State<Pasear> {
   Completer<GoogleMapController> googleMapController = Completer();
   late CameraPosition initialCameraPosition;
   late BitmapDescriptor icon;
+  late BitmapDescriptor iconPremium;
   Marker? selectedMarker;
   LatLng? selectedPosition;
   String? domicilio;
@@ -40,7 +41,7 @@ class _PasearState extends State<Pasear> {
             markers.add(Marker(
               markerId: MarkerId(marker['timeWalking'] ?? 'Travel'),
               position: latLng,
-              icon: icon,
+              icon: marker['premium'] ? iconPremium : icon,
               infoWindow: InfoWindow(
                 title: 'Paseo/Viaje',
               ),
@@ -166,6 +167,9 @@ class _PasearState extends State<Pasear> {
   Future<void> setIcon() async {
     Uint8List iconBytes = await Utils.getBytesFromAsset(walkMarker, 120);
     icon = BitmapDescriptor.fromBytes(iconBytes);
+    Uint8List iconPremiumBytes =
+        await Utils.getBytesFromAsset(deluxeMarker, 120); //premium
+    iconPremium = BitmapDescriptor.fromBytes(iconPremiumBytes);
   }
 
   @override

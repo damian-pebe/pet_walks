@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geocoding/geocoding.dart';
@@ -564,7 +563,8 @@ Future<String> newBusiness(
     LatLng position,
     String? description,
     List<String>? downloadUrls) async {
-  List<double> rating = [0];
+  List<double> rating = [];
+  String fetchedEmail = await fetchUserEmail();
   DocumentReference userDoc = await db.collection("business").add({
     "name": name ?? "",
     "category": category ?? "",
@@ -579,6 +579,7 @@ Future<String> newBusiness(
       'super buen servicio!!'
     ],
     "imageUrls": downloadUrls ?? [],
+    "email": fetchedEmail
   });
   String lastBusinessId = userDoc.id;
 
@@ -596,7 +597,8 @@ Future<String> newWalk(
     String? description,
     List<String>? selectedPets,
     String? type,
-    String ownerEmail) async {
+    String ownerEmail,
+    bool premium) async {
   int timeWalkingInt = int.parse(timeWalking!);
   int price = getPriceWalk(timeWalkingInt, selectedPets!);
 
@@ -613,7 +615,8 @@ Future<String> newWalk(
     "mode": '',
     "type": type ?? '',
     "price": price,
-    "ownerEmail": ownerEmail
+    "ownerEmail": ownerEmail,
+    "premium": premium
   });
   String lastWalkId = userDoc.id;
 
@@ -642,7 +645,8 @@ Future<String> newProgramWalk(
     DateTime? endDate,
     String? mode,
     String? type,
-    String ownerEmail) async {
+    String ownerEmail,
+    bool premium) async {
   int? price;
   if (timeWalking != '') {
     int timeWalkingInt = int.parse(timeWalking!);
@@ -669,7 +673,8 @@ Future<String> newProgramWalk(
     "mode": mode ?? '',
     "type": type ?? '',
     "price": price,
-    "ownerEmail": ownerEmail
+    "ownerEmail": ownerEmail,
+    "premium": premium
   });
   String lastWalkId = userDoc.id;
 
@@ -780,7 +785,7 @@ Future<String> newHistoryWalk(
 
   Map<String, dynamic> data = await getInfoWalk(idWalk);
   String payMethod = data['payMethod'];
-  if (payMethod == 'card') {
+  if (payMethod == 'Tarjeta') {
     await db.collection("history").doc(newHistoryDoc.id).update({
       "payment": 'awaiting',
     });
@@ -989,6 +994,7 @@ Future<String> newPost(
     "type": type,
     "deleteTime": futureDate,
     "comments": ['RECOMENDADOOO!'],
+    "emailUser": _email
   });
   String lastPostId = userDoc.id;
 
@@ -1451,7 +1457,7 @@ Future<void> updateHistoryPaymentStatus(
       ? await db
           .collection('users')
           .doc(user.id)
-          .update({"Premium": 'active', "startPremium": DateTime.now()})
+          .update({"premium": 'active', "startPremium": DateTime.now()})
       : await db
           .collection('history')
           .doc(idHistory)
@@ -1459,36 +1465,43 @@ Future<void> updateHistoryPaymentStatus(
 }
 
 //CHAT
-Future<void> newChat() async {
-  var userDoc = await db.collection("chat").add({
-    "user1": '',
-    "user2": '',
-    "messages": [
-      {
-        "m": "Hello, how are you?",
-        "t": DateTime.now().millisecondsSinceEpoch,
-        "s": "user1",
-      },
-      {
-        "m": "Hello, how are you?",
-        "t": DateTime.now().millisecondsSinceEpoch,
-        "s": "admin",
-      },
-      {
-        "m": "Hello, how are you?",
-        "t": DateTime.now().millisecondsSinceEpoch,
-        "s": "damian.pebe@gmail.com",
-      }
-    ]
-  });
-  await db.collection("users").doc(userDoc.id).update({"chatId": userDoc.id});
+Future<String> newChat(String emailUser2) async {
+  String currentUserByEmail = await fetchUserEmail();
+  var userDoc = await db
+      .collection("chat")
+      .add({"user1": currentUserByEmail, "user2": emailUser2, "messages": []});
+  await db.collection("chat").doc(userDoc.id).update({"chatId": userDoc.id});
+  return userDoc.id;
+}
+
+Future<String?> getOldChatId(String emailUser2) async {
+  String currentUserByEmail = await fetchUserEmail();
+  var userDoc = await db
+      .collection("chat")
+      .where("user1", isEqualTo: currentUserByEmail)
+      .where("user2", isEqualTo: emailUser2)
+      .get();
+  if (userDoc.docs.isNotEmpty) {
+    return userDoc.docs.first.id;
+  }
+//both cases
+  var userDoc2 = await db
+      .collection("chat")
+      .where("user1", isEqualTo: emailUser2)
+      .where("user2", isEqualTo: currentUserByEmail)
+      .get();
+  if (userDoc2.docs.isNotEmpty) {
+    return userDoc2.docs.first.id;
+  }
+
+  return null;
 }
 
 // EXAMPLE
 // Map<String, dynamic> newMessage = {
 //   "m": "Hello, how are you?", // Message content
 //   "t": DateTime.now().millisecondsSinceEpoch, // Timestamp
-//   "s": "user1", // Sender identifier (user1 or user2)
+//   "s": "user1", // Sender identifier (user1 or user2) it can be admin in other case
 // };
 
 Future<void> updateChatWithNewMessage(
@@ -1572,5 +1585,37 @@ Future<String?> getUserName(String emailUser) async {
     return name;
   } else {
     return null;
+  }
+}
+
+Future<bool> getPremiumStatus(String fetchedEmail) async {
+  try {
+    var userDoc = await db
+        .collection("users")
+        .where("email", isEqualTo: fetchedEmail)
+        .get();
+
+    if (userDoc.docs.isEmpty) {
+      return false;
+    } else {
+      var doc = userDoc.docs.first;
+      var statusPremium = doc.data()['premium'] ?? '';
+
+      if (statusPremium == 'active') return true;
+    }
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
+Future<String> getBusinessEmail(String business) async {
+  var petDoc = await db.collection("business").doc(business).get();
+
+  if (petDoc.exists) {
+    String email = petDoc.data()!['email'];
+    return email;
+  } else {
+    return '';
   }
 }

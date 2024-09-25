@@ -47,6 +47,7 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
       print('Error getting email from user');
     }
     _fetchBuilderInfo();
+    statusPremiumInstance();
   }
 
   void _fetchBuilderInfo() async {
@@ -67,6 +68,11 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
     super.initState();
     fetchUserEmail();
     _getLanguage();
+  }
+
+  bool? premium;
+  void statusPremiumInstance() async {
+    premium = await getPremiumStatus(email!);
   }
 
   bool? lang;
@@ -835,7 +841,8 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
                                       descriptionController.text,
                                       selectedPets,
                                       'walk',
-                                      email!);
+                                      email!,
+                                      premium!);
                                   await addWalkToUser(email!, lastWalkId);
                                 }
 

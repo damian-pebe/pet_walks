@@ -80,6 +80,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
       print('Error getting email from user');
     }
     _fetchBuilderInfo();
+    statusPremiumInstance();
   }
 
   void _fetchBuilderInfo() async {
@@ -100,6 +101,12 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
     super.initState();
     fetchUserEmail();
     _getLanguage();
+    statusPremiumInstance();
+  }
+
+  bool? premium;
+  void statusPremiumInstance() async {
+    premium = await getPremiumStatus(email!);
   }
 
   bool? lang;
@@ -1053,7 +1060,8 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                       endDate,
                                       mode,
                                       'walk',
-                                      email!);
+                                      email!,
+                                      premium!);
                                   await addWalkToUser(email!, lastWalkId);
                                 }
 

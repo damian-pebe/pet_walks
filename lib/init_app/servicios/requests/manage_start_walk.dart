@@ -25,6 +25,7 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
     _getLanguage();
   }
 
+  bool? typePremium;
   void _getLanguage() async {
     lang = await getLanguage();
     setState(() {});
@@ -55,7 +56,6 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
       return const Center(
           child: SpinKitSpinningLines(color: Colors.blue, size: 50.0));
     }
-
     return ListView.builder(
       shrinkWrap: true,
       itemCount: _pendingRequests.length,
@@ -63,11 +63,14 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
         final doc = _pendingRequests[index];
         final requestId = doc.id;
         String viewUser;
+
         if (email == doc['emailWalker']) {
           viewUser = doc['emailOwner'];
         } else {
           viewUser = doc['emailWalker'];
         }
+
+        // Fetch the user document using FutureBuilder
         return FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance
               .collection('users')
@@ -77,7 +80,7 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
               .then((snapshot) => snapshot.docs.first),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const SizedBox.shrink();
+              return const SizedBox.shrink(); // Loading state
             } else if (snapshot.hasError) {
               return Text(lang!
                   ? 'Error: ${snapshot.error}'
@@ -88,169 +91,187 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
 
             final walkerDoc = snapshot.data!;
             final profilePhoto = walkerDoc['profilePhoto'] ?? '';
+
+            // Process ratings
             List<double> ratings = (walkerDoc['rating'] as List<dynamic>)
                 .map((e) => e is int ? e.toDouble() : e as double)
                 .toList();
+
             double rating = ratings.isNotEmpty
                 ? (ratings.reduce((a, b) => a + b) / ratings.length)
                 : 0.0;
-            final name = walkerDoc['name'] ?? '';
 
-            return Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 16.0),
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 153, 80, 190)
-                        .withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          lang!
-                              ? 'Iniciar viaje con: $name'
-                              : 'Start trip with: $name',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 18),
-                        ),
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: profilePhoto.isEmpty
-                                  ? null
-                                  : NetworkImage(profilePhoto),
+            final name = walkerDoc['name'] ?? 'Desconocido';
+
+            // Use another FutureBuilder to get the premium status asynchronously
+            return FutureBuilder<bool>(
+              future: getPremiumStatus(viewUser),
+              builder: (context, premiumSnapshot) {
+                if (premiumSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const SizedBox
+                      .shrink(); // Loading state for premium status
+                }
+
+                bool typePremium = premiumSnapshot.data ?? false;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10, horizontal: 16.0),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 153, 80, 190),
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
                             ),
-                            const SizedBox(width: 10),
+                          ],
+                          image: typePremium == true
+                              ? const DecorationImage(
+                                  image: NetworkImage(
+                                      'https://img.freepik.com/free-vector/luxury-background-3d-gradient-design_343694-2843.jpg?w=1060&t=st=1727284022~exp=1727284622~hmac=9434f20079f35f6d7dac9ae8bac9b2331dc12262659ab531b428ce45ebd1be59'),
+                                  fit: BoxFit.cover,
+                                )
+                              : null),
+                      child: ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              lang!
+                                  ? 'Iniciar viaje con: $name'
+                                  : 'Start trip with: $name',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 18),
+                            ),
                             Row(
                               children: [
-                                Icon(
-                                    rating > 0 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
-                                Icon(
-                                    rating > 1 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
-                                Icon(
-                                    rating > 2 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
-                                Icon(
-                                    rating > 3 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
-                                Icon(
-                                    rating > 4 ? Icons.star : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 13),
-                              ],
-                            ),
-                            const SizedBox(width: 8.0),
-                            Text('$rating/5',
-                                style: const TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextButton(
-                          onPressed: _loadingStates[requestId] == true
-                              ? null
-                              : () async {
-                                  setState(() {
-                                    _loadingStates[requestId] = true;
-                                  });
-                                  try {
-                                    Map<String, dynamic> manageStartWalkInfo =
-                                        await manageStartWalk(requestId);
-                                    bool owner =
-                                        manageStartWalkInfo['emailOwner'] ==
-                                            email;
-
-                                    if (owner) {
-                                      updateOwner(true, requestId, true);
-                                      await Future.delayed(
-                                          const Duration(seconds: 10));
-                                      bool status = await getWalkerStatus(
-                                          requestId, true);
-                                      if (status) {
-                                        await newEndWalk(
-                                            manageStartWalkInfo['idWalk'],
-                                            manageStartWalkInfo['emailOwner'],
-                                            manageStartWalkInfo['emailWalker'],
-                                            manageStartWalkInfo['idBusiness'],
-                                            manageStartWalkInfo['idHistory']);
-                                        updateHistory(
-                                            manageStartWalkInfo['idHistory'],
-                                            'walking',
-                                            DateTime.now(),
-                                            true); //true because its start
-                                        toastF(lang!
-                                            ? 'Viaje iniciado'
-                                            : 'Walk started');
-                                        await deleteStartHistory(
-                                            requestId, true);
-                                        setState(() {
-                                          _fetchPendingRequests();
-                                        });
-                                      } else {
-                                        updateOwner(false, requestId, true);
-                                        toastF(lang!
-                                            ? 'Ambos usuarios deben estar listos'
-                                            : 'Both users need to be ready');
-                                      }
-                                    } else {
-                                      updateWalker(true, requestId, true);
-                                      await Future.delayed(
-                                          const Duration(seconds: 10));
-                                      if (await getOwnerStatus(
-                                          requestId, true)) {
-                                        toastF(lang!
-                                            ? 'Viaje iniciado'
-                                            : 'Walk started');
-                                      } else {
-                                        updateWalker(false, requestId, true);
-                                        toastF(lang!
-                                            ? 'Ambos usuarios deben estar listos'
-                                            : 'Both users need to be ready');
-                                      }
-                                    }
-                                  } finally {
-                                    setState(() {
-                                      _loadingStates[requestId] = false;
-                                    });
-                                  }
-                                },
-                          child: _loadingStates[requestId] == true
-                              ? const SpinKitFadingCube(
-                                  color: Colors.white, size: 20.0)
-                              : Text(
-                                  lang! ? 'Iniciar' : 'Start',
+                                CircleAvatar(
+                                  backgroundImage: profilePhoto.isEmpty
+                                      ? null
+                                      : NetworkImage(profilePhoto),
+                                ),
+                                const SizedBox(width: 10),
+                                Row(
+                                  children: [
+                                    for (int i = 0; i < 5; i++)
+                                      Icon(
+                                        i < rating
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 13,
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(width: 8.0),
+                                Text(
+                                  '$rating/5',
                                   style: const TextStyle(color: Colors.white),
                                 ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                              onPressed: _loadingStates[requestId] == true
+                                  ? null
+                                  : () async {
+                                      setState(() {
+                                        _loadingStates[requestId] = true;
+                                      });
+
+                                      try {
+                                        Map<String, dynamic>
+                                            manageStartWalkInfo =
+                                            await manageStartWalk(requestId);
+                                        bool owner =
+                                            manageStartWalkInfo['emailOwner'] ==
+                                                email;
+
+                                        if (owner) {
+                                          updateOwner(true, requestId, true);
+                                          bool status = await getWalkerStatus(
+                                              requestId, true);
+
+                                          if (status) {
+                                            await newEndWalk(
+                                                manageStartWalkInfo['idWalk'],
+                                                manageStartWalkInfo[
+                                                    'emailOwner'],
+                                                manageStartWalkInfo[
+                                                    'emailWalker'],
+                                                manageStartWalkInfo[
+                                                    'idBusiness'],
+                                                manageStartWalkInfo[
+                                                    'idHistory']);
+
+                                            updateHistory(
+                                                manageStartWalkInfo[
+                                                    'idHistory'],
+                                                'walking',
+                                                DateTime.now(),
+                                                true);
+                                            toastF(lang!
+                                                ? 'Viaje iniciado'
+                                                : 'Walk started');
+                                            setState(() {
+                                              _fetchPendingRequests();
+                                            });
+                                          } else {
+                                            updateOwner(false, requestId, true);
+                                            toastF(lang!
+                                                ? 'Ambos usuarios deben estar listos'
+                                                : 'Both users need to be ready');
+                                          }
+                                        } else {
+                                          updateWalker(true, requestId, true);
+                                          if (await getOwnerStatus(
+                                              requestId, true)) {
+                                            toastF(lang!
+                                                ? 'Viaje iniciado'
+                                                : 'Walk started');
+                                          } else {
+                                            updateWalker(
+                                                false, requestId, true);
+                                            toastF(lang!
+                                                ? 'Ambos usuarios deben estar listos'
+                                                : 'Both users need to be ready');
+                                          }
+                                        }
+                                      } finally {
+                                        setState(() {
+                                          _loadingStates[requestId] = false;
+                                        });
+                                      }
+                                    },
+                              child: _loadingStates[requestId] == true
+                                  ? const SpinKitFadingCube(
+                                      color: Colors.white, size: 20.0)
+                                  : Text(
+                                      lang! ? 'Iniciar' : 'Start',
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
         );
