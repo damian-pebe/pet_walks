@@ -1,7 +1,15 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as path;
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:intl/intl.dart';
+import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatView extends StatefulWidget {
   final String chatId;
@@ -12,6 +20,122 @@ class ChatView extends StatefulWidget {
 }
 
 class _ChatViewState extends State<ChatView> {
+  List<File> _imageFiles = [];
+  List<String> _downloadUrls = [];
+
+  Future<List<String>?> _pickImages() async {
+    final pickedFiles = await ImagePicker().pickMultiImage(imageQuality: 80);
+
+    setState(() {
+      _imageFiles =
+          pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
+    });
+    return await _uploadImages();
+  }
+
+  Future<List<String>?> _uploadImages() async {
+    if (_imageFiles.isEmpty) return null;
+
+    for (var imageFile in _imageFiles) {
+      final fileName = path.basename(imageFile.path);
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('uploads/chats/${widget.chatId}/$fileName');
+      await storageRef.putFile(imageFile);
+      final url = await storageRef.getDownloadURL();
+      setState(() {
+        _downloadUrls.add(url);
+      });
+    }
+    return _downloadUrls;
+  }
+
+  //!FILES
+  String? downloadUrl;
+
+  Future<String?> uploadFileAndSaveUrl() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'png'],
+      );
+
+      if (result != null) {
+        File file = File(result.files.single.path!);
+        String fileName = result.files.single.name;
+        downloadUrl = fileName;
+        Reference ref = FirebaseStorage.instance
+            .ref()
+            .child('uploads/documents')
+            .child(fileName);
+        UploadTask uploadTask = ref.putFile(file);
+        await uploadTask.whenComplete(() => null);
+
+        String downloadURL = await ref.getDownloadURL();
+
+        return downloadURL;
+      } else {
+        print('User canceled file picking');
+        return null;
+      }
+    } catch (e) {
+      print('Error uploading file: $e');
+      return null;
+    }
+  }
+
+  //! launch the file
+  Future<void> _launchFileUrl(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  // Check if the file is a PDF
+  bool isPdf(String url) {
+    return url.contains(".pdf");
+  }
+
+// Check if the file is a Word document
+  bool isWordDoc(String url) {
+    return url.contains(".doc") || url.endsWith(".docx");
+  }
+
+  Widget buildFilePreview(String fileUrl) {
+    if (isPdf(fileUrl)) {
+      // PDF preview with icon
+      return GestureDetector(
+        onTap: () {
+          _launchFileUrl(fileUrl); // Open the PDF file
+        },
+        child: const Column(
+          children: [
+            Icon(Icons.picture_as_pdf, size: 50, color: Colors.red),
+            Text('Open PDF'),
+          ],
+        ),
+      );
+    } else if (isWordDoc(fileUrl)) {
+      // Word document preview with icon
+      return GestureDetector(
+        onTap: () {
+          _launchFileUrl(fileUrl); // Open the Word file
+        },
+        child: const Column(
+          children: [
+            Icon(Icons.description, size: 50, color: Colors.blue),
+            Text('Open Word Document'),
+          ],
+        ),
+      );
+    } else {
+      // Fallback for unsupported file types
+      return Text('error');
+    }
+  }
+
   TextEditingController messageController = TextEditingController();
 
   String? fetchedEmail;
@@ -96,10 +220,20 @@ class _ChatViewState extends State<ChatView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                message['m'], // Message content
-                                style: TextStyle(fontSize: 16),
-                              ),
+                              if (message['m'] != null)
+                                Text(
+                                  message['m'], // Message content
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              if (message['f'] != null)
+                                if (message['f'] != null)
+                                  buildFilePreview(message['f'].toString()),
+                              if (message['i'] != null)
+                                PhotoCarousel(
+                                  imageUrls: (message['i'] as List<dynamic>)
+                                      .map((item) => item.toString())
+                                      .toList(),
+                                ),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -130,17 +264,47 @@ class _ChatViewState extends State<ChatView> {
                 },
               ),
             ),
-            Divider(),
+            const Divider(),
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  IconButton(
+                    icon: Icon(Icons.attach_file, color: Colors.black),
+                    onPressed: () async {
+                      //?file picker
+                      String? fileUrl = await uploadFileAndSaveUrl();
+                      if (fileUrl != null) {
+                        //?file picker is not empty
+                        updateChatWithNewMessage(widget.chatId, {
+                          "f": fileUrl, //just file not message
+                          "t": DateTime.now().millisecondsSinceEpoch,
+                          "s": fetchedEmail,
+                        });
+                        messageController.clear();
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.image_search, color: Colors.black),
+                    onPressed: () async {
+                      List<String>? imagesUrl = await _pickImages();
+                      if (imagesUrl != null) {
+                        updateChatWithNewMessage(widget.chatId, {
+                          "i": imagesUrl,
+                          "t": DateTime.now().millisecondsSinceEpoch,
+                          "s": fetchedEmail,
+                        });
+                        messageController.clear();
+                      }
+                    },
+                  ),
                   Expanded(
                     child: TextField(
                       controller: messageController,
                       decoration: InputDecoration(
-                        hintText: 'Add a new suggestion...',
+                        hintText: '...',
                         border: OutlineInputBorder(),
                       ),
                     ),

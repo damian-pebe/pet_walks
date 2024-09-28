@@ -18,7 +18,7 @@ class _AgreementState extends State<Agreement> {
   String? downloadUrlAddress;
   String? downloadUrlINE;
 
-  Future<String?> uploadFileAndSaveUrl(String userId, bool select) async {
+  Future<String?> uploadFileAndSaveUrl(bool select) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -146,8 +146,7 @@ class _AgreementState extends State<Agreement> {
                     ),
                     OutlinedButton(
                         onPressed: () async {
-                          downloadUrlINE =
-                              await uploadFileAndSaveUrl(idUser!, false);
+                          downloadUrlINE = await uploadFileAndSaveUrl(false);
                           setState(() {});
                         },
                         style: customOutlinedButtonStyle(),
@@ -207,8 +206,7 @@ class _AgreementState extends State<Agreement> {
                     ),
                     OutlinedButton(
                         onPressed: () async {
-                          downloadUrlAddress =
-                              await uploadFileAndSaveUrl(idUser!, true);
+                          downloadUrlAddress = await uploadFileAndSaveUrl(true);
                           setState(() {});
                         },
                         style: customOutlinedButtonStyle(),
