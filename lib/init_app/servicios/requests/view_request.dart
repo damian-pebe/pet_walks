@@ -130,63 +130,63 @@ class _ViewRequestState extends State<ViewRequest> {
                         top: 70,
                         child: IconButton(
                             onPressed: () async {
-                              //TODO
-                              //!statement if chat is already created
+                              try {
+                                String currentUser = await fetchUserEmail();
+                                String? oldChat;
 
-                              String currentUser = await fetchUserEmail();
-                              if (widget.emailOwner == currentUser) {
-                                String? oldChat =
-                                    await getOldChatId(widget.emailWalker);
-                                if (oldChat == null) {
-                                  String idChat =
-                                      await newChat(widget.emailWalker);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatView(
-                                        chatId: idChat,
+                                if (widget.emailOwner == currentUser) {
+                                  oldChat =
+                                      await getOldChatId(widget.emailWalker);
+                                  if (oldChat == null) {
+                                    String idChat =
+                                        await newChat(widget.emailWalker);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChatView(chatId: idChat),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChatView(chatId: oldChat!),
+                                      ),
+                                    );
+                                  }
                                 } else {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatView(
-                                        chatId: oldChat,
+                                  oldChat =
+                                      await getOldChatId(widget.emailOwner);
+                                  if (oldChat == null) {
+                                    String idChat =
+                                        await newChat(widget.emailOwner);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChatView(chatId: idChat),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChatView(chatId: oldChat!),
+                                      ),
+                                    );
+                                  }
                                 }
-                              } else {
-                                String? oldChat =
-                                    await getOldChatId(widget.emailOwner);
-                                if (oldChat == null) {
-                                  String idChat =
-                                      await newChat(widget.emailOwner);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatView(
-                                        chatId: idChat,
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatView(
-                                        chatId: oldChat,
-                                      ),
-                                    ),
-                                  );
-                                }
+                              } catch (e) {
+                                // Handle error (show a message, log it, etc.)
+                                print('Error: $e');
                               }
                             },
                             icon: const Icon(
                               Icons.chat_sharp,
-                              size: 30,
+                              size: 25,
                               color: Colors.black,
                             )))
                   ],

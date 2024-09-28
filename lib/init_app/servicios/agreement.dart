@@ -18,7 +18,7 @@ class _AgreementState extends State<Agreement> {
   String? downloadUrlAddress;
   String? downloadUrlINE;
 
-  Future<String?> uploadFileAndSaveUrl(String userId) async {
+  Future<String?> uploadFileAndSaveUrl(String userId, bool select) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -28,6 +28,7 @@ class _AgreementState extends State<Agreement> {
       if (result != null) {
         File file = File(result.files.single.path!);
         String fileName = result.files.single.name;
+        select ? downloadUrlAddress = fileName : downloadUrlINE = fileName;
 
         firebase_storage.Reference ref = firebase_storage
             .FirebaseStorage.instance
@@ -145,9 +146,9 @@ class _AgreementState extends State<Agreement> {
                     ),
                     OutlinedButton(
                         onPressed: () async {
-                          downloadUrlINE = await uploadFileAndSaveUrl(idUser!);
-
-                          updateINEUser(downloadUrlINE!, idUser!);
+                          downloadUrlINE =
+                              await uploadFileAndSaveUrl(idUser!, false);
+                          setState(() {});
                         },
                         style: customOutlinedButtonStyle(),
                         child: Row(
@@ -172,8 +173,17 @@ class _AgreementState extends State<Agreement> {
                             ),
                           ],
                         )),
+                    if (downloadUrlINE != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Text(
+                          '$downloadUrlINE',
+                          style: const TextStyle(
+                              fontSize: 12, fontStyle: FontStyle.italic),
+                        ),
+                      ),
                     const SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
                     Center(
                       child: Row(
@@ -198,9 +208,8 @@ class _AgreementState extends State<Agreement> {
                     OutlinedButton(
                         onPressed: () async {
                           downloadUrlAddress =
-                              await uploadFileAndSaveUrl(idUser!);
-
-                          updateAdressProofUser(downloadUrlAddress!, idUser!);
+                              await uploadFileAndSaveUrl(idUser!, true);
+                          setState(() {});
                         },
                         style: customOutlinedButtonStyle(),
                         child: Row(
@@ -227,6 +236,15 @@ class _AgreementState extends State<Agreement> {
                             ),
                           ],
                         )),
+                    if (downloadUrlAddress != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Text(
+                          '$downloadUrlAddress',
+                          style: const TextStyle(
+                              fontSize: 12, fontStyle: FontStyle.italic),
+                        ),
+                      ),
                     const SizedBox(
                       height: 20,
                     ),
@@ -240,6 +258,10 @@ class _AgreementState extends State<Agreement> {
                                 ? 'Ambos documentos dedben ser adjuntos'
                                 : 'Both files should be attached');
                           } else {
+                            await updateINEUser(downloadUrlINE!, idUser!);
+                            await updateAdressProofUser(
+                                downloadUrlAddress!, idUser!);
+
                             await uploadAgreementUserStatus(idUser!, 'inCheck');
                             Navigator.pop(context);
                             setState(() {});
