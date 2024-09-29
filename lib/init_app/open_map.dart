@@ -21,6 +21,8 @@ class _OpenMap extends State<OpenMap> {
   Completer<GoogleMapController> googleMapController = Completer();
   late CameraPosition initialCameraPosition;
   late BitmapDescriptor icon;
+  late BitmapDescriptor iconPremium;
+
   Marker? selectedMarker;
   LatLng? selectedPosition;
   String? domicilio;
@@ -40,7 +42,7 @@ class _OpenMap extends State<OpenMap> {
             markers.add(Marker(
               markerId: MarkerId(marker['name'] ?? 'Unknown'),
               position: latLng,
-              icon: icon,
+              icon: marker['premium'] ? iconPremium : icon,
               infoWindow: InfoWindow(
                 title: marker['name'] ?? 'Unknown',
                 snippet: marker['description'] ?? 'No description available',
@@ -158,6 +160,9 @@ class _OpenMap extends State<OpenMap> {
   Future<void> setIcon() async {
     Uint8List iconBytes = await Utils.getBytesFromAsset(businessMarker, 120);
     icon = BitmapDescriptor.fromBytes(iconBytes);
+    Uint8List iconPremiumBytes =
+        await Utils.getBytesFromAsset(businessMarkerDeluxe, 140); //premium
+    iconPremium = BitmapDescriptor.fromBytes(iconPremiumBytes);
   }
 
   @override

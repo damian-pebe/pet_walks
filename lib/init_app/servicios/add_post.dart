@@ -29,10 +29,16 @@ class _AddPostState extends State<AddPost> {
     _getLanguage();
   }
 
+  bool? premium;
+  void statusPremiumInstance() async {
+    premium = await getPremiumStatus(email);
+  }
+
   bool? lang;
   void _getLanguage() async {
     lang = await getLanguage();
     setState(() {});
+    statusPremiumInstance();
   }
 
   TextEditingController descriptionController = TextEditingController(text: "");
@@ -230,9 +236,10 @@ class _AddPostState extends State<AddPost> {
 
                                             save() async {
                                               String lastPostId = await newPost(
-                                                  descriptionController.text,
-                                                  _downloadUrls,
-                                                  type);
+                                                descriptionController.text,
+                                                _downloadUrls,
+                                                type,
+                                              );
                                               await addPostToUser(
                                                   email, lastPostId);
                                             }

@@ -30,6 +30,63 @@ class _PasearState extends State<Pasear> {
 
   Set<Marker> markers = {};
 
+  Future<void> _filterWalks(String? time, String? payment) async {
+    markers.clear();
+    try {
+      Set<Map<String, dynamic>> _WalksData = await getWalks();
+      for (var marker in _WalksData) {
+        try {
+          if (marker['timeWalking'] != null) {
+            if (time != null && marker['timeWalking'] != time) {
+              continue; // Skip this marker if time doesn't match
+            }
+          }
+
+          if (payment != null && marker['payMethod'] != payment) {
+            continue; // Skip this marker if payment doesn't match
+          }
+
+          var geoPoint = marker['position'];
+          if (geoPoint is GeoPoint) {
+            LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
+            markers.add(Marker(
+              markerId: MarkerId(marker['timeWalking'] ?? 'Travel'),
+              position: latLng,
+              icon: marker['premium'] ? iconPremium : icon,
+              infoWindow: InfoWindow(
+                title: 'Paseo/Viaje',
+              ),
+              onTap: () {
+                _showBottomSheet(
+                  timeWalking: marker['timeWalking'] ?? 'Unknown',
+                  payMethod: marker['payMethod'] ?? 'Unknown',
+                  price: marker['price'] ?? 'Unknown',
+                  walkWFriends: marker['walkWFriends'] ?? 'Unknown',
+                  place: marker['address'] ?? 'Unknown',
+                  selectedPets: List<String>.from(marker['selectedPets'] ?? []),
+                  description:
+                      marker['description'] ?? 'No description available',
+                  travelTo: marker['travelTo'] ?? '',
+                  travelToPosition:
+                      marker['travelToPosition'] ?? const GeoPoint(0, 0),
+                  email: marker['ownerEmail'],
+                  id: marker['id'],
+                );
+              },
+            ));
+          } else {
+            print("Invalid GeoPoint for marker: ${marker['timeWalking']}");
+          }
+        } catch (e) {
+          print("Error processing marker: ${marker['timeWalking']} - $e");
+        }
+      }
+      setState(() {});
+    } catch (e) {
+      print("Error fetching business data: $e");
+    }
+  }
+
   Future<void> _getWalks() async {
     try {
       Set<Map<String, dynamic>> _WalksData = await getWalks();
@@ -112,6 +169,300 @@ class _PasearState extends State<Pasear> {
     );
   }
 
+  String? timeWalking;
+  String? payMethod;
+  DIALOG() {
+    showModalBottomSheet(
+        backgroundColor: Color.fromRGBO(250, 244, 229, 1),
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Center(
+                child: Text(
+                  lang! ? 'Filtraar paseos' : 'Filter walks',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const Divider(),
+              Column(
+                children: [
+                  Text(
+                    lang! ? 'Tiempo(min):' : 'Time for walk(min)',
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                      letterSpacing: 1.2,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1.0, 1.0),
+                          blurRadius: 2.0,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () {
+                          timeWalking != '15'
+                              ? setState(() {
+                                  timeWalking = '15';
+                                })
+                              : setState(() {
+                                  timeWalking = null;
+                                });
+
+                          Navigator.pop(context);
+                          DIALOG();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: timeWalking == '15'
+                                ? Colors.black
+                                : const Color.fromRGBO(250, 244, 229, 1),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text('15',
+                            style: TextStyle(
+                              color: timeWalking == '15'
+                                  ? Colors.black
+                                  : Colors.black,
+                            )),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {
+                          timeWalking != '30'
+                              ? setState(() {
+                                  timeWalking = '30';
+                                })
+                              : setState(() {
+                                  timeWalking = null;
+                                });
+
+                          Navigator.pop(context);
+                          DIALOG();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: timeWalking == '30'
+                                ? Colors.black
+                                : const Color.fromRGBO(250, 244, 229, 1),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text('30',
+                            style: TextStyle(
+                              color: timeWalking == '30'
+                                  ? Colors.black
+                                  : Colors.black,
+                            )),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {
+                          timeWalking != '45'
+                              ? setState(() {
+                                  timeWalking = '45';
+                                })
+                              : setState(() {
+                                  timeWalking = null;
+                                });
+
+                          Navigator.pop(context);
+                          DIALOG();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: timeWalking == '45'
+                                ? Colors.black
+                                : const Color.fromRGBO(250, 244, 229, 1),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text('45',
+                            style: TextStyle(
+                              color: timeWalking == '45'
+                                  ? Colors.black
+                                  : Colors.black,
+                            )),
+                      ),
+                    ],
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      timeWalking != 'Viaje'
+                          ? setState(() {
+                              timeWalking = 'Viaje';
+                            })
+                          : setState(() {
+                              timeWalking = null;
+                            });
+
+                      Navigator.pop(context);
+                      DIALOG();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: timeWalking == 'Viaje'
+                            ? Colors.black
+                            : const Color.fromRGBO(250, 244, 229, 1),
+                        width: 2,
+                      ),
+                    ),
+                    child: Text(lang! ? 'Viaje' : 'Travel',
+                        style: TextStyle(
+                          color: timeWalking == 'Viaje'
+                              ? Colors.black
+                              : Colors.black,
+                        )),
+                  ),
+                  Text(
+                    lang! ? 'Metodo de pago' : 'Payment method',
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                      letterSpacing: 1.2,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1.0, 1.0),
+                          blurRadius: 2.0,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () {
+                          payMethod != 'Efectivo'
+                              ? setState(() {
+                                  payMethod = 'Efectivo';
+                                })
+                              : setState(() {
+                                  payMethod = null;
+                                });
+                          Navigator.pop(context);
+                          DIALOG();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: payMethod == 'Efectivo'
+                                ? Colors.black
+                                : const Color.fromRGBO(250, 244, 229, 1),
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(Icons.attach_money_outlined,
+                            color: payMethod == 'Efectivo'
+                                ? Colors.black
+                                : Colors.black),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {
+                          payMethod != 'Tarjeta'
+                              ? setState(() {
+                                  payMethod = 'Tarjeta';
+                                })
+                              : setState(() {
+                                  payMethod = null;
+                                });
+
+                          Navigator.pop(context);
+                          DIALOG();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: payMethod == 'Tarjeta'
+                                ? Colors.black
+                                : const Color.fromRGBO(250, 244, 229, 1),
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(Icons.credit_card_sharp,
+                            color: payMethod == 'Tarjeta'
+                                ? Colors.black
+                                : Colors.black),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 80.0),
+                child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _filterWalks(timeWalking, payMethod);
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Text(
+                          lang! ? 'Filtrar' : 'Filter',
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Icon(
+                          Icons.settings_applications_rounded,
+                          size: 20,
+                          color: Colors.black,
+                        ),
+                      ],
+                    )),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    timeWalking = null;
+                    payMethod = null;
+                    _getWalks();
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.delete_forever_rounded,
+                        size: 20,
+                        color: Colors.black,
+                      ),
+                      Text(
+                        lang! ? 'Quitar' : 'Remove',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  )),
+              const SizedBox(
+                height: 10,
+              )
+            ],
+          );
+        });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -168,7 +519,7 @@ class _PasearState extends State<Pasear> {
     Uint8List iconBytes = await Utils.getBytesFromAsset(walkMarker, 120);
     icon = BitmapDescriptor.fromBytes(iconBytes);
     Uint8List iconPremiumBytes =
-        await Utils.getBytesFromAsset(deluxeMarker, 120); //premium
+        await Utils.getBytesFromAsset(walkMarkerDeluxe, 140); //premium
     iconPremium = BitmapDescriptor.fromBytes(iconPremiumBytes);
   }
 
@@ -210,6 +561,31 @@ class _PasearState extends State<Pasear> {
                   )
                 else
                   const Center(child: CircularProgressIndicator()),
+
+                //TODO ICON BUTTON FOR FILTERS
+                Positioned(
+                  top: 20,
+                  right: 20,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color.fromRGBO(169, 200, 149, .2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: IconButton(
+                      color: Colors.black,
+                      iconSize: 30,
+                      onPressed: () {
+                        DIALOG();
+                      },
+                      icon: Column(
+                        children: [
+                          const Icon(Icons.settings_applications_outlined),
+                          Text(lang! ? 'Filtrar paseos' : 'Filter walks')
+                        ],
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
     );

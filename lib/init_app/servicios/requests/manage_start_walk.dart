@@ -196,16 +196,27 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                         Map<String, dynamic>
                                             manageStartWalkInfo =
                                             await manageStartWalk(requestId);
+                                        print(
+                                            'manageStartWalkInfo[]: ${manageStartWalkInfo['emailOwner']}');
                                         bool owner =
                                             manageStartWalkInfo['emailOwner'] ==
                                                 email;
 
                                         if (owner) {
                                           updateOwner(true, requestId, true);
+                                          await Future.delayed(
+                                              const Duration(seconds: 10));
+
                                           bool status = await getWalkerStatus(
                                               requestId, true);
-
                                           if (status) {
+                                            newHistoryWalk(
+                                              manageStartWalkInfo['idWalk'],
+                                              manageStartWalkInfo['emailOwner'],
+                                              manageStartWalkInfo[
+                                                  'emailWalker'],
+                                              manageStartWalkInfo['idBusiness'],
+                                            );
                                             await newEndWalk(
                                                 manageStartWalkInfo['idWalk'],
                                                 manageStartWalkInfo[
@@ -216,38 +227,37 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                                     'idBusiness'],
                                                 manageStartWalkInfo[
                                                     'idHistory']);
-
                                             updateHistory(
                                                 manageStartWalkInfo[
                                                     'idHistory'],
                                                 'walking',
                                                 DateTime.now(),
                                                 true);
-                                            toastF(lang!
-                                                ? 'Viaje iniciado'
-                                                : 'Walk started');
+                                            toastF('walk started');
+                                            setState(() {});
+                                            await deleteStartHistory(
+                                                requestId, true);
                                             setState(() {
                                               _fetchPendingRequests();
                                             });
                                           } else {
                                             updateOwner(false, requestId, true);
-                                            toastF(lang!
-                                                ? 'Ambos usuarios deben estar listos'
-                                                : 'Both users need to be ready');
+                                            toastF(
+                                                'both users need to be ready');
                                           }
                                         } else {
+                                          print('status: aaaa');
                                           updateWalker(true, requestId, true);
+                                          await Future.delayed(
+                                              const Duration(seconds: 10));
                                           if (await getOwnerStatus(
                                               requestId, true)) {
-                                            toastF(lang!
-                                                ? 'Viaje iniciado'
-                                                : 'Walk started');
+                                            toastF('walk started');
                                           } else {
                                             updateWalker(
                                                 false, requestId, true);
-                                            toastF(lang!
-                                                ? 'Ambos usuarios deben estar listos'
-                                                : 'Both users need to be ready');
+                                            toastF(
+                                                'both users need to be ready');
                                           }
                                         }
                                       } finally {

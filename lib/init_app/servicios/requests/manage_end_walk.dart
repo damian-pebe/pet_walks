@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/widgets/toast.dart';
 
 class EndWalkManagement extends StatefulWidget {
   const EndWalkManagement({super.key});
@@ -209,7 +210,53 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                     _loadingStates[requestId] = true;
                                   });
                                   try {
-                                    // Handle end walk logic here...
+                                    Map<String, dynamic> manageEndWalkInfo =
+                                        await manageEndWalk(requestId);
+                                    bool owner =
+                                        manageEndWalkInfo['emailOwner'] ==
+                                            email;
+                                    if (owner) {
+                                      updateOwner(true, requestId, false);
+                                      await Future.delayed(
+                                          const Duration(seconds: 10));
+                                      bool status = await getWalkerStatus(
+                                          requestId, false);
+                                      if (status) {
+                                        updateHistory(
+                                            manageEndWalkInfo['idHistory'],
+                                            'done',
+                                            DateTime.now(),
+                                            false); //false because its end
+                                        toastF(lang!
+                                            ? 'Viaje terminado'
+                                            : 'Walk finished');
+                                        await deleteStartHistory(
+                                            requestId, false);
+                                        setState(() {
+                                          _fetchPendingRequests();
+                                        });
+                                      } else {
+                                        updateOwner(false, requestId, false);
+                                        toastF(lang!
+                                            ? 'Ambos usuarios deben estar listos'
+                                            : 'Both users need to be ready');
+                                      }
+                                    } else {
+                                      updateWalker(true, requestId, false);
+                                      await Future.delayed(
+                                          const Duration(seconds: 10));
+                                      if (await getOwnerStatus(
+                                          requestId, false)) {
+                                        toastF(lang!
+                                            ? 'Viaje terminado'
+                                            : 'Walk finished');
+                                      } else {
+                                        updateWalker(false, requestId, false);
+                                        toastF(lang!
+                                            ? 'Ambos usuarios deben estar listos'
+                                            : 'Both users need to be ready');
+                                      }
+                                    }
                                   } finally {
                                     setState(() {
                                       _loadingStates[requestId] = false;
