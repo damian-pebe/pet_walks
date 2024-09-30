@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1617,5 +1619,32 @@ Future<String> getBusinessEmail(String business) async {
     return email;
   } else {
     return '';
+  }
+}
+
+//!token to array
+
+Future<void> getAndAddTokenToArray() async {
+  //add this on every login on the app
+  String? token = await FirebaseMessaging.instance.getToken();
+  if (token != null) {
+    String fetchedEmail = await fetchUserEmail();
+    var doc = await db.collection("tokenNotifications").doc(fetchedEmail).get();
+
+    if (doc.exists) {
+      List<String> tokenArray = List<String>.from(doc.data()!['tokens'] ?? []);
+
+      // Check if the token is not already in the list
+      if (!tokenArray.contains(token)) {
+        tokenArray.add(token); // Add the new token to the list
+        await db.collection("tokenNotifications").doc(fetchedEmail).update({
+          "tokens": tokenArray, // Update with the new array of tokens
+        });
+      }
+    } else {
+      await db.collection("tokenNotifications").doc(fetchedEmail).set({
+        "tokens": [token],
+      });
+    }
   }
 }

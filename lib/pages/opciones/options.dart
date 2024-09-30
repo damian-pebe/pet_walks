@@ -5,6 +5,7 @@ import 'package:petwalks_app/guest_views/funcion_guest.dart';
 import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/login.dart';
 import 'package:petwalks_app/services/auth_service.dart';
+import 'package:petwalks_app/services/fcm_services.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
@@ -47,6 +48,8 @@ class _OpcionesState extends State<Opciones> {
     if (user != null) {
       email = user.email ?? 'There was a problem fetching the info';
       await newUser('', email!, '', '');
+
+      await getAndAddTokenToArray();
       if (mounted) {
         Navigator.push(
           context,
@@ -86,12 +89,14 @@ class _OpcionesState extends State<Opciones> {
                         height: 260,
                       ),
                       OutlinedButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LogIn(),
-                          ),
-                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LogIn(),
+                            ),
+                          );
+                        },
                         style: customOutlinedButtonStyle(),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -122,12 +127,13 @@ class _OpcionesState extends State<Opciones> {
                       ),
                       const SizedBox(height: 10),
                       OutlinedButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Sign_Up(),
-                          ),
-                        ),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Sign_Up(),
+                              ));
+                        },
                         style: customOutlinedButtonStyle(),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

@@ -16,6 +16,12 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
+  void _resetPassword(String email) async {
+    if (email.isNotEmpty) {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    }
+  }
+
   bool lang = true;
   Future<void> getLang() async {
     bool savedLang = await getLanguagePreference();
@@ -40,6 +46,7 @@ class _LogInState extends State<LogIn> {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
+      await getAndAddTokenToArray();
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -85,6 +92,7 @@ class _LogInState extends State<LogIn> {
     if (user != null) {
       email = user.email ?? 'There was a problem fetching the info';
       await newUser('', email!, '', '');
+      await getAndAddTokenToArray();
       if (mounted) {
         Navigator.push(
           context,
@@ -226,8 +234,34 @@ class _LogInState extends State<LogIn> {
                             style: TextStyle(color: Colors.red, fontSize: 10),
                           ),
                         ),
+                        const SizedBox(
+                          height: 5,
+                        ),
                         SizedBox(
-                          height: 30,
+                          height: 40,
+                          width: 300,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              _resetPassword(emailController.text);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(
+                                  color: Color.fromRGBO(250, 244, 229, 1),
+                                  width: 2),
+                            ),
+                            child: Text(
+                              lang
+                                  ? '¿Olvido su contraseña?\nLlene el campo email y de click aqui!'
+                                  : 'Forgot password?\nComplete the Email field and click here',
+                              style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 13,
+                                  color: Colors.black),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
                         ),
                         OutlinedButton(
                             onPressed: () {
@@ -257,17 +291,17 @@ class _LogInState extends State<LogIn> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   FontAwesomeIcons.user,
                                   size: 30,
                                   color: Colors.black,
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 30,
                                 ),
                                 Text(
                                   lang ? 'Iniciar sesion' : 'Log in',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontStyle: FontStyle.italic,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
@@ -275,7 +309,7 @@ class _LogInState extends State<LogIn> {
                                 ),
                               ],
                             )),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         OutlinedButton(
