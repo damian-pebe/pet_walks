@@ -5,7 +5,6 @@ import 'package:petwalks_app/guest_views/funcion_guest.dart';
 import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/login.dart';
 import 'package:petwalks_app/services/auth_service.dart';
-import 'package:petwalks_app/services/fcm_services.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
