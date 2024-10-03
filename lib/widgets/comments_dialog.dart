@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -89,7 +91,8 @@ class _CommentsDialogState extends State<CommentsDialog> {
                         lang!
                             ? 'No hay comentarios disponibles'
                             : 'There are no comments yet',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.grey),
                       )
                     else
                       ...widget.comments.map((comment) {
@@ -120,7 +123,7 @@ class _CommentsDialogState extends State<CommentsDialog> {
                                     ),
                                     Text(
                                       lang! ? 'Denunciar' : 'Report',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.redAccent,
                                       ),
@@ -147,7 +150,7 @@ class _CommentsDialogState extends State<CommentsDialog> {
                                 hintText: lang!
                                     ? 'Escribe un comentario...'
                                     : 'Write a new comment...',
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                               ),
                             ),
                           ),
@@ -182,7 +185,7 @@ class _CommentsDialogState extends State<CommentsDialog> {
                       },
                       child: Text(
                         lang! ? 'Cerrar' : 'Close',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -69,7 +71,6 @@ class _WalkDetailsState extends State<WalkDetails> {
   void _fetchBuilderInfo() async {
     showData = await fetchBuilderInfo(idPets);
     showDatas = await fetchBuilderInfos(idPets);
-    print('idpets: ${idPets}');
     if (idPets.isNotEmpty) {
       getInfoFirstCarrousel();
     }
@@ -138,8 +139,8 @@ class _WalkDetailsState extends State<WalkDetails> {
                           : lang!
                               ? 'Viaje mascota'
                               : 'Pet travel',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Center(
@@ -177,7 +178,7 @@ class _WalkDetailsState extends State<WalkDetails> {
                             },
                             child: Text(
                               lang! ? "Comentarios" : "Comments",
-                              style: TextStyle(color: Colors.black),
+                              style: const TextStyle(color: Colors.black),
                             ),
                           ),
                         ],
@@ -322,8 +323,8 @@ class _WalkDetailsState extends State<WalkDetails> {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.timer_outlined),
-                                SizedBox(
+                                const Icon(Icons.timer_outlined),
+                                const SizedBox(
                                   width: 5,
                                 ),
                                 Container(
@@ -334,9 +335,10 @@ class _WalkDetailsState extends State<WalkDetails> {
                                       : OutlinedButton(
                                           onPressed: () {},
                                           style: OutlinedButton.styleFrom(
-                                            backgroundColor: Color.fromARGB(
-                                                255, 196, 189, 240),
-                                            side: BorderSide(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 196, 189, 240),
+                                            side: const BorderSide(
                                                 color: Color.fromRGBO(
                                                     250, 244, 229, 1),
                                                 width: 2),
@@ -345,7 +347,7 @@ class _WalkDetailsState extends State<WalkDetails> {
                                             lang!
                                                 ? 'Ubicación de destino'
                                                 : 'Destination location',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.black),
                                           ),
@@ -385,19 +387,19 @@ class _WalkDetailsState extends State<WalkDetails> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.flight,
                                         size: 20,
                                         color: Colors.black,
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 5,
                                       ),
                                       Text(
                                         lang!
                                             ? "Solicitar viaje"
                                             : "Request trip",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontStyle: FontStyle.italic,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.black,
@@ -413,7 +415,7 @@ class _WalkDetailsState extends State<WalkDetails> {
                             },
                             child: Text(
                               lang! ? 'Descripción' : 'Description',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   decoration: TextDecoration.underline,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 18,
@@ -453,7 +455,7 @@ class _WalkDetailsState extends State<WalkDetails> {
                   children: [
                     Text(
                       lang! ? 'Descripción:' : 'Description:',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     const SizedBox(height: 8.0),
                     Text(

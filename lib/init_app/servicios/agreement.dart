@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -46,11 +48,9 @@ class _AgreementState extends State<Agreement> {
 
         return downloadURL;
       } else {
-        print('User canceled file picking');
         return null;
       }
     } catch (e) {
-      print('Error uploading file: $e');
       return null;
     }
   }
@@ -68,9 +68,7 @@ class _AgreementState extends State<Agreement> {
 
   fetchData() async {
     email = await fetchUserEmail();
-    print('email: $email');
     idUser = await findMatchingUserId(email!);
-    print('iduser: $idUser');
 
     setState(() {});
   }
@@ -134,7 +132,7 @@ class _AgreementState extends State<Agreement> {
                               lang!
                                   ? 'INE vigente que contenga domicilio'
                                   : 'Current INE that contains an address',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 18,
                                   color: Colors.black,
                                   fontStyle: FontStyle.italic,
@@ -204,7 +202,7 @@ class _AgreementState extends State<Agreement> {
                               lang!
                                   ? 'Comprobante de domicilio, maximo de 3 meses'
                                   : 'Address proof, maximum of  3 months',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 18,
                                   color: Colors.black,
                                   fontStyle: FontStyle.italic,

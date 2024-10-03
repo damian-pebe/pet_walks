@@ -14,6 +14,7 @@ class EndWalkManagement extends StatefulWidget {
 
 class _EndWalkManagementState extends State<EndWalkManagement> {
   String? email;
+  // ignore: prefer_final_fields
   Map<String, bool> _loadingStates = {};
   List<DocumentSnapshot> _pendingRequests = [];
   bool? lang; // true for Spanish, false for English

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, use_build_context_synchronously
+
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -115,12 +117,12 @@ class _EditInfoPet extends State<EditInfoPet> {
                             children: [
                               IconButton(
                                 onPressed: () => Navigator.pop(context),
-                                icon: Icon(Icons.arrow_back_ios,
+                                icon: const Icon(Icons.arrow_back_ios,
                                     size: 30, color: Colors.black),
                               ),
                               Text(
                                 lang! ? 'Regresar' : 'Back',
-                                style: TextStyle(fontSize: 10),
+                                style: const TextStyle(fontSize: 10),
                               )
                             ],
                           )),
@@ -131,12 +133,12 @@ class _EditInfoPet extends State<EditInfoPet> {
                             children: [
                               IconButton(
                                 onPressed: () => _pickImages(),
-                                icon: Icon(Icons.upload,
+                                icon: const Icon(Icons.upload,
                                     size: 30, color: Colors.black),
                               ),
                               Text(
                                 lang! ? 'Nuevas Imágenes' : 'New Images',
-                                style: TextStyle(fontSize: 10),
+                                style: const TextStyle(fontSize: 10),
                               )
                             ],
                           )),
@@ -193,7 +195,7 @@ class _EditInfoPet extends State<EditInfoPet> {
                                 ],
                               ))),
                     ),
-                    Divider(),
+                    const Divider(),
                     OutlinedButton(
                       onPressed: _isLoading
                           ? null
@@ -262,17 +264,17 @@ class _EditInfoPet extends State<EditInfoPet> {
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.update,
                                   size: 30,
                                   color: Colors.black,
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 30,
                                 ),
                                 Text(
                                   lang! ? 'Actualizar' : 'Update',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontStyle: FontStyle.italic,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,

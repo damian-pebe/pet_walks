@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, empty_catches, deprecated_member_use
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,7 +14,7 @@ import 'package:petwalks_app/utils/utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SelectHome extends StatefulWidget {
-  const SelectHome({Key? key}) : super(key: key);
+  const SelectHome({super.key});
 
   @override
   State<SelectHome> createState() => _SelectHome();
@@ -79,9 +81,7 @@ class _SelectHome extends State<SelectHome> {
         _center = LatLng(position.latitude, position.longitude);
         _isPermissionGranted = true;
       });
-    } catch (e) {
-      print("ERRORRRRRR...... CON LA UBI: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> initData() async {
@@ -166,11 +166,11 @@ class _SelectHome extends State<SelectHome> {
                   }
                 },
                 style: OutlinedButton.styleFrom(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 14.0, horizontal: 0.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 14.0, horizontal: 0.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
-                    side: BorderSide(width: 2.0, color: Colors.black),
+                    side: const BorderSide(width: 2.0, color: Colors.black),
                   ),
                   backgroundColor: Colors.grey[200],
                 ),
@@ -179,16 +179,16 @@ class _SelectHome extends State<SelectHome> {
                   children: [
                     Text(
                       lang ? 'Aceptar' : 'Accept',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 18.0,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5,
                     ),
-                    Icon(
+                    const Icon(
                       Icons.check_circle_outline,
                       size: 25,
                       color: Colors.black,
@@ -202,7 +202,8 @@ class _SelectHome extends State<SelectHome> {
             left: 20,
             right: 20,
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 border: Border.all(
@@ -217,7 +218,7 @@ class _SelectHome extends State<SelectHome> {
                     : lang
                         ? 'Seleccion: $domicilio'
                         : 'Selection: $domicilio',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16.0,
                   color: Colors.black,
                   letterSpacing: 1.2,

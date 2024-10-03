@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -189,7 +191,6 @@ class _ViewRequestState extends State<ViewRequest> {
                                 }
                               } catch (e) {
                                 // Handle error (show a message, log it, etc.)
-                                print('Error: $e');
                               }
                             },
                             icon: const Icon(
@@ -586,7 +587,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                           },
                                           child: Text(
                                             lang! ? 'Comentarios' : 'Comments',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 decoration:
                                                     TextDecoration.underline,
                                                 fontSize: 18,
@@ -626,11 +627,12 @@ class _ViewRequestState extends State<ViewRequest> {
                                                   const EdgeInsets.symmetric(
                                                       vertical: 16.0,
                                                       horizontal: 32.0),
-                                              backgroundColor: Color.fromRGBO(
-                                                  169,
-                                                  200,
-                                                  149,
-                                                  1), // Background color
+                                              backgroundColor:
+                                                  const Color.fromRGBO(
+                                                      169,
+                                                      200,
+                                                      149,
+                                                      1), // Background color
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(
@@ -809,7 +811,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                           },
                                           child: Text(
                                             lang! ? 'Comentarios' : 'Comments',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 decoration:
                                                     TextDecoration.underline,
                                                 fontSize: 18,
@@ -977,7 +979,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                               lang!
                                                   ? 'Comentarios'
                                                   : 'Comments',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   decoration:
                                                       TextDecoration.underline,
                                                   fontSize: 18,

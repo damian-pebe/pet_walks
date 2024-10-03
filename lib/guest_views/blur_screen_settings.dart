@@ -142,22 +142,22 @@ class _AjustesState extends State<AjustesBlur> {
                       OutlinedButton(
                           onPressed: () {},
                           style: customOutlinedButtonStyle(),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Language',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 width: 10,
                               ),
-                              const Icon(
+                              Icon(
                                 Icons.account_circle_outlined,
                                 size: 25,
                                 color: Colors.black,
@@ -168,22 +168,22 @@ class _AjustesState extends State<AjustesBlur> {
                       OutlinedButton(
                           onPressed: () {},
                           style: customOutlinedButtonStyle(),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Manage pets',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 width: 10,
                               ),
-                              const Icon(
+                              Icon(
                                 FontAwesomeIcons.dog,
                                 size: 25,
                                 color: Colors.black,
@@ -194,22 +194,22 @@ class _AjustesState extends State<AjustesBlur> {
                       OutlinedButton(
                           onPressed: () async {},
                           style: customOutlinedButtonStyle(),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Usage tutorial',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 width: 10,
                               ),
-                              const Icon(
+                              Icon(
                                 Icons.video_camera_front_outlined,
                                 size: 25,
                                 color: Colors.black,
@@ -220,22 +220,22 @@ class _AjustesState extends State<AjustesBlur> {
                       OutlinedButton(
                           onPressed: () async {},
                           style: customOutlinedButtonStyle(),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'About us',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 width: 10,
                               ),
-                              const Icon(
+                              Icon(
                                 Icons.perm_identity,
                                 size: 25,
                                 color: Colors.black,
@@ -246,22 +246,22 @@ class _AjustesState extends State<AjustesBlur> {
                       OutlinedButton(
                           onPressed: () async {},
                           style: customOutlinedButtonStyle(),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Suggestions',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 width: 10,
                               ),
-                              const Icon(
+                              Icon(
                                 Icons.send,
                                 size: 25,
                                 color: Colors.black,
@@ -302,9 +302,9 @@ class _AjustesState extends State<AjustesBlur> {
                                   color: Colors.black,
                                 ),
                               ),
-                              Text(
+                              const Text(
                                 'Log out',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 14.0,
                                   fontStyle: FontStyle.italic,

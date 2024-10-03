@@ -79,8 +79,8 @@ class _ViewBusinessState extends State<ViewBusiness> {
                                 barrierColor: Colors.white.withOpacity(0.65),
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    backgroundColor:
-                                        Color.fromARGB(159, 229, 248, 210),
+                                    backgroundColor: const Color.fromARGB(
+                                        159, 229, 248, 210),
                                     actions: [
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -102,6 +102,7 @@ class _ViewBusinessState extends State<ViewBusiness> {
                                           TextButton(
                                             onPressed: () async {
                                               await deleteBusiness(id);
+                                              // ignore: use_build_context_synchronously
                                               Navigator.pop(context);
                                               setState(() {});
                                             },
@@ -122,7 +123,7 @@ class _ViewBusinessState extends State<ViewBusiness> {
                               );
                             },
                           ),
-                          EmptyBox(w: 10),
+                          const EmptyBox(w: 10),
                           const VerticalDivider(
                               width: 1, thickness: 1, color: Colors.black),
                           CircleAvatar(
@@ -131,10 +132,10 @@ class _ViewBusinessState extends State<ViewBusiness> {
                                 ? NetworkImage(info['imageUrl'])
                                 : null,
                           ),
-                          EmptyBox(w: 10),
+                          const EmptyBox(w: 10),
                           Text(info['name'] ??
                               (lang! ? 'Sin nombre' : 'No name')),
-                          EmptyBox(w: 20),
+                          const EmptyBox(w: 20),
                           IconButton(
                               onPressed: () {
                                 if (!mounted) return;

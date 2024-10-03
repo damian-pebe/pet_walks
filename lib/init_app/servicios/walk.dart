@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, empty_catches, deprecated_member_use
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,8 +36,8 @@ class _PasearState extends State<Pasear> {
   Future<void> _filterWalks(String? time, String? payment) async {
     markers.clear();
     try {
-      Set<Map<String, dynamic>> _WalksData = await getWalks();
-      for (var marker in _WalksData) {
+      Set<Map<String, dynamic>> WalksData = await getWalks();
+      for (var marker in WalksData) {
         try {
           if (marker['timeWalking'] != null) {
             if (time != null && marker['timeWalking'] != time) {
@@ -54,7 +56,7 @@ class _PasearState extends State<Pasear> {
               markerId: MarkerId(marker['timeWalking'] ?? 'Travel'),
               position: latLng,
               icon: marker['premium'] ? iconPremium : icon,
-              infoWindow: InfoWindow(
+              infoWindow: const InfoWindow(
                 title: 'Paseo/Viaje',
               ),
               onTap: () {
@@ -75,23 +77,17 @@ class _PasearState extends State<Pasear> {
                 );
               },
             ));
-          } else {
-            print("Invalid GeoPoint for marker: ${marker['timeWalking']}");
-          }
-        } catch (e) {
-          print("Error processing marker: ${marker['timeWalking']} - $e");
-        }
+          } else {}
+        } catch (e) {}
       }
       setState(() {});
-    } catch (e) {
-      print("Error fetching business data: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> _getWalks() async {
     try {
-      Set<Map<String, dynamic>> _WalksData = await getWalks();
-      for (var marker in _WalksData) {
+      Set<Map<String, dynamic>> WalksData = await getWalks();
+      for (var marker in WalksData) {
         try {
           var geoPoint = marker['position'];
           if (geoPoint is GeoPoint) {
@@ -100,7 +96,7 @@ class _PasearState extends State<Pasear> {
               markerId: MarkerId(marker['timeWalking'] ?? 'Travel'),
               position: latLng,
               icon: marker['premium'] ? iconPremium : icon,
-              infoWindow: InfoWindow(
+              infoWindow: const InfoWindow(
                 title: 'Paseo/Viaje',
               ),
               onTap: () {
@@ -121,18 +117,12 @@ class _PasearState extends State<Pasear> {
                     id: marker['id']);
               },
             ));
-          } else {
-            print("Invalid GeoPoint for marker: ${marker['timeWalking']}");
-          }
-        } catch (e) {
-          print("Error processing marker: ${marker['timeWalking']} - $e");
-        }
+          } else {}
+        } catch (e) {}
       }
 
       setState(() {});
-    } catch (e) {
-      print("Error fetching business data: $e");
-    }
+    } catch (e) {}
   }
 
   void _showBottomSheet({
@@ -152,8 +142,6 @@ class _PasearState extends State<Pasear> {
       isScrollControlled: true,
       context: context,
       builder: (context) {
-        print(travelToPosition);
-
         return WalkDetails(
             payMethod: payMethod,
             price: price,
@@ -174,7 +162,7 @@ class _PasearState extends State<Pasear> {
   String? payMethod;
   DIALOG() {
     showModalBottomSheet(
-        backgroundColor: Color.fromRGBO(250, 244, 229, 1),
+        backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
         context: context,
         builder: (context) {
           return Column(
@@ -417,14 +405,14 @@ class _PasearState extends State<Pasear> {
                       children: [
                         Text(
                           lang! ? 'Filtrar' : 'Filter',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 10,
                         ),
-                        Icon(
+                        const Icon(
                           Icons.settings_applications_rounded,
                           size: 20,
                           color: Colors.black,
@@ -507,9 +495,7 @@ class _PasearState extends State<Pasear> {
           _isPermissionGranted = true;
         });
       }
-    } catch (e) {
-      print("ERROR CON UBICACION: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> initData() async {
@@ -566,8 +552,6 @@ class _PasearState extends State<Pasear> {
                   const Center(
                       child: SpinKitSpinningLines(
                           color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)),
-
-                //TODO ICON BUTTON FOR FILTERS
                 Positioned(
                   top: 20,
                   right: 20,

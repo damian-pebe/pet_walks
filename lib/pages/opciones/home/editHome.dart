@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -11,7 +13,7 @@ import 'package:petwalks_app/widgets/titleW.dart';
 class EditHome extends StatefulWidget {
   final String? homeToEdit;
 
-  const EditHome({Key? key, this.homeToEdit}) : super(key: key);
+  const EditHome({super.key, this.homeToEdit});
 
   @override
   State<EditHome> createState() => _EditHomeState();
@@ -75,8 +77,8 @@ class _EditHomeState extends State<EditHome> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme:
-          ThemeData(scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+      theme: ThemeData(
+          scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
       home: Scaffold(
         body: SingleChildScrollView(
           child: Column(
@@ -99,13 +101,13 @@ class _EditHomeState extends State<EditHome> {
                           ),
                           Text(
                             lang ? 'Regresar' : 'Back',
-                            style: TextStyle(fontSize: 10),
+                            style: const TextStyle(fontSize: 10),
                           )
                         ],
                       )),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Padding(
@@ -129,7 +131,7 @@ class _EditHomeState extends State<EditHome> {
                   },
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
               OutlinedButton(
@@ -139,11 +141,11 @@ class _EditHomeState extends State<EditHome> {
                   });
                 },
                 style: OutlinedButton.styleFrom(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 16.0, horizontal: 55.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 55.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
-                    side: BorderSide(width: 2.0, color: Colors.black),
+                    side: const BorderSide(width: 2.0, color: Colors.black),
                   ),
                   backgroundColor: Colors.grey[200],
                 ),
@@ -152,16 +154,16 @@ class _EditHomeState extends State<EditHome> {
                   children: [
                     Text(
                       lang ? 'Aceptar' : 'Accept',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 18.0,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5,
                     ),
-                    Icon(
+                    const Icon(
                       Icons.check_box_outlined,
                       size: 25,
                       color: Colors.black,

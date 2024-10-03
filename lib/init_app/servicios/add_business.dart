@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:path/path.dart' as path;
@@ -133,21 +135,21 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                 lang!
                     ? 'Verificar su numero de telefono'
                     : 'Verify phone number',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 5),
-              Icon(
+              const SizedBox(height: 5),
+              const Icon(
                 Icons.send,
                 size: 20,
                 color: Colors.black,
               ),
             ],
           ),
-          backgroundColor: Color.fromARGB(159, 229, 248, 210),
+          backgroundColor: const Color.fromARGB(159, 229, 248, 210),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,7 +165,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                     ),
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 SizedBox(
                   width: 120,
                   child: OutlinedButton(
@@ -187,13 +189,14 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                     style: customOutlinedButtonStyle(),
                     child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.verified_outlined,
                           color: Colors.black,
                         ),
                         Text(
                           lang! ? 'Verificar' : 'Verify',
-                          style: TextStyle(color: Colors.black, fontSize: 10),
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 10),
                         ),
                       ],
                     ),
@@ -201,12 +204,12 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                 )
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Visibility(
               visible: !_isSame,
               child: Text(
                 lang! ? 'El token enviado no coincide' : 'Token doesnt match ',
-                style: TextStyle(color: Colors.red, fontSize: 10),
+                style: const TextStyle(color: Colors.red, fontSize: 10),
               ),
             ),
             OutlinedButton(
@@ -219,7 +222,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
               ),
               child: Text(
                 lang! ? 'Enviar token de verificacion' : 'Send verify token ',
-                style: TextStyle(
+                style: const TextStyle(
                     decoration: TextDecoration.underline,
                     fontSize: 13,
                     color: Colors.black),
@@ -236,7 +239,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
               ),
               child: Text(
                 lang! ? 'Salir' : 'Back',
-                style: TextStyle(fontSize: 13, color: Colors.black),
+                style: const TextStyle(fontSize: 13, color: Colors.black),
               ),
             ),
           ],
@@ -287,7 +290,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+            scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
               ? const Center(
@@ -317,7 +320,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                     ),
                                     Text(
                                       lang! ? 'Regresar' : 'Back',
-                                      style: TextStyle(fontSize: 10),
+                                      style: const TextStyle(fontSize: 10),
                                     )
                                   ],
                                 )),
@@ -430,14 +433,14 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                           getIcon(),
                                           color: Colors.black,
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 2,
                                         ),
                                         Text(
                                           lang!
                                               ? 'Verificacion'
                                               : 'Verification',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 8, color: Colors.black),
                                         )
                                       ],
@@ -466,14 +469,14 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                       final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => SelectHome(),
+                                          builder: (context) =>
+                                              const SelectHome(),
                                         ),
                                       );
 
                                       if (result != null) {
                                         domicilio = result['domicilio'];
                                         homelatlng = result['position'];
-                                        print('\nDOMICILIO: ' + domicilio);
                                       }
                                       setState(() {
                                         homeController.text =
@@ -484,12 +487,12 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           FontAwesomeIcons.home,
                                           size: 25,
                                           color: Colors.black,
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                         Text(
@@ -502,7 +505,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                         ),
                                       ],
                                     )),
-                                SizedBox(
+                                const SizedBox(
                                   width: 10,
                                 ),
                                 OutlinedButton(
@@ -520,7 +523,6 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
 
                                       if (result != null) {
                                         domicilio = result['domicilio'];
-                                        print('\nDOMICILIO: ' + domicilio);
                                       }
                                       setState(() {
                                         homeController.text =
@@ -539,7 +541,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                             fontStyle: FontStyle.italic,
                                           ),
                                         ),
-                                        Icon(
+                                        const Icon(
                                           Icons.edit,
                                           size: 25,
                                           color: Colors.black,
@@ -548,11 +550,11 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                     )),
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   vertical: 16.0, horizontal: 24.0),
                               decoration: BoxDecoration(
                                 color: Colors.grey[200],
@@ -586,7 +588,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                   ? 'Falta seleccionar domicilio'
                                   : 'Missing address',
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             const SizedBox(
@@ -678,19 +680,19 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.add_business_sharp,
                                           size: 30,
                                           color: Colors.black,
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 30,
                                         ),
                                         Text(
                                           lang!
                                               ? 'Agregar empresa'
                                               : 'Add business',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontStyle: FontStyle.italic,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black,

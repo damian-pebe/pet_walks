@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -28,9 +30,7 @@ class _ViewPetsState extends State<ViewPets> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       email = user.email;
-    } else {
-      print('Error getting email from user');
-    }
+    } else {}
     _fetchBuilderInfo();
   }
 
@@ -83,7 +83,7 @@ class _ViewPetsState extends State<ViewPets> {
                           Row(
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              EmptyBox(w: 10),
+                              const EmptyBox(w: 10),
                               IconButton(
                                 icon: const Icon(
                                   Icons.delete,
@@ -98,8 +98,8 @@ class _ViewPetsState extends State<ViewPets> {
                                         Colors.white.withOpacity(0.65),
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        backgroundColor:
-                                            Color.fromARGB(159, 229, 248, 210),
+                                        backgroundColor: const Color.fromARGB(
+                                            159, 229, 248, 210),
                                         actions: [
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
@@ -109,7 +109,7 @@ class _ViewPetsState extends State<ViewPets> {
                                                 lang!
                                                     ? "¿Estás seguro de querer eliminar a la mascota?"
                                                     : "Are you sure you want to delete the pet?",
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w700,
                                                   color: Colors.black,
@@ -160,7 +160,7 @@ class _ViewPetsState extends State<ViewPets> {
                                   );
                                 },
                               ),
-                              EmptyBox(w: 10),
+                              const EmptyBox(w: 10),
                               const VerticalDivider(
                                 width: 1,
                                 thickness: 1,
@@ -174,18 +174,19 @@ class _ViewPetsState extends State<ViewPets> {
                                         ? NetworkImage(petInfo['imageUrl'])
                                         : null,
                                   ),
-                                  EmptyBox(w: 10),
+                                  const EmptyBox(w: 10),
                                   Text(petInfo['name'] ??
                                       (lang! ? 'Sin nombre' : 'No name')),
                                 ],
                               ),
-                              EmptyBox(w: 20),
+                              const EmptyBox(w: 20),
                               Expanded(
                                 child: Column(
                                   children: [
                                     ListTile(
                                       trailing: GestureDetector(
-                                          child: Icon(Icons.chevron_right)),
+                                          child:
+                                              const Icon(Icons.chevron_right)),
                                       onTap: () async {
                                         var fetchedInfoPet =
                                             await getInfoPets(email!, id);

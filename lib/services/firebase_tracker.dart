@@ -20,12 +20,9 @@ void checkUserAndStartTracking() async {
     var data = walkDoc.data() as Map<String, dynamic>;
 
     if (data['emailWalker'] == email) {
-      print("startListeningToStatus: ${walkDoc.id}");
       startListeningToStatus(walkDoc.id);
     }
-  } else {
-    print("No walking history found for this user.");
-  }
+  } else {}
 }
 
 void startListeningToStatus(String idHistoryWalk) {
@@ -40,13 +37,9 @@ void startListeningToStatus(String idHistoryWalk) {
 
       if (status == 'walking') {
         if (trackingTimer == null || !trackingTimer!.isActive) {
-          print("startTracking.");
-
           startTracking(idHistoryWalk);
         }
       } else if (status == 'done') {
-        print("stopTracking.");
-
         stopTracking(idHistoryWalk);
       }
     }
@@ -54,15 +47,13 @@ void startListeningToStatus(String idHistoryWalk) {
 }
 
 void startTracking(String idHistoryWalk) {
-  trackingTimer = Timer.periodic(Duration(minutes: 1), (timer) async {
+  trackingTimer = Timer.periodic(const Duration(minutes: 1), (timer) async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
     savePositionToFirestore(
         LatLng(position.latitude, position.longitude), idHistoryWalk);
   });
-
-  print("Tracking started for walk: $idHistoryWalk");
 }
 
 void stopTracking(String idHistoryWalk) {
@@ -70,8 +61,6 @@ void stopTracking(String idHistoryWalk) {
     trackingTimer!.cancel();
     trackingTimer = null;
   }
-
-  print("Tracking stopped for walk: $idHistoryWalk");
 }
 
 void savePositionToFirestore(LatLng position, String idHistoryWalk) {

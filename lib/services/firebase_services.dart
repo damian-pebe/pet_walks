@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, empty_catches
+
 import 'dart:async';
 import 'dart:math';
 
@@ -24,86 +26,65 @@ Future<List> getUsers() async {
 }
 
 Future<List<String>> getPets(String email) async {
-  try {
-    var userDoc =
-        await db.collection("users").where("email", isEqualTo: email).get();
+  var userDoc =
+      await db.collection("users").where("email", isEqualTo: email).get();
 
-    if (userDoc.docs.isEmpty) {
-      return [];
-    } else {
-      var doc = userDoc.docs.first;
-      var idPetsArray = List<String>.from(doc.data()['idPets'] ?? []);
-      return idPetsArray;
-    }
-  } catch (e) {
-    print('Error fetching user: $e');
+  if (userDoc.docs.isEmpty) {
     return [];
+  } else {
+    var doc = userDoc.docs.first;
+    var idPetsArray = List<String>.from(doc.data()['idPets'] ?? []);
+    return idPetsArray;
   }
 }
 
 Future<List<String>> getBusinessByIds() async {
   String fetchedEmail = await fetchUserEmail();
 
-  try {
-    var userDoc = await db
-        .collection("users")
-        .where("email", isEqualTo: fetchedEmail)
-        .get();
+  var userDoc = await db
+      .collection("users")
+      .where("email", isEqualTo: fetchedEmail)
+      .get();
 
-    if (userDoc.docs.isEmpty) {
-      return [];
-    } else {
-      var doc = userDoc.docs.first;
-      var businessArray = List<String>.from(doc.data()['idBusiness'] ?? []);
-      return businessArray;
-    }
-  } catch (e) {
-    print('Error fetching user: $e');
+  if (userDoc.docs.isEmpty) {
     return [];
+  } else {
+    var doc = userDoc.docs.first;
+    var businessArray = List<String>.from(doc.data()['idBusiness'] ?? []);
+    return businessArray;
   }
 }
 
 Future<List<String>> getbusinessIds() async {
   String fetchedEmail = await fetchUserEmail();
-  try {
-    var userDoc = await db
-        .collection("users")
-        .where("email", isEqualTo: fetchedEmail)
-        .get();
+  var userDoc = await db
+      .collection("users")
+      .where("email", isEqualTo: fetchedEmail)
+      .get();
 
-    if (userDoc.docs.isEmpty) {
-      return [];
-    } else {
-      var doc = userDoc.docs.first;
-      var idPetsArray = List<String>.from(doc.data()['idBusiness'] ?? []);
-      return idPetsArray;
-    }
-  } catch (e) {
-    print('Error fetching user: $e');
+  if (userDoc.docs.isEmpty) {
     return [];
+  } else {
+    var doc = userDoc.docs.first;
+    var idPetsArray = List<String>.from(doc.data()['idBusiness'] ?? []);
+    return idPetsArray;
   }
 }
 
 Future<Set<Map<String, dynamic>>> getPetsHistory(List<String> idPets) async {
-  try {
-    if (idPets.isEmpty) {
-      return {};
-    }
-
-    var petsQuerySnapshot = await db
-        .collection("pets")
-        .where(FieldPath.documentId, whereIn: idPets.toList())
-        .get();
-
-    Set<Map<String, dynamic>> pets = petsQuerySnapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toSet();
-
-    return pets;
-  } catch (e) {
-    print('Error fetching pets: $e');
+  if (idPets.isEmpty) {
     return {};
   }
+
+  var petsQuerySnapshot = await db
+      .collection("pets")
+      .where(FieldPath.documentId, whereIn: idPets.toList())
+      .get();
+
+  Set<Map<String, dynamic>> pets =
+      petsQuerySnapshot.docs.map((doc) => doc.data()).toSet();
+
+  return pets;
 }
 
 Future<void> updatePet(
@@ -205,7 +186,6 @@ Future<Map<String, dynamic>> fetchBuilderInfoBusiness(List<String> ids) async {
         List<dynamic>? imageUrls = data['imageUrls'] as List<dynamic>?;
 
         // Log the URL for debugging
-        print('Fetched URL: $imageUrl');
 
         if (imageUrl != null && !Uri.parse(imageUrl).isAbsolute) {
           imageUrl = null;
@@ -224,7 +204,6 @@ Future<Map<String, dynamic>> fetchBuilderInfoBusiness(List<String> ids) async {
 }
 
 Future<Set<Map<String, dynamic>>> fetchImageNamePet(List<String> idPets) async {
-  print('idPets: $idPets');
   Set<Map<String, dynamic>> allPetsData = {};
 
   for (var element in idPets) {
@@ -270,9 +249,6 @@ Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
           String name = data['name'] ?? '';
           List<String>? comments = List<String>.from(data['comments'] ?? []);
 
-          print(
-              'Fetched Data: ImageUrls: $imageUrls, Rating: $rating, Name: $name, Comments: $comments');
-
           allPetsData[element] = {
             'imageUrls': imageUrls,
             'name': name,
@@ -281,9 +257,7 @@ Future<Map<String, dynamic>> fetchBuilderInfos(List<String>? idPets) async {
             'id': element,
           };
         }
-      } else {
-        print("Pet with ID: $element not found");
-      }
+      } else {}
     }
   }
 
@@ -317,19 +291,13 @@ Future<void> newUser(
 }
 
 Future<List<String>> getServices(String email) async {
-  try {
-    var userDoc =
-        await db.collection("users").where("email", isEqualTo: email).get();
-    if (userDoc.docs.isNotEmpty) {
-      var user = userDoc.docs.first;
-      var services = List<String>.from(user.data()['activeServices'] ?? []);
-      return services;
-    } else {
-      print("User with email $email not found.");
-      return [];
-    }
-  } catch (e) {
-    print(e);
+  var userDoc =
+      await db.collection("users").where("email", isEqualTo: email).get();
+  if (userDoc.docs.isNotEmpty) {
+    var user = userDoc.docs.first;
+    var services = List<String>.from(user.data()['activeServices'] ?? []);
+    return services;
+  } else {
     return [];
   }
 }
@@ -428,9 +396,7 @@ Future<void> updateServices(String email, List? services) async {
         .collection("users")
         .doc(user.id)
         .update({"activeServices": services});
-  } else {
-    print("User with email $email not found.");
-  }
+  } else {}
 }
 
 Future<bool> getLanguage() async {
@@ -480,9 +446,7 @@ Future<void> modifyUser(String? name, String email, String? phone, String? home,
       "address": home ?? user.data()['address'],
       "profilePhoto": url,
     });
-  } else {
-    print("User with email $email not found.");
-  }
+  } else {}
 }
 
 Future<void> addPetToUser(String email, String? newPetId) async {
@@ -510,51 +474,38 @@ Future<void> addWalkToUser(String email, String? newWalkId) async {
 }
 
 Future<void> addBusinessToUser(String email, String? newBusinessId) async {
-  try {
-    var userDoc =
-        await db.collection("users").where("email", isEqualTo: email).get();
-    if (userDoc.docs.isNotEmpty) {
-      var user = userDoc.docs.first;
-      var business = List<String>.from(user.data()['idBusiness'] ?? []);
-      business.add(newBusinessId ?? 'Invalid state for walk');
+  var userDoc =
+      await db.collection("users").where("email", isEqualTo: email).get();
+  if (userDoc.docs.isNotEmpty) {
+    var user = userDoc.docs.first;
+    var business = List<String>.from(user.data()['idBusiness'] ?? []);
+    business.add(newBusinessId ?? 'Invalid state for walk');
 
-      await db
-          .collection("users")
-          .doc(user.id)
-          .update({"idBusiness": business});
-    }
-  } catch (e) {}
+    await db.collection("users").doc(user.id).update({"idBusiness": business});
+  }
 }
 
 Future<void> addPostToUser(String email, String? newPostId) async {
-  try {
-    var userDoc =
-        await db.collection("users").where("email", isEqualTo: email).get();
-    if (userDoc.docs.isNotEmpty) {
-      var user = userDoc.docs.first;
-      var post = List<String>.from(user.data()['idPost'] ?? []);
-      post.add(newPostId ?? 'Invalid state for walk');
+  var userDoc =
+      await db.collection("users").where("email", isEqualTo: email).get();
+  if (userDoc.docs.isNotEmpty) {
+    var user = userDoc.docs.first;
+    var post = List<String>.from(user.data()['idPost'] ?? []);
+    post.add(newPostId ?? 'Invalid state for walk');
 
-      await db.collection("users").doc(user.id).update({"idPost": post});
-    }
-  } catch (e) {}
+    await db.collection("users").doc(user.id).update({"idPost": post});
+  }
 }
 
 class UserService {
   Future<Set<Map<String, dynamic>>> getUser(String email) async {
-    try {
-      var userDoc =
-          await db.collection("users").where("email", isEqualTo: email).get();
+    var userDoc =
+        await db.collection("users").where("email", isEqualTo: email).get();
 
-      if (userDoc.docs.isEmpty) {
-        return {};
-      } else {
-        return userDoc.docs.map((doc) => doc.data()).toSet();
-      }
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error fetching user: $e');
+    if (userDoc.docs.isEmpty) {
       return {};
+    } else {
+      return userDoc.docs.map((doc) => doc.data()).toSet();
     }
   }
 }
@@ -850,7 +801,6 @@ Future<Set<Map<String, dynamic>>> getWalks() async {
       }
     }
   }
-  print('Total walks collected: ${walks.length}');
   return walks;
 }
 
@@ -877,11 +827,9 @@ List<DateTime> getArrayOfDateTime(Map<String, dynamic> data) {
     while (timeShowStart.isBefore(timeShowEnd) ||
         timeShowStart.isAtSameMomentAs(timeShowEnd)) {
       list.add(timeShowStart);
-      timeShowStart = timeShowStart.add(Duration(days: 1));
+      timeShowStart = timeShowStart.add(const Duration(days: 1));
     }
-  } else {
-    print("startDate or endDate is not of type Timestamp");
-  }
+  } else {}
 
   return list;
 }
@@ -893,6 +841,7 @@ Future<String> newPost(
 
   var address;
   bool premium = false;
+  // ignore: no_leading_underscores_for_local_identifiers
   String _email = await fetchUserEmail();
   var userDocEmail =
       await db.collection("users").where("email", isEqualTo: _email).get();
@@ -923,14 +872,10 @@ Future<String> newPost(
 }
 
 Future<LatLng?> getLatLngFromAddress(String address) async {
-  try {
-    List<Location> locations = await locationFromAddress(address);
-    if (locations.isNotEmpty) {
-      final location = locations.first;
-      return LatLng(location.latitude, location.longitude);
-    }
-  } catch (e) {
-    print("Error getting location: $e");
+  List<Location> locations = await locationFromAddress(address);
+  if (locations.isNotEmpty) {
+    final location = locations.first;
+    return LatLng(location.latitude, location.longitude);
   }
   return null; // Return null if the address cannot be converted to LatLng
 }
@@ -1013,9 +958,7 @@ Future<String> fetchUserEmail() async {
   User? user = FirebaseAuth.instance.currentUser;
   if (user != null) {
     email = user.email;
-  } else {
-    print('Error getting email from user');
-  }
+  } else {}
   return email ?? 'Error fetching the email';
 }
 
@@ -1198,13 +1141,9 @@ Future<void> updateOwner(bool bool, String id, bool col) async {
 Future<void> updateWalker(bool bool, String id, bool col) async {
   String status = bool ? 'ready' : '';
   String collection = col ? "startWalkHistory" : "endWalkHistory";
-  try {
-    await db.collection(collection).doc(id).update({
-      "walkerStatus": status,
-    });
-  } catch (e) {
-    print(e);
-  }
+  await db.collection(collection).doc(id).update({
+    "walkerStatus": status,
+  });
 }
 
 Future<bool> getOwnerStatus(String id, bool col) async {
@@ -1515,24 +1454,20 @@ Future<String?> getUserName(String emailUser) async {
 }
 
 Future<bool> getPremiumStatus(String fetchedEmail) async {
-  try {
-    var userDoc = await db
-        .collection("users")
-        .where("email", isEqualTo: fetchedEmail)
-        .get();
+  var userDoc = await db
+      .collection("users")
+      .where("email", isEqualTo: fetchedEmail)
+      .get();
 
-    if (userDoc.docs.isEmpty) {
-      return false;
-    } else {
-      var doc = userDoc.docs.first;
-      var statusPremium = doc.data()['premium'] ?? '';
+  if (userDoc.docs.isEmpty) {
+    return false;
+  } else {
+    var doc = userDoc.docs.first;
+    var statusPremium = doc.data()['premium'] ?? '';
 
-      if (statusPremium == 'active') return true;
-    }
-    return false;
-  } catch (e) {
-    return false;
+    if (statusPremium == 'active') return true;
   }
+  return false;
 }
 
 Future<String> getBusinessEmail(String business) async {

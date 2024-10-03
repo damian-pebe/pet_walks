@@ -64,7 +64,7 @@ class _ServiciosState extends State<ServiciosBlur> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+            scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: Column(
             children: [
@@ -76,7 +76,7 @@ class _ServiciosState extends State<ServiciosBlur> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         Padding(
@@ -86,14 +86,14 @@ class _ServiciosState extends State<ServiciosBlur> {
                             child: OutlinedButton(
                                 onPressed: () async {},
                                 style: customOutlinedButtonStyle(),
-                                child: Icon(
+                                child: const Icon(
                                   FontAwesomeIcons.slidersH,
                                   size: 30,
                                   color: Colors.black,
                                 )),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 30,
                         ),
                         Column(
@@ -104,12 +104,12 @@ class _ServiciosState extends State<ServiciosBlur> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       FontAwesomeIcons.dog,
                                       size: 25,
                                       color: Colors.black,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 20,
                                     ),
                                     Text(
@@ -122,7 +122,7 @@ class _ServiciosState extends State<ServiciosBlur> {
                                     ),
                                   ],
                                 )),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             OutlinedButton(
@@ -131,12 +131,12 @@ class _ServiciosState extends State<ServiciosBlur> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       FontAwesomeIcons.walking,
                                       size: 25,
                                       color: Colors.black,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 20,
                                     ),
                                     Text(
@@ -149,7 +149,7 @@ class _ServiciosState extends State<ServiciosBlur> {
                                     ),
                                   ],
                                 )),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             OutlinedButton(
@@ -158,12 +158,12 @@ class _ServiciosState extends State<ServiciosBlur> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.add_business_rounded,
                                       size: 25,
                                       color: Colors.black,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 20,
                                     ),
                                     Text(

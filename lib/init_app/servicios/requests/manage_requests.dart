@@ -41,10 +41,11 @@ class _PendingRequestsNotificationsState
     } catch (e) {
       toastF(lang! ? 'Error al obtener datos' : 'Error fetching data');
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           isLoading = false;
         });
+      }
     }
   }
 
@@ -134,7 +135,7 @@ class _PendingRequestsNotificationsState
             color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 66, 41, 41).withOpacity(0.7),
+                color: const Color.fromARGB(255, 66, 41, 41).withOpacity(0.7),
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: const [
                   BoxShadow(
@@ -245,7 +246,7 @@ class _PendingRequestsNotificationsState
                       },
                       child: Column(
                         children: [
-                          Icon(Icons.check, color: Colors.white),
+                          const Icon(Icons.check, color: Colors.white),
                           Text(
                             lang! ? 'Aceptar' : 'Accept',
                             style: const TextStyle(

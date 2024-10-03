@@ -1,3 +1,5 @@
+// ignore_for_file: camel_case_types, empty_catches, use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -46,29 +48,12 @@ class _Sign_UpState extends State<Sign_Up> {
 
   final _auth = FirebaseAuth.instance;
 
-  bool _obscureText = true;
-  bool _obscureText1 = true;
-
-  void _toggleVisibility() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
-
-  void _toggleVisibility1() {
-    setState(() {
-      _obscureText1 = !_obscureText1;
-    });
-  }
-
   Future<User?> signUpWithCred(String email, String password) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       return cred.user;
-    } catch (e) {
-      print(e.toString());
-    }
+    } catch (e) {}
     return null;
   }
 
@@ -99,21 +84,21 @@ class _Sign_UpState extends State<Sign_Up> {
                 lang
                     ? 'Verificar su numero de telefono'
                     : 'Verify phone number',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 5),
-              Icon(
+              const SizedBox(height: 5),
+              const Icon(
                 Icons.send,
                 size: 20,
                 color: Colors.black,
               ),
             ],
           ),
-          backgroundColor: Color.fromRGBO(250, 244, 229, 1),
+          backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,7 +113,7 @@ class _Sign_UpState extends State<Sign_Up> {
                         lang ? 'Telefono' : 'Phone',
                       )),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 SizedBox(
                   width: 120,
                   child: OutlinedButton(
@@ -150,23 +135,24 @@ class _Sign_UpState extends State<Sign_Up> {
                       Navigator.pop(context, verificationModule);
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           vertical: 16.0, horizontal: 24.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
-                        side: BorderSide(width: 2.0, color: Colors.black),
+                        side: const BorderSide(width: 2.0, color: Colors.black),
                       ),
                       backgroundColor: Colors.grey[200],
                     ),
                     child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.verified_outlined,
                           color: Colors.black,
                         ),
                         Text(
                           lang ? 'Verificar' : 'Verify',
-                          style: TextStyle(color: Colors.black, fontSize: 10),
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 10),
                         ),
                       ],
                     ),
@@ -174,12 +160,12 @@ class _Sign_UpState extends State<Sign_Up> {
                 )
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Visibility(
               visible: !_isSame,
               child: Text(
                 lang ? '* El token enviado no coincide' : 'Invalid token',
-                style: TextStyle(color: Colors.red, fontSize: 10),
+                style: const TextStyle(color: Colors.red, fontSize: 10),
               ),
             ),
             OutlinedButton(
@@ -194,7 +180,7 @@ class _Sign_UpState extends State<Sign_Up> {
                 lang
                     ? 'Enviar token de verificacion'
                     : 'Send verification token',
-                style: TextStyle(
+                style: const TextStyle(
                     decoration: TextDecoration.underline,
                     fontSize: 13,
                     color: Colors.black),
@@ -211,7 +197,7 @@ class _Sign_UpState extends State<Sign_Up> {
               ),
               child: Text(
                 lang ? 'Salir' : 'Back',
-                style: TextStyle(fontSize: 13, color: Colors.black),
+                style: const TextStyle(fontSize: 13, color: Colors.black),
               ),
             ),
           ],
@@ -302,7 +288,7 @@ class _Sign_UpState extends State<Sign_Up> {
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-              scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+              scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
           home: Scaffold(
             body: SingleChildScrollView(
               child: Column(
@@ -324,7 +310,7 @@ class _Sign_UpState extends State<Sign_Up> {
                               ),
                               Text(
                                 lang ? 'Regresar' : 'Back',
-                                style: TextStyle(fontSize: 10),
+                                style: const TextStyle(fontSize: 10),
                               )
                             ],
                           )),
@@ -336,7 +322,7 @@ class _Sign_UpState extends State<Sign_Up> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         TextField(
@@ -364,7 +350,8 @@ class _Sign_UpState extends State<Sign_Up> {
                             lang
                                 ? '* Falta email del usuario'
                                 : '* Missing user email',
-                            style: TextStyle(color: Colors.red, fontSize: 10),
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 10),
                           ),
                         ),
                         const SizedBox(
@@ -411,11 +398,11 @@ class _Sign_UpState extends State<Sign_Up> {
                                   }
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 16.0, horizontal: 0.0),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15.0),
-                                    side: BorderSide(
+                                    side: const BorderSide(
                                         width: 2.0, color: Colors.black),
                                   ),
                                   backgroundColor: Colors.grey[200],
@@ -426,12 +413,12 @@ class _Sign_UpState extends State<Sign_Up> {
                                       getIcon(),
                                       color: Colors.black,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 2,
                                     ),
                                     Text(
                                       lang ? 'Verificacion' : 'Verification',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 8, color: Colors.black),
                                     )
                                   ],
@@ -446,7 +433,8 @@ class _Sign_UpState extends State<Sign_Up> {
                             lang
                                 ? '* Falta verificar telefono del usuario'
                                 : '* Missing phone number verification',
-                            style: TextStyle(color: Colors.red, fontSize: 10),
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 10),
                           ),
                         ),
                         const SizedBox(
@@ -463,13 +451,12 @@ class _Sign_UpState extends State<Sign_Up> {
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => SelectHome(),
+                                      builder: (context) => const SelectHome(),
                                     ),
                                   );
 
                                   if (result != null) {
                                     domicilio = result['domicilio'];
-                                    print('\nDOMICILIO: ' + domicilio);
                                   }
                                   setState(() {
                                     homeController.text = domicilio.toString();
@@ -479,12 +466,12 @@ class _Sign_UpState extends State<Sign_Up> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       FontAwesomeIcons.home,
                                       size: 25,
                                       color: Colors.black,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 5,
                                     ),
                                     Text(
@@ -497,7 +484,7 @@ class _Sign_UpState extends State<Sign_Up> {
                                     ),
                                   ],
                                 )),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             OutlinedButton(
@@ -522,7 +509,6 @@ class _Sign_UpState extends State<Sign_Up> {
 
                                     if (result != null) {
                                       domicilio = result['domicilio'];
-                                      print('\nDOMICILIO: ' + domicilio);
                                     }
                                     setState(() {
                                       homeController.text =
@@ -542,7 +528,7 @@ class _Sign_UpState extends State<Sign_Up> {
                                         fontStyle: FontStyle.italic,
                                       ),
                                     ),
-                                    Icon(
+                                    const Icon(
                                       Icons.edit,
                                       size: 25,
                                       color: Colors.black,
@@ -551,7 +537,7 @@ class _Sign_UpState extends State<Sign_Up> {
                                 )),
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         Visibility(
@@ -560,14 +546,15 @@ class _Sign_UpState extends State<Sign_Up> {
                             lang
                                 ? '* Falta seleccionar domicilio del usuario'
                                 : '* Missing user address',
-                            style: TextStyle(color: Colors.red, fontSize: 10),
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 10),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               vertical: 16.0, horizontal: 24.0),
                           decoration: BoxDecoration(
                             color: Colors.grey[200],
@@ -599,7 +586,6 @@ class _Sign_UpState extends State<Sign_Up> {
                           height: 30,
                         ),
                         TextField(
-                            obscureText: _obscureText,
                             controller: passwordController,
                             decoration: StyleTextField(
                               lang ? 'Contraseña' : 'Password',
@@ -608,7 +594,6 @@ class _Sign_UpState extends State<Sign_Up> {
                           height: 10,
                         ),
                         TextField(
-                            obscureText: _obscureText1,
                             controller: verifyPasswordController,
                             decoration: StyleTextField(
                               lang
@@ -621,102 +606,101 @@ class _Sign_UpState extends State<Sign_Up> {
                             lang
                                 ? '* Las contraseñas ingresadas no son validas o no coinciden'
                                 : '* The passwords aren\'t valid or do not match',
-                            style: TextStyle(color: Colors.red, fontSize: 10),
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 10),
                           ),
                         ),
                         const SizedBox(
                           height: 30,
                         ),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                width: 250,
-                                child: OutlinedButton(
-                                  onPressed: () => showDialog(
-                                      barrierDismissible: true,
-                                      context: context,
-                                      barrierColor:
-                                          Colors.black.withOpacity(0.65),
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: Text(
-                                            lang
-                                                ? 'Terminos y condiciones y politicas de privacidad'
-                                                : 'Terms and conditions and privacy policies',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w900,
-                                              color: Colors.black,
-                                            ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 250,
+                              child: OutlinedButton(
+                                onPressed: () => showDialog(
+                                    barrierDismissible: true,
+                                    context: context,
+                                    barrierColor:
+                                        Colors.black.withOpacity(0.65),
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                          lang
+                                              ? 'Terminos y condiciones y politicas de privacidad'
+                                              : 'Terms and conditions and privacy policies',
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.black,
                                           ),
-                                          content: Text(
-                                            lang
-                                                ? 'Terminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidad'
-                                                : 'Terms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policies',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.black,
-                                            ),
+                                        ),
+                                        content: Text(
+                                          lang
+                                              ? 'Terminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidadTerminos y condiciones y politicas de privacidad'
+                                              : 'Terms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policiesTerms and conditions and privacy policies',
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.black,
                                           ),
-                                        );
-                                      }),
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(
-                                        color: Color.fromRGBO(250, 244, 229, 1),
-                                        width: 2),
-                                  ),
-                                  child: Text(
-                                    lang
-                                        ? 'Acepto los terminos y condiciones de uso asi como las politicas de privacidad'
-                                        : 'I accept the terms and conditions of use as well as the privacy policies',
-                                    style: TextStyle(
-                                        decoration: TextDecoration.underline,
-                                        fontSize: 13,
-                                        color: Colors.black),
-                                  ),
+                                        ),
+                                      );
+                                    }),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                      color: Color.fromRGBO(250, 244, 229, 1),
+                                      width: 2),
+                                ),
+                                child: Text(
+                                  lang
+                                      ? 'Acepto los terminos y condiciones de uso asi como las politicas de privacidad'
+                                      : 'I accept the terms and conditions of use as well as the privacy policies',
+                                  style: const TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      fontSize: 13,
+                                      color: Colors.black),
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              SizedBox(
-                                width: 70,
-                                child: OutlinedButton(
-                                  onPressed: () {
-                                    if (isPrivacity) {
-                                      toastF(
-                                        lang
-                                            ? 'Ya fueron aceptados'
-                                            : 'Alreaady accepted',
-                                      );
-                                      return;
-                                    }
+                            ),
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              width: 70,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  if (isPrivacity) {
+                                    toastF(
+                                      lang
+                                          ? 'Ya fueron aceptados'
+                                          : 'Alreaady accepted',
+                                    );
+                                    return;
+                                  }
 
-                                    setState(() {
-                                      isPrivacity = !isPrivacity;
-                                    });
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 16.0, horizontal: 24.0),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                      side: BorderSide(
-                                          width: 2.0, color: Colors.black),
-                                    ),
-                                    backgroundColor: Colors.grey[200],
+                                  setState(() {
+                                    isPrivacity = !isPrivacity;
+                                  });
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0, horizontal: 24.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    side: const BorderSide(
+                                        width: 2.0, color: Colors.black),
                                   ),
-                                  child: Icon(
-                                    getIconPrivacity(),
-                                    color:
-                                        isPrivacity ? Colors.green : Colors.red,
-                                    size: 25,
-                                  ),
+                                  backgroundColor: Colors.grey[200],
                                 ),
-                              )
-                            ],
-                          ),
+                                child: Icon(
+                                  getIconPrivacity(),
+                                  color:
+                                      isPrivacity ? Colors.green : Colors.red,
+                                  size: 25,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                         Visibility(
                           visible: !_isPrivacity,
@@ -724,7 +708,8 @@ class _Sign_UpState extends State<Sign_Up> {
                             lang
                                 ? '* Necesita aceptar los terminos y condiciones de uso asi como las politicas de privacidad'
                                 : '* You need to accept the terms and conditions of use as well as the privacy policies',
-                            style: TextStyle(color: Colors.red, fontSize: 10),
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 10),
                           ),
                         ),
                         const SizedBox(
@@ -821,17 +806,17 @@ class _Sign_UpState extends State<Sign_Up> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   FontAwesomeIcons.signInAlt,
                                   size: 30,
                                   color: Colors.black,
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 30,
                                 ),
                                 Text(
                                   lang ? 'Crear cuenta' : 'Create account',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontStyle: FontStyle.italic,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
@@ -839,7 +824,7 @@ class _Sign_UpState extends State<Sign_Up> {
                                 ),
                               ],
                             )),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         SizedBox(
@@ -853,7 +838,7 @@ class _Sign_UpState extends State<Sign_Up> {
                               ),
                             ),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(
+                              side: const BorderSide(
                                   color: Color.fromRGBO(250, 244, 229, 1),
                                   width: 2),
                             ),
@@ -861,7 +846,7 @@ class _Sign_UpState extends State<Sign_Up> {
                               lang
                                   ? '¿Ya tienes cuenta? Inicia sesion aqui!'
                                   : 'Do you already have an account? Log in here!',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   decoration: TextDecoration.underline,
                                   fontSize: 13,
                                   color: Colors.black),

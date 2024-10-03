@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:path/path.dart' as path;
@@ -68,10 +70,8 @@ class _EditUserState extends State<EditUser> {
   }
 
   Future<void> fetchAndSetUserData(String email) async {
-    print('Fetching data for email: $email');
     UserService userService = UserService();
     Set<Map<String, dynamic>> userData = await userService.getUser(email);
-    print("Fetched User Data: $userData");
 
     if (mounted) {
       if (userData.isNotEmpty) {
@@ -91,9 +91,6 @@ class _EditUserState extends State<EditUser> {
         });
       }
     }
-
-    print(
-        "Controllers updated: ${nameController.text}, ${emailController.text}, ${phoneController.text}, ${homeController.text}");
   }
 
   @override
@@ -160,21 +157,21 @@ class _EditUserState extends State<EditUser> {
                 lang!
                     ? "Verificar su numero de telefono"
                     : "Verify your phone number",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 5),
-              Icon(
+              const SizedBox(height: 5),
+              const Icon(
                 Icons.send,
                 size: 20,
                 color: Colors.black,
               ),
             ],
           ),
-          backgroundColor: Color.fromARGB(159, 229, 248, 210),
+          backgroundColor: const Color.fromARGB(159, 229, 248, 210),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -218,13 +215,14 @@ class _EditUserState extends State<EditUser> {
                     ),
                     child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.verified_outlined,
                           color: Colors.black,
                         ),
                         Text(
                           lang! ? "Verificar" : "Verify",
-                          style: TextStyle(color: Colors.black, fontSize: 10),
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 10),
                         ),
                       ],
                     ),
@@ -239,7 +237,7 @@ class _EditUserState extends State<EditUser> {
                 lang!
                     ? "* El token enviado no coincide"
                     : "* The sent token does not match",
-                style: TextStyle(color: Colors.red, fontSize: 10),
+                style: const TextStyle(color: Colors.red, fontSize: 10),
               ),
             ),
             OutlinedButton(
@@ -254,7 +252,7 @@ class _EditUserState extends State<EditUser> {
                 lang!
                     ? 'Enviar token de verificacion'
                     : 'Send verification token',
-                style: TextStyle(
+                style: const TextStyle(
                     decoration: TextDecoration.underline,
                     fontSize: 13,
                     color: Colors.black),
@@ -271,7 +269,7 @@ class _EditUserState extends State<EditUser> {
               ),
               child: Text(
                 lang! ? 'Exit' : 'Salir',
-                style: TextStyle(fontSize: 13, color: Colors.black),
+                style: const TextStyle(fontSize: 13, color: Colors.black),
               ),
             ),
           ],
@@ -295,7 +293,7 @@ class _EditUserState extends State<EditUser> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+            scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
               ? const Center(
@@ -380,8 +378,8 @@ class _EditUserState extends State<EditUser> {
                               visible: !_isName,
                               child: Text(
                                 "* ${lang! ? 'Nombre no puede ser vacio' : 'Name cannot be empty'}",
-                                style:
-                                    TextStyle(color: Colors.red, fontSize: 10),
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 10),
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -480,7 +478,6 @@ class _EditUserState extends State<EditUser> {
 
                                         if (result != null) {
                                           domicilio = result['domicilio'];
-                                          print('\nDOMICILIO: ' + domicilio);
                                         }
                                         setState(() {
                                           homeController.text =
@@ -501,7 +498,7 @@ class _EditUserState extends State<EditUser> {
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(FontAwesomeIcons.home,
+                                          const Icon(FontAwesomeIcons.home,
                                               size: 25, color: Colors.black),
                                           const SizedBox(width: 5),
                                           Text(
@@ -530,7 +527,6 @@ class _EditUserState extends State<EditUser> {
 
                                         if (result != null) {
                                           domicilio = result['domicilio'];
-                                          print('\nDOMICILIO: ' + domicilio);
                                         }
                                         setState(() {
                                           homeController.text =
@@ -559,7 +555,7 @@ class _EditUserState extends State<EditUser> {
                                               fontStyle: FontStyle.italic,
                                             ),
                                           ),
-                                          Icon(Icons.edit,
+                                          const Icon(Icons.edit,
                                               size: 25, color: Colors.black),
                                         ],
                                       ),
@@ -598,8 +594,8 @@ class _EditUserState extends State<EditUser> {
                               visible: !_isHome,
                               child: Text(
                                 "* ${lang! ? 'Domicilio no puede ser vacio' : 'Missing address'}",
-                                style:
-                                    TextStyle(color: Colors.red, fontSize: 10),
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 10),
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -701,7 +697,7 @@ class _EditUserState extends State<EditUser> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Icon(FontAwesomeIcons.signInAlt,
+                                        const Icon(FontAwesomeIcons.signInAlt,
                                             size: 30, color: Colors.black),
                                         const SizedBox(width: 30),
                                         Text(

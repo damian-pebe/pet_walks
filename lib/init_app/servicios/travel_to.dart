@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -60,15 +62,6 @@ class _TravelToState extends State<TravelTo> {
         _selectedTime = picked;
       });
     }
-    _saveTime();
-  }
-
-  void _saveTime() {
-    if (_selectedTime != null) {
-      String formattedTime =
-          "${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}";
-      print(formattedTime.toString());
-    }
   }
 
   String? email;
@@ -76,9 +69,7 @@ class _TravelToState extends State<TravelTo> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       email = user.email;
-    } else {
-      print('Error getting email from user');
-    }
+    } else {}
     _fetchBuilderInfo();
     statusPremiumInstance();
   }
@@ -201,7 +192,6 @@ class _TravelToState extends State<TravelTo> {
                                               selectedPets.remove(id);
                                             }
                                           });
-                                          print('Selected Pets: $selectedPets');
                                         },
                                       ),
                                       const EmptyBox(w: 10),
@@ -282,7 +272,7 @@ class _TravelToState extends State<TravelTo> {
                         const SizedBox(width: 10),
                         Text(
                           lang! ? 'Aceptar' : 'Accept',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18.0,
                           ),
@@ -331,7 +321,7 @@ class _TravelToState extends State<TravelTo> {
                               ),
                               Text(
                                 lang! ? 'Regresar' : 'Back',
-                                style: TextStyle(fontSize: 10),
+                                style: const TextStyle(fontSize: 10),
                               )
                             ],
                           )),
@@ -353,7 +343,7 @@ class _TravelToState extends State<TravelTo> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                SelectableCalendar(),
+                                                const SelectableCalendar(),
                                           ));
                                       if (result != null) {
                                         if (result.containsKey('dates')) {
@@ -366,9 +356,7 @@ class _TravelToState extends State<TravelTo> {
                                           endDate = result['end'];
                                           mode = 'startEnd';
                                         }
-                                      } else {
-                                        print('result = null');
-                                      }
+                                      } else {}
                                     },
                                     style: OutlinedButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(
@@ -451,7 +439,7 @@ class _TravelToState extends State<TravelTo> {
                                   const SizedBox(height: 5),
                                   Text(
                                     lang! ? 'Horario' : 'Schedule',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 16.0,
                                       fontStyle: FontStyle.italic,
@@ -475,7 +463,7 @@ class _TravelToState extends State<TravelTo> {
                               children: [
                                 Container(
                                   alignment: Alignment.bottomLeft,
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 16.0, horizontal: 24.0),
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
@@ -487,7 +475,7 @@ class _TravelToState extends State<TravelTo> {
                                     lang!
                                         ? '¿Paseo con \nmas mascotas?: '
                                         : 'Walk with other pets',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.black,
                                       letterSpacing: 1.2,
@@ -501,7 +489,7 @@ class _TravelToState extends State<TravelTo> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 Row(
@@ -519,7 +507,7 @@ class _TravelToState extends State<TravelTo> {
                                         side: BorderSide(
                                           color: walkWFriends == 'Si'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -541,7 +529,7 @@ class _TravelToState extends State<TravelTo> {
                                         side: BorderSide(
                                           color: walkWFriends == 'No'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -573,7 +561,8 @@ class _TravelToState extends State<TravelTo> {
                                       final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => SelectHome(),
+                                          builder: (context) =>
+                                              const SelectHome(),
                                         ),
                                       );
 
@@ -711,13 +700,13 @@ class _TravelToState extends State<TravelTo> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Icon(Icons.monetization_on_outlined,
+                                      const Icon(Icons.monetization_on_outlined,
                                           color: Colors.black),
                                       Text(
                                         lang!
                                             ? 'Metodo de pago'
                                             : 'Payment method',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 16.0,
                                           color: Colors.black,
                                           letterSpacing: 1.2,
@@ -730,12 +719,12 @@ class _TravelToState extends State<TravelTo> {
                                           ],
                                         ),
                                       ),
-                                      Icon(Icons.credit_score_outlined,
+                                      const Icon(Icons.credit_score_outlined,
                                           color: Colors.black),
                                     ],
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 Row(
@@ -752,7 +741,7 @@ class _TravelToState extends State<TravelTo> {
                                         side: BorderSide(
                                           color: payMethod == 'Efectivo'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -772,7 +761,7 @@ class _TravelToState extends State<TravelTo> {
                                         side: BorderSide(
                                           color: payMethod == 'Tarjeta'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -798,7 +787,7 @@ class _TravelToState extends State<TravelTo> {
                                 Expanded(
                                   flex: 2,
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                       vertical: 16.0,
                                       horizontal: 24.0,
                                     ),
@@ -876,11 +865,11 @@ class _TravelToState extends State<TravelTo> {
                             child: OutlinedButton(
                               onPressed: () => details(),
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     vertical: 20.0, horizontal: 20.0),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15.0),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                       width: 2.0, color: Colors.black),
                                 ),
                                 backgroundColor: Colors.grey[200],
@@ -893,13 +882,13 @@ class _TravelToState extends State<TravelTo> {
                                     lang!
                                         ? 'Seleccionar mascotas'
                                         : 'Select pets',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 22.0,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 10,
                                   ),
                                   const Icon(
@@ -921,7 +910,7 @@ class _TravelToState extends State<TravelTo> {
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 30.0),
-                            child: Container(
+                            child: SizedBox(
                               width: double.infinity,
                               child: TextField(
                                   controller: descriptionController,
@@ -1081,12 +1070,12 @@ class _TravelToState extends State<TravelTo> {
                                 : Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         FontAwesomeIcons.dog,
                                         size: 25,
                                         color: Colors.black,
                                       ),
-                                      SizedBox(width: 20),
+                                      const SizedBox(width: 20),
                                       Text(
                                         lang!
                                             ? 'Solicitar viaje'
@@ -1097,8 +1086,8 @@ class _TravelToState extends State<TravelTo> {
                                           fontStyle: FontStyle.italic,
                                         ),
                                       ),
-                                      SizedBox(width: 15),
-                                      Icon(
+                                      const SizedBox(width: 15),
+                                      const Icon(
                                         FontAwesomeIcons.bone,
                                         size: 25,
                                         color: Colors.black,

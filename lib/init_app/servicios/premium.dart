@@ -62,6 +62,7 @@ class _PremiumState extends State<Premium> {
                                 lang!
                                     ? 'Esta es la suscripción mensual a Pet Walks Premium por 29 MXN'
                                     : 'This is the montlhy subscription to Pet Walks Premium for 29 MXN',
+                                // ignore: prefer_const_constructors
                                 style: TextStyle(
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold,

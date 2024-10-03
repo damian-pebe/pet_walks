@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 
 InputDecoration StyleTextField(String text) {
@@ -6,11 +8,11 @@ InputDecoration StyleTextField(String text) {
     fillColor: Colors.grey[200],
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(15.0),
-      borderSide: BorderSide(color: Colors.black, width: 2.0),
+      borderSide: const BorderSide(color: Colors.black, width: 2.0),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(20.0),
-      borderSide: BorderSide(color: Colors.black, width: 2.0),
+      borderSide: const BorderSide(color: Colors.black, width: 2.0),
     ),
     hintText: text,
     hintStyle: TextStyle(

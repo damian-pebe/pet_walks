@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, deprecated_member_use
+
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -76,11 +78,9 @@ class _ChatViewState extends State<ChatView> {
 
         return downloadURL;
       } else {
-        print('User canceled file picking');
         return null;
       }
     } catch (e) {
-      print('Error uploading file: $e');
       return null;
     }
   }
@@ -133,7 +133,7 @@ class _ChatViewState extends State<ChatView> {
       );
     } else {
       // Fallback for unsupported file types
-      return Text('error');
+      return const Text('error');
     }
   }
 
@@ -185,7 +185,7 @@ class _ChatViewState extends State<ChatView> {
                             size: 50.0));
                   }
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text("No messages"));
+                    return const Center(child: Text("No messages"));
                   }
 
                   List<dynamic> messages = snapshot.data!;
@@ -227,7 +227,7 @@ class _ChatViewState extends State<ChatView> {
                               if (message['m'] != null)
                                 Text(
                                   message['m'], // Message content
-                                  style: TextStyle(fontSize: 16),
+                                  style: const TextStyle(fontSize: 16),
                                 ),
                               if (message['f'] != null)
                                 if (message['f'] != null)
@@ -244,17 +244,17 @@ class _ChatViewState extends State<ChatView> {
                                 mainAxisSize: MainAxisSize.min, // Set min size
                                 children: [
                                   if (message['s'] == 'admin')
-                                    Text(
+                                    const Text(
                                       'ADMIN',
                                       style: TextStyle(
                                           fontSize: 10, color: Colors.black87),
                                     ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 5,
                                   ),
                                   Text(
                                     formattedDate, // Timestamp
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 10, color: Colors.black87),
                                   ),
                                 ],
@@ -275,7 +275,7 @@ class _ChatViewState extends State<ChatView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.attach_file, color: Colors.black),
+                    icon: const Icon(Icons.attach_file, color: Colors.black),
                     onPressed: () async {
                       //?file picker
                       String? fileUrl = await uploadFileAndSaveUrl();
@@ -291,7 +291,7 @@ class _ChatViewState extends State<ChatView> {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.image_search, color: Colors.black),
+                    icon: const Icon(Icons.image_search, color: Colors.black),
                     onPressed: () async {
                       List<String>? imagesUrl = await _pickImages();
                       if (imagesUrl != null) {
@@ -307,14 +307,14 @@ class _ChatViewState extends State<ChatView> {
                   Expanded(
                     child: TextField(
                       controller: messageController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: '...',
                         border: OutlineInputBorder(),
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.send, color: Colors.black),
+                    icon: const Icon(Icons.send, color: Colors.black),
                     onPressed: () {
                       if (messageController.text.isNotEmpty) {
                         updateChatWithNewMessage(widget.chatId, {

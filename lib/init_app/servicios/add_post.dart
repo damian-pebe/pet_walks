@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -116,7 +118,7 @@ class _AddPostState extends State<AddPost> {
                                   ),
                                   Text(
                                     lang! ? 'Regresar' : 'Back',
-                                    style: TextStyle(fontSize: 10),
+                                    style: const TextStyle(fontSize: 10),
                                   )
                                 ],
                               )),
@@ -222,7 +224,7 @@ class _AddPostState extends State<AddPost> {
                                   decoration: StyleTextField(
                                       lang! ? 'Descripcion' : 'Description')),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             _isLoading

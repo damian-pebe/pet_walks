@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'dart:convert';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
@@ -17,16 +19,13 @@ Future<void> sendNotificationsToUserDevices(
       await PushNotifications.sendNotificationToDeviceByToken(
           token, title, body);
     }
-  } else {
-    print("No device tokens found for user.");
-  }
+  } else {}
 }
 
 class PushNotifications {
   static Future<void> sendNotificationToDeviceByToken(
       String token, String title, String body) async {
     final String serverKey = await getAccessToken();
-    print("Access Token: $serverKey");
 
     String endPointFirebaseCloudMessaging =
         'https://fcm.googleapis.com/v1/projects/petwalks-ef2a9/messages:send';
@@ -52,13 +51,8 @@ class PushNotifications {
       );
 
       if (response.statusCode == 200) {
-        print("Notification sent successfully to $token");
-      } else {
-        print("Error sending notification to $token: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Failed to send notification: $e");
-    }
+      } else {}
+    } catch (e) {}
   }
 
   static Future<String> getAccessToken() async {

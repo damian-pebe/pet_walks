@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 class VibratingContainer extends StatefulWidget {
   final Widget child;
 
-  const VibratingContainer({Key? key, required this.child}) : super(key: key);
+  const VibratingContainer({super.key, required this.child});
 
   @override
+  // ignore: library_private_types_in_public_api
   _VibratingContainerState createState() => _VibratingContainerState();
 }
 

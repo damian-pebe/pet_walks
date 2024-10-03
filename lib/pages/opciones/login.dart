@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, use_build_context_synchronously, prefer_const_constructors, avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -36,17 +38,10 @@ class _LogInState extends State<LogIn> {
   final _auth = AuthService();
   bool _obscureText = true;
 
-  void _toggleVisibility() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
-
   void _login() async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
-      await getAndAddTokenToArray();
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -92,7 +87,6 @@ class _LogInState extends State<LogIn> {
     if (user != null) {
       email = user.email ?? 'There was a problem fetching the info';
       await newUser('', email!, '', '');
-      await getAndAddTokenToArray();
       if (mounted) {
         Navigator.push(
           context,

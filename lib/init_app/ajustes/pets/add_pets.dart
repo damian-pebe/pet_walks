@@ -59,9 +59,7 @@ class _AddPetsState extends State<AddPets> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       email = user.email;
-    } else {
-      print('Error getting email from user');
-    }
+    } else {}
   }
 
   @override
@@ -127,7 +125,7 @@ class _AddPetsState extends State<AddPets> {
                         ? NetworkImage(_downloadUrls[0])
                         : null,
                     child: _downloadUrls.isEmpty
-                        ? Icon(
+                        ? const Icon(
                             Icons.person,
                             size: 50,
                             color: Colors.grey,
@@ -135,7 +133,7 @@ class _AddPetsState extends State<AddPets> {
                         : null,
                   ),
                 ),
-                EmptyBox(h: 15),
+                const EmptyBox(h: 15),
                 TextField(
                     keyboardType: TextInputType.name,
                     controller: nameController,
@@ -145,7 +143,7 @@ class _AddPetsState extends State<AddPets> {
                     string: lang!
                         ? "Falta nombre de la mascota"
                         : "Pet name missing"),
-                Divider(),
+                const Divider(),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -155,25 +153,25 @@ class _AddPetsState extends State<AddPets> {
                             controller: raceController,
                             decoration:
                                 StyleTextField(lang! ? 'Raza' : 'Race')),
-                        EmptyBox(h: 15),
+                        const EmptyBox(h: 15),
                         TextField(
                             keyboardType: TextInputType.number,
                             controller: sizeController,
                             decoration: StyleTextField(
                                 lang! ? 'Tamaño en cm' : 'Size in cm')),
-                        EmptyBox(h: 15),
+                        const EmptyBox(h: 15),
                         TextField(
                             keyboardType: TextInputType.name,
                             controller: descriptionController,
                             decoration: StyleTextField(lang!
                                 ? 'Caracteristicas/Comentarios'
                                 : 'Characteristics/Comments')),
-                        EmptyBox(h: 15),
+                        const EmptyBox(h: 15),
                         TextField(
                             keyboardType: TextInputType.number,
                             controller: oldController,
                             decoration: StyleTextField(lang! ? 'Edad' : 'Age')),
-                        EmptyBox(h: 15),
+                        const EmptyBox(h: 15),
                         TextField(
                             keyboardType: TextInputType.name,
                             controller: colorController,
@@ -189,7 +187,7 @@ class _AddPetsState extends State<AddPets> {
                     ),
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 OutlinedButton(
                   onPressed: _isLoading
                       ? null
@@ -255,15 +253,15 @@ class _AddPetsState extends State<AddPets> {
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.pets_sharp,
                               size: 30,
                               color: Colors.black,
                             ),
-                            SizedBox(width: 30),
+                            const SizedBox(width: 30),
                             Text(
                               lang! ? 'Agregar mascota' : 'Add Pet',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontStyle: FontStyle.italic,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,

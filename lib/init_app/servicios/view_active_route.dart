@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, empty_catches, deprecated_member_use
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,8 +16,7 @@ class RouteMap extends StatefulWidget {
   final String idWalk;
   final bool lang;
 
-  const RouteMap({Key? key, required this.idWalk, required this.lang})
-      : super(key: key);
+  const RouteMap({super.key, required this.idWalk, required this.lang});
 
   @override
   _RouteMapState createState() => _RouteMapState();
@@ -64,9 +65,7 @@ class _RouteMapState extends State<RouteMap> {
           _isPermissionGranted = true;
         });
       }
-    } catch (e) {
-      print("ERROR WITH LOCATION: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> initData() async {
@@ -124,7 +123,7 @@ class _RouteMapState extends State<RouteMap> {
   Set<Polyline> _createPolylines(List<LatLng> route) {
     return {
       Polyline(
-        polylineId: PolylineId("route"),
+        polylineId: const PolylineId("route"),
         points: route,
         color: Colors.blue,
         width: 5,
@@ -157,7 +156,7 @@ class _RouteMapState extends State<RouteMap> {
               children: [
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: _center ?? LatLng(0, 0),
+                    target: _center ?? const LatLng(0, 0),
                     zoom: 20,
                   ),
                   markers: Set<Marker>.of(markers),
@@ -206,18 +205,18 @@ class _RouteMapState extends State<RouteMap> {
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
-                          icon: Icon(Icons.arrow_back_ios,
+                          icon: const Icon(Icons.arrow_back_ios,
                               size: 30, color: Colors.black),
                         ),
                         Text(
                           widget.lang ? 'Regresar' : 'Back',
-                          style: TextStyle(fontSize: 10),
+                          style: const TextStyle(fontSize: 10),
                         )
                       ],
                     )),
               ],
             )
-          : Center(
+          : const Center(
               child: SpinKitSpinningLines(
                   color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)),
     );

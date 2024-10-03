@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields
+
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -214,8 +216,6 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                         Map<String, dynamic>
                                             manageStartWalkInfo =
                                             await manageStartWalk(requestId);
-                                        print(
-                                            'manageStartWalkInfo[]: ${manageStartWalkInfo['emailOwner']}');
                                         bool owner =
                                             manageStartWalkInfo['emailOwner'] ==
                                                 email;

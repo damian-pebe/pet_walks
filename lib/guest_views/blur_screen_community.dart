@@ -69,7 +69,7 @@ class _AddPostState extends State<AddPostBlur> {
     return type;
   }
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -95,7 +95,7 @@ class _AddPostState extends State<AddPostBlur> {
                               icon: const Icon(Icons.arrow_back_ios,
                                   size: 30, color: Colors.black),
                             ),
-                            Text(
+                            const Text(
                               'Back',
                               style: TextStyle(fontSize: 10),
                             )
@@ -140,7 +140,7 @@ class _AddPostState extends State<AddPostBlur> {
                                         shape: BoxShape.circle,
                                         color: Colors.white,
                                       ),
-                                      child: Icon(
+                                      child: const Icon(
                                         FontAwesomeIcons.heart,
                                         color: Colors.black,
                                       ),
@@ -162,7 +162,7 @@ class _AddPostState extends State<AddPostBlur> {
                       ),
                       const SizedBox(height: 10),
                       GestureDetector(
-                        child: PhotoCarousel(imageUrls: []),
+                        child: const PhotoCarousel(imageUrls: []),
                         onTap: () {},
                       ),
                       const SizedBox(
@@ -176,7 +176,7 @@ class _AddPostState extends State<AddPostBlur> {
                           keyboardType: TextInputType.multiline,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       _isLoading

@@ -90,7 +90,7 @@ class _SuggestionsState extends State<Suggestions> {
                                 ),
                                 Text(
                                   lang! ? 'Regresar  ' : 'Back  ',
-                                  style: TextStyle(fontSize: 10),
+                                  style: const TextStyle(fontSize: 10),
                                 )
                               ],
                             ),
@@ -103,7 +103,7 @@ class _SuggestionsState extends State<Suggestions> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(
+                          return const Center(
                               child: SpinKitSpinningLines(
                                   color: Color.fromRGBO(169, 200, 149, 1),
                                   size: 50.0));
@@ -128,7 +128,7 @@ class _SuggestionsState extends State<Suggestions> {
                                       Icons.account_circle_outlined,
                                       size: 30,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 5,
                                     ),
                                     Text(
@@ -145,7 +145,7 @@ class _SuggestionsState extends State<Suggestions> {
                       },
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Row(
@@ -157,12 +157,12 @@ class _SuggestionsState extends State<Suggestions> {
                               hintText: lang!
                                   ? 'Agregar una nueva sugerencia...'
                                   : 'Add a new suggestion...',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                             ),
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.send, color: Colors.black),
+                          icon: const Icon(Icons.send, color: Colors.black),
                           onPressed: () {
                             if (suggestionController.text.isNotEmpty) {
                               addSuggestionAndRefresh(

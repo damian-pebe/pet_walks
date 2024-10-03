@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -61,15 +63,6 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
         _selectedTime = picked;
       });
     }
-    _saveTime();
-  }
-
-  void _saveTime() {
-    if (_selectedTime != null) {
-      String formattedTime =
-          "${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}";
-      print(formattedTime.toString());
-    }
   }
 
   String? email;
@@ -77,9 +70,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       email = user.email;
-    } else {
-      print('Error getting email from user');
-    }
+    } else {}
     _fetchBuilderInfo();
     statusPremiumInstance();
   }
@@ -146,7 +137,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                   const EmptyBox(h: 40),
                   Text(
                     lang! ? 'Seleccionar Mascotas' : 'Select pets',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -222,7 +213,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                                         petInfo['imageUrl'])
                                                     : null,
                                           ),
-                                          EmptyBox(w: 10),
+                                          const EmptyBox(w: 10),
                                           Text(petInfo['name'] ?? 'No name'),
                                         ],
                                       ),
@@ -282,15 +273,15 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.checklist_rtl_sharp,
                           size: 28,
                           color: Colors.black,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text(
                           lang! ? 'Aceptar' : 'Accept',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18.0,
                           ),
@@ -313,7 +304,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1),
+        scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1),
       ),
       home: Scaffold(
         body: lang == null
@@ -357,7 +348,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                               children: [
                                 Container(
                                   alignment: Alignment.bottomLeft,
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 16.0, horizontal: 10.0),
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
@@ -374,7 +365,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                         lang!
                                             ? 'Tiempo(min):'
                                             : 'Walk time (min)',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 16.0,
                                           color: Colors.black,
                                           letterSpacing: 1.2,
@@ -387,12 +378,12 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                           ],
                                         ),
                                       ),
-                                      Icon(Icons.directions_walk_outlined,
+                                      const Icon(Icons.directions_walk_outlined,
                                           color: Colors.black)
                                     ],
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 5,
                                 ),
                                 Row(
@@ -409,7 +400,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                         side: BorderSide(
                                           color: timeWalking == '15'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -431,7 +422,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                         side: BorderSide(
                                           color: timeWalking == '30'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -453,7 +444,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                         side: BorderSide(
                                           color: timeWalking == '45'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -483,7 +474,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                SelectableCalendar(),
+                                                const SelectableCalendar(),
                                           ));
                                       if (result != null) {
                                         if (result.containsKey('dates')) {
@@ -496,9 +487,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                           endDate = result['end'];
                                           mode = 'startEnd';
                                         }
-                                      } else {
-                                        print('result = null');
-                                      }
+                                      } else {}
                                     },
                                     style: OutlinedButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(
@@ -581,7 +570,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                   const SizedBox(height: 5),
                                   Text(
                                     lang! ? 'Horario' : 'Schedule',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 16.0,
                                       fontStyle: FontStyle.italic,
@@ -605,7 +594,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                               children: [
                                 Container(
                                   alignment: Alignment.bottomLeft,
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 16.0, horizontal: 24.0),
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
@@ -617,7 +606,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                     lang!
                                         ? '¿Paseo con \nmas mascotas?: '
                                         : 'Walk with other pets',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.black,
                                       letterSpacing: 1.2,
@@ -631,7 +620,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 Row(
@@ -649,7 +638,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                         side: BorderSide(
                                           color: walkWFriends == 'Si'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -671,7 +660,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                         side: BorderSide(
                                           color: walkWFriends == 'No'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -703,7 +692,8 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                       final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => SelectHome(),
+                                          builder: (context) =>
+                                              const SelectHome(),
                                         ),
                                       );
 
@@ -841,13 +831,13 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Icon(Icons.monetization_on_outlined,
+                                      const Icon(Icons.monetization_on_outlined,
                                           color: Colors.black),
                                       Text(
                                         lang!
                                             ? 'Metodo de pago'
                                             : 'Payment method',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 16.0,
                                           color: Colors.black,
                                           letterSpacing: 1.2,
@@ -860,12 +850,12 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                           ],
                                         ),
                                       ),
-                                      Icon(Icons.credit_score_outlined,
+                                      const Icon(Icons.credit_score_outlined,
                                           color: Colors.black),
                                     ],
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 Row(
@@ -882,7 +872,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                         side: BorderSide(
                                           color: payMethod == 'Efectivo'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -902,7 +892,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                         side: BorderSide(
                                           color: payMethod == 'Tarjeta'
                                               ? Colors.black
-                                              : Color.fromRGBO(
+                                              : const Color.fromRGBO(
                                                   250, 244, 229, .65),
                                           width: 2,
                                         ),
@@ -928,7 +918,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                 Expanded(
                                   flex: 2,
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                       vertical: 16.0,
                                       horizontal: 24.0,
                                     ),
@@ -1006,11 +996,11 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                             child: OutlinedButton(
                               onPressed: () => details(),
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     vertical: 20.0, horizontal: 20.0),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15.0),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                       width: 2.0, color: Colors.black),
                                 ),
                                 backgroundColor: Colors.grey[200],
@@ -1023,13 +1013,13 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                     lang!
                                         ? 'Seleccionar mascotas'
                                         : 'Select pets',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 22.0,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 10,
                                   ),
                                   const Icon(
@@ -1051,7 +1041,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 30.0),
-                            child: Container(
+                            child: SizedBox(
                               width: double.infinity,
                               child: TextField(
                                   controller: descriptionController,

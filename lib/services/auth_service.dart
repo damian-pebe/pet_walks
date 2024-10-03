@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
@@ -29,22 +31,16 @@ class AuthService {
         final address = data['addresses']?[0]?['formattedValue'];
 
         await newUser(name, googleUser.email, phoneNumber, address);
-      } else {
-        print('Failed to fetch user data: ${response.body}');
-      }
+      } else {}
 
       return userCredential;
-    } catch (e) {
-      print(e.toString());
-    }
+    } catch (e) {}
     return null;
   }
 
   Future<void> signOut() async {
     try {
       await _auth.signOut();
-    } catch (e) {
-      print('Algo salio mal');
-    }
+    } catch (e) {}
   }
 }

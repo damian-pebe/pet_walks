@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -87,7 +89,7 @@ class _ServiciosState extends State<Servicios> {
       barrierColor: Colors.white.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color.fromARGB(159, 229, 248, 210),
+          backgroundColor: const Color.fromARGB(159, 229, 248, 210),
           actions: [
             Padding(
               padding:
@@ -130,10 +132,10 @@ class _ServiciosState extends State<Servicios> {
                               fontStyle: FontStyle.italic,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.document_scanner,
                             size: 20,
                             color: Colors.black,
@@ -156,7 +158,7 @@ class _ServiciosState extends State<Servicios> {
       barrierColor: Colors.white.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color.fromARGB(159, 229, 248, 210),
+          backgroundColor: const Color.fromARGB(159, 229, 248, 210),
           actions: [
             Padding(
               padding:
@@ -202,17 +204,17 @@ class _ServiciosState extends State<Servicios> {
                               fontStyle: FontStyle.italic,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.calendar_month,
                             size: 20,
                             color: Colors.black,
                           ),
                         ],
                       )),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   OutlinedButton(
@@ -234,10 +236,10 @@ class _ServiciosState extends State<Servicios> {
                               fontStyle: FontStyle.italic,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
-                          Icon(
+                          const Icon(
                             FontAwesomeIcons.clock,
                             size: 20,
                             color: Colors.black,
@@ -261,7 +263,7 @@ class _ServiciosState extends State<Servicios> {
       barrierColor: Colors.white.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color.fromARGB(159, 229, 248, 210),
+          backgroundColor: const Color.fromARGB(159, 229, 248, 210),
           actions: [
             Padding(
               padding:
@@ -285,7 +287,7 @@ class _ServiciosState extends State<Servicios> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 50,
                   ),
                   OutlinedButton(
@@ -307,17 +309,17 @@ class _ServiciosState extends State<Servicios> {
                               fontStyle: FontStyle.italic,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.business_center_outlined,
                             size: 22,
                             color: Colors.black,
                           ),
                         ],
                       )),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
                   OutlinedButton(
@@ -339,10 +341,10 @@ class _ServiciosState extends State<Servicios> {
                               fontStyle: FontStyle.italic,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
-                          Icon(
+                          const Icon(
                             FontAwesomeIcons.solidEdit,
                             size: 16,
                             color: Colors.black,
@@ -363,7 +365,7 @@ class _ServiciosState extends State<Servicios> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+            scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
               ? const Center(
@@ -379,7 +381,7 @@ class _ServiciosState extends State<Servicios> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Padding(
@@ -407,7 +409,7 @@ class _ServiciosState extends State<Servicios> {
                                       )),
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Visibility(
@@ -434,12 +436,12 @@ class _ServiciosState extends State<Servicios> {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.max,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 FontAwesomeIcons.dog,
                                                 size: 25,
                                                 color: Colors.black,
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 width: 20,
                                               ),
                                               Text(
@@ -455,7 +457,7 @@ class _ServiciosState extends State<Servicios> {
                                             ],
                                           )),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 20,
                                     ),
                                     Visibility(
@@ -484,12 +486,12 @@ class _ServiciosState extends State<Servicios> {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.max,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 FontAwesomeIcons.walking,
                                                 size: 25,
                                                 color: Colors.black,
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 width: 20,
                                               ),
                                               Text(
@@ -505,7 +507,7 @@ class _ServiciosState extends State<Servicios> {
                                             ],
                                           )),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 20,
                                     ),
                                     Visibility(
@@ -528,12 +530,12 @@ class _ServiciosState extends State<Servicios> {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.max,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Icons.add_business_rounded,
                                                 size: 25,
                                                 color: Colors.black,
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 width: 20,
                                               ),
                                               Text(
@@ -576,13 +578,13 @@ class _ServiciosState extends State<Servicios> {
                                                           .check_box_outlined,
                                                   color: Colors.black,
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 2,
                                                 ),
                                               ],
                                             ),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             height: 40,
                                           ),
                                           OutlinedButton(
@@ -602,13 +604,13 @@ class _ServiciosState extends State<Servicios> {
                                                           .check_box_outlined,
                                                   color: Colors.black,
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 2,
                                                 ),
                                               ],
                                             ),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             height: 40,
                                           ),
                                           OutlinedButton(
@@ -629,7 +631,7 @@ class _ServiciosState extends State<Servicios> {
                                                           .check_box_outlined,
                                                   color: Colors.black,
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 2,
                                                 ),
                                               ],
@@ -637,7 +639,7 @@ class _ServiciosState extends State<Servicios> {
                                           )
                                         ],
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 5,
                                       ),
                                       Column(
@@ -647,9 +649,10 @@ class _ServiciosState extends State<Servicios> {
                                         children: [
                                           VibratingContainer(
                                             child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 20.0,
-                                                    horizontal: 22.0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 20.0,
+                                                        horizontal: 22.0),
                                                 decoration: BoxDecoration(
                                                   color: Colors.grey[200],
                                                   border: Border.all(
@@ -664,12 +667,12 @@ class _ServiciosState extends State<Servicios> {
                                                   mainAxisSize:
                                                       MainAxisSize.max,
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       FontAwesomeIcons.dog,
                                                       size: 25,
                                                       color: Colors.black,
                                                     ),
-                                                    SizedBox(
+                                                    const SizedBox(
                                                       width: 20,
                                                     ),
                                                     Text(
@@ -686,14 +689,15 @@ class _ServiciosState extends State<Servicios> {
                                                   ],
                                                 )),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             height: 20,
                                           ),
                                           VibratingContainer(
                                             child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 20.0,
-                                                    horizontal: 24.0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 20.0,
+                                                        horizontal: 24.0),
                                                 decoration: BoxDecoration(
                                                   color: Colors.grey[200],
                                                   border: Border.all(
@@ -708,12 +712,12 @@ class _ServiciosState extends State<Servicios> {
                                                   mainAxisSize:
                                                       MainAxisSize.max,
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       FontAwesomeIcons.walking,
                                                       size: 25,
                                                       color: Colors.black,
                                                     ),
-                                                    SizedBox(
+                                                    const SizedBox(
                                                       width: 0,
                                                     ),
                                                     Text(
@@ -730,14 +734,15 @@ class _ServiciosState extends State<Servicios> {
                                                   ],
                                                 )),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             height: 20,
                                           ),
                                           VibratingContainer(
                                             child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 20.0,
-                                                    horizontal: 58.0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 20.0,
+                                                        horizontal: 58.0),
                                                 decoration: BoxDecoration(
                                                   color: Colors.grey[200],
                                                   border: Border.all(
@@ -752,13 +757,13 @@ class _ServiciosState extends State<Servicios> {
                                                   mainAxisSize:
                                                       MainAxisSize.max,
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       Icons
                                                           .add_business_rounded,
                                                       size: 25,
                                                       color: Colors.black,
                                                     ),
-                                                    SizedBox(
+                                                    const SizedBox(
                                                       width: 20,
                                                     ),
                                                     Text(

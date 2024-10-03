@@ -28,7 +28,7 @@ class _PaymentSuccessState extends State<PaymentSuccess> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromARGB(255, 176, 183, 194),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 176, 183, 194),
       ),
       home: Scaffold(
         body: Stack(

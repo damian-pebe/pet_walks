@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, empty_catches, deprecated_member_use
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -144,17 +146,13 @@ class _SocialNetwork extends State<SocialNetwork> {
   }
 
   void _getCurrentLocation() async {
-    try {
-      geo.Position position = await geo.Geolocator.getCurrentPosition(
-          desiredAccuracy: geo.LocationAccuracy.high);
-      if (mounted) {
-        setState(() {
-          _center = LatLng(position.latitude, position.longitude);
-          _isPermissionGranted = true;
-        });
-      }
-    } catch (e) {
-      print("ERROR CON UBICACION: $e");
+    geo.Position position = await geo.Geolocator.getCurrentPosition(
+        desiredAccuracy: geo.LocationAccuracy.high);
+    if (mounted) {
+      setState(() {
+        _center = LatLng(position.latitude, position.longitude);
+        _isPermissionGranted = true;
+      });
     }
   }
 
@@ -313,7 +311,8 @@ class _SocialNetwork extends State<SocialNetwork> {
                                                                       context) {
                                                                 return AlertDialog(
                                                                   backgroundColor:
-                                                                      Color.fromARGB(
+                                                                      const Color
+                                                                          .fromARGB(
                                                                           159,
                                                                           229,
                                                                           248,
@@ -360,6 +359,7 @@ class _SocialNetwork extends State<SocialNetwork> {
                                                                                   lang! ? 'Publicacion eliminada' : 'Post deleted',
                                                                                 );
                                                                               });
+                                                                              // ignore: use_build_context_synchronously
                                                                               Navigator.pop(context);
                                                                             },
                                                                             child:

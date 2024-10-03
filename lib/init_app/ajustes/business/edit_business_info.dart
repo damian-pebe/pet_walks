@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -36,6 +38,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
   final TextEditingController tokenController = TextEditingController();
 
   List<File> _imageFiles = [];
+  // ignore: prefer_final_fields
   List<String> _downloadUrls = [];
 
   List<String> category = [
@@ -126,21 +129,21 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                 lang!
                     ? "Verificar su numero de telefono"
                     : "Verify your phone number",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 5),
-              Icon(
+              const SizedBox(height: 5),
+              const Icon(
                 Icons.send,
                 size: 20,
                 color: Colors.black,
               ),
             ],
           ),
-          backgroundColor: Color.fromARGB(159, 229, 248, 210),
+          backgroundColor: const Color.fromARGB(159, 229, 248, 210),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -184,13 +187,14 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                     ),
                     child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.verified_outlined,
                           color: Colors.black,
                         ),
                         Text(
                           lang! ? "Verificar" : "Verify",
-                          style: TextStyle(color: Colors.black, fontSize: 10),
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 10),
                         ),
                       ],
                     ),
@@ -205,7 +209,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                 lang!
                     ? "* El token enviado no coincide"
                     : "* The sent token does not match",
-                style: TextStyle(color: Colors.red, fontSize: 10),
+                style: const TextStyle(color: Colors.red, fontSize: 10),
               ),
             ),
             OutlinedButton(
@@ -220,7 +224,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                 lang!
                     ? 'Enviar token de verificacion'
                     : 'Send verification token',
-                style: TextStyle(
+                style: const TextStyle(
                     decoration: TextDecoration.underline,
                     fontSize: 13,
                     color: Colors.black),
@@ -237,7 +241,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
               ),
               child: Text(
                 lang! ? 'Exit' : 'Salir',
-                style: TextStyle(fontSize: 13, color: Colors.black),
+                style: const TextStyle(fontSize: 13, color: Colors.black),
               ),
             ),
           ],
@@ -301,12 +305,12 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                           children: [
                             IconButton(
                               onPressed: () => Navigator.pop(context),
-                              icon: Icon(Icons.arrow_back_ios,
+                              icon: const Icon(Icons.arrow_back_ios,
                                   size: 30, color: Colors.black),
                             ),
                             Text(
                               lang! ? 'Regresar' : 'Back',
-                              style: TextStyle(fontSize: 10),
+                              style: const TextStyle(fontSize: 10),
                             )
                           ],
                         )),
@@ -317,12 +321,12 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                           children: [
                             IconButton(
                               onPressed: () => _pickImages(),
-                              icon: Icon(Icons.upload,
+                              icon: const Icon(Icons.upload,
                                   size: 30, color: Colors.black),
                             ),
                             Text(
                               lang! ? 'Nuevas Imágenes' : 'New Images',
-                              style: TextStyle(fontSize: 10),
+                              style: const TextStyle(fontSize: 10),
                             )
                           ],
                         )),
@@ -351,7 +355,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                                   visible: !_isName,
                                   child: Text(
                                     "* ${lang! ? 'Nombre no puede ser vacio' : 'Name cannot be empty'}",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.red, fontSize: 10),
                                   ),
                                 ),
@@ -403,12 +407,12 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                                           }
                                         },
                                         style: OutlinedButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 16.0, horizontal: 0.0),
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(15.0),
-                                            side: BorderSide(
+                                            side: const BorderSide(
                                                 width: 2.0,
                                                 color: Colors.black),
                                           ),
@@ -420,12 +424,12 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                                               getIcon(),
                                               color: Colors.black,
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               height: 2,
                                             ),
                                             Text(
                                               lang! ? "Verificar" : "Verify",
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 8,
                                                   color: Colors.black),
                                             )
@@ -441,7 +445,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                                     lang!
                                         ? '* Falta verificar telefono del usuario'
                                         : '* Missing phone number verification',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.red, fontSize: 10),
                                   ),
                                 ),
@@ -466,8 +470,6 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
 
                                             if (result != null) {
                                               domicilio = result['domicilio'];
-                                              print(
-                                                  '\nDOMICILIO: ' + domicilio);
                                             }
                                             setState(() {
                                               homeController.text =
@@ -490,7 +492,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(FontAwesomeIcons.home,
+                                              const Icon(FontAwesomeIcons.home,
                                                   size: 25,
                                                   color: Colors.black),
                                               const SizedBox(width: 5),
@@ -523,8 +525,6 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
 
                                             if (result != null) {
                                               domicilio = result['domicilio'];
-                                              print(
-                                                  '\nDOMICILIO: ' + domicilio);
                                             }
                                             setState(() {
                                               homeController.text =
@@ -555,7 +555,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                                                   fontStyle: FontStyle.italic,
                                                 ),
                                               ),
-                                              Icon(Icons.edit,
+                                              const Icon(Icons.edit,
                                                   size: 25,
                                                   color: Colors.black),
                                             ],
@@ -567,7 +567,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                                       height: 10,
                                     ),
                                     Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           vertical: 16.0, horizontal: 24.0),
                                       decoration: BoxDecoration(
                                         color: Colors.grey[200],
@@ -582,7 +582,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                                         lang!
                                             ? "Domicilio: ${homeController.text}"
                                             : "Address: ${homeController.text}",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 16.0,
                                           color: Colors.black,
                                           letterSpacing: 1.2,
@@ -616,7 +616,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                               ],
                             ))),
                   ),
-                  Divider(),
+                  const Divider(),
                   OutlinedButton(
                     onPressed: _isLoading
                         ? null

@@ -48,18 +48,13 @@ class _OpcionesState extends State<Opciones> {
       email = user.email ?? 'There was a problem fetching the info';
       await newUser('', email!, '', '');
 
-      await getAndAddTokenToArray();
       if (mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const Funcion()),
         );
-      } else {
-        print('The widget is no longer mounted.');
-      }
-    } else {
-      print('Error: No user found after Google login');
-    }
+      } else {}
+    } else {}
   }
 
   @override
@@ -100,15 +95,15 @@ class _OpcionesState extends State<Opciones> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               FontAwesomeIcons.user,
                               size: 23,
                               color: Colors.black,
                             ),
-                            SizedBox(width: 30),
+                            const SizedBox(width: 30),
                             Text(
                               lang ? 'Iniciar sesión' : '  Log in  ',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold),
@@ -137,15 +132,15 @@ class _OpcionesState extends State<Opciones> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.logout_outlined,
                               size: 25,
                               color: Colors.black,
                             ),
-                            SizedBox(width: 30),
+                            const SizedBox(width: 30),
                             Text(
                               lang ? 'Registrarme' : '  Sign up  ',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold),
@@ -179,7 +174,7 @@ class _OpcionesState extends State<Opciones> {
                         ),
                         child: Text(
                           lang ? 'Ingresar como invitado' : 'View as guest',
-                          style: TextStyle(
+                          style: const TextStyle(
                               decoration: TextDecoration.underline,
                               fontSize: 15,
                               color: Colors.black),
@@ -217,10 +212,10 @@ class _OpcionesState extends State<Opciones> {
                                     ],
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 10,
                                 ),
-                                Icon(
+                                const Icon(
                                   Icons.language_outlined,
                                   size: 25,
                                   color: Colors.black,

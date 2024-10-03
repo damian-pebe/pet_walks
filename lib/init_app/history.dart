@@ -115,6 +115,7 @@ class _HistorialState extends State<Historial> {
                       }
                       return Text(
                         '(${snapshot.data!.length.toString()})',
+                        // ignore: prefer_const_constructors
                         style: TextStyle(color: Colors.black),
                       );
                     },
@@ -185,6 +186,7 @@ class _HistorialState extends State<Historial> {
                       }
                       return Text(
                         '(${snapshot.data!.length.toString()})',
+                        // ignore: prefer_const_constructors
                         style: TextStyle(color: Colors.black),
                       );
                     },
@@ -280,12 +282,12 @@ class _HistorialState extends State<Historial> {
         });
         _pageController.animateToPage(
           index,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
       },
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(
             horizontal: isSelected ? 20 : 15, vertical: 10),
         decoration: BoxDecoration(
@@ -833,10 +835,9 @@ class _HistorialState extends State<Historial> {
                                                         size: 50.0),
                                                   );
                                                 } else if (snapshot.hasError) {
-                                                  return CircleAvatar(
+                                                  return const CircleAvatar(
                                                     radius: 30,
-                                                    child: const Icon(
-                                                        Icons.error,
+                                                    child: Icon(Icons.error,
                                                         size: 50,
                                                         color: Colors.red),
                                                   );
@@ -916,7 +917,7 @@ class _HistorialState extends State<Historial> {
                                                       chat['messages']
                                                               .last['m'] ??
                                                           '',
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         fontSize: 18,
                                                         color: Colors.white,
                                                         fontWeight:
@@ -945,7 +946,7 @@ class _HistorialState extends State<Historial> {
                                                                             .last[
                                                                         't']))
                                                         : 'No Date Available',
-                                                    style: TextStyle(
+                                                    style: const TextStyle(
                                                       fontSize: 15,
                                                       color: Colors.white,
                                                       fontWeight:
@@ -965,7 +966,7 @@ class _HistorialState extends State<Historial> {
                                                                   chatId: chat[
                                                                       'chatId'])));
                                                 },
-                                                icon: Icon(
+                                                icon: const Icon(
                                                     Icons.arrow_forward_ios,
                                                     size: 30,
                                                     color: Colors.white))

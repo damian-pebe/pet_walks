@@ -27,6 +27,7 @@ class _FuncionState extends State<Funcion> {
   void _getLanguage() async {
     lang = await getLanguage();
     if (mounted) setState(() {});
+    await getAndAddTokenToArray();
   }
 
   int _pageIndex = 0;

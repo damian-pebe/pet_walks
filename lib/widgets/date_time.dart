@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -32,7 +34,6 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _getLanguage();
   }
@@ -73,7 +74,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
                             ),
                             Text(
                               lang! ? 'Regresar' : 'Back',
-                              style: TextStyle(fontSize: 10),
+                              style: const TextStyle(fontSize: 10),
                             )
                           ],
                         )),
@@ -83,7 +84,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
                         child: Column(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.switch_left),
+                              icon: const Icon(Icons.switch_left),
                               onPressed: () {
                                 setState(() {
                                   _selectionMode =
@@ -102,7 +103,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
                               type()
                                   ? (lang! ? 'Intervalo' : 'Interval')
                                   : (lang! ? 'Libre' : 'Free'),
-                              style: TextStyle(fontSize: 10),
+                              style: const TextStyle(fontSize: 10),
                             )
                           ],
                         ))
@@ -116,9 +117,9 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
                         if (_selectedStartDay != null &&
                             _selectedEndDay != null) {
                           return day.isAfter(_selectedStartDay!
-                                  .subtract(Duration(days: 1))) &&
-                              day.isBefore(
-                                  _selectedEndDay!.add(Duration(days: 1)));
+                                  .subtract(const Duration(days: 1))) &&
+                              day.isBefore(_selectedEndDay!
+                                  .add(const Duration(days: 1)));
                         }
                         return _selectedStartDay == day ||
                             _selectedEndDay == day;

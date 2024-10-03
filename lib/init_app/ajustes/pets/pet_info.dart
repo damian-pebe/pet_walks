@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -29,9 +31,7 @@ class _InfoPetState extends State<InfoPet> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       email = user.email;
-    } else {
-      print('Error getting email from user');
-    }
+    } else {}
     return email ?? 'Error fetching the email';
   }
 
@@ -81,7 +81,7 @@ class _InfoPetState extends State<InfoPet> {
                           child: Column(
                             children: [
                               IconButton(
-                                icon: Icon(Icons.edit,
+                                icon: const Icon(Icons.edit,
                                     size: 30, color: Colors.black),
                                 onPressed: () async {
                                   var infoPet =
@@ -110,7 +110,7 @@ class _InfoPetState extends State<InfoPet> {
                               ),
                               Text(
                                 lang! ? 'Editar' : 'Edit',
-                                style: TextStyle(fontSize: 10),
+                                style: const TextStyle(fontSize: 10),
                               )
                             ],
                           )),
@@ -121,12 +121,12 @@ class _InfoPetState extends State<InfoPet> {
                             children: [
                               IconButton(
                                 onPressed: () => Navigator.pop(context),
-                                icon: Icon(Icons.arrow_back_ios,
+                                icon: const Icon(Icons.arrow_back_ios,
                                     size: 30, color: Colors.black),
                               ),
                               Text(
                                 lang! ? 'Regresar' : 'Back',
-                                style: TextStyle(fontSize: 10),
+                                style: const TextStyle(fontSize: 10),
                               )
                             ],
                           )),
@@ -207,7 +207,7 @@ class _InfoPetState extends State<InfoPet> {
                               },
                               child: Text(
                                 lang! ? 'Comentarios' : 'Comments',
-                                style: TextStyle(color: Colors.black),
+                                style: const TextStyle(color: Colors.black),
                               ),
                             ),
                           ],

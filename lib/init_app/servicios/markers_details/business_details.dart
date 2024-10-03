@@ -55,7 +55,7 @@ class _BusinessDetailsState extends State<BusinessDetails> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Color.fromARGB(245, 255, 255, 255),
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
       ),

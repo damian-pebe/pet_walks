@@ -51,12 +51,12 @@ class _MascotasState extends State<Mascotas> {
                           children: [
                             IconButton(
                               onPressed: () => Navigator.pop(context),
-                              icon: Icon(Icons.arrow_back_ios,
+                              icon: const Icon(Icons.arrow_back_ios,
                                   size: 30, color: Colors.black),
                             ),
                             Text(
                               lang! ? 'Regresar' : 'Back',
-                              style: TextStyle(fontSize: 10),
+                              style: const TextStyle(fontSize: 10),
                             )
                           ],
                         ),
@@ -81,26 +81,26 @@ class _MascotasState extends State<Mascotas> {
                               });
                             },
                             child: AnimatedContainer(
-                              duration: Duration(milliseconds: 400),
+                              duration: const Duration(milliseconds: 400),
                               width: 90,
                               height: 40,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
                                 color: isToggled
-                                    ? Color.fromARGB(100, 169, 200, 149)
-                                    : Color.fromARGB(255, 169, 200, 149),
+                                    ? const Color.fromARGB(100, 169, 200, 149)
+                                    : const Color.fromARGB(255, 169, 200, 149),
                               ),
                               child: Stack(
                                 children: [
                                   AnimatedPositioned(
-                                    duration: Duration(milliseconds: 400),
+                                    duration: const Duration(milliseconds: 400),
                                     curve: Curves.easeIn,
                                     left: isToggled ? 50 : 0,
                                     right: isToggled ? 0 : 50,
                                     child: Container(
                                       width: 40,
                                       height: 40,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Colors.white,
                                       ),
@@ -120,9 +120,9 @@ class _MascotasState extends State<Mascotas> {
                       ),
                     ],
                   ),
-                  Divider(),
+                  const Divider(),
                   Expanded(
-                    child: isToggled ? ViewPets() : AddPets(),
+                    child: isToggled ? const ViewPets() : const AddPets(),
                   ),
                 ],
               ),

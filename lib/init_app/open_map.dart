@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, empty_catches, deprecated_member_use
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -33,58 +35,47 @@ class _OpenMap extends State<OpenMap> {
   Set<Marker> markers = {};
 
   Future<void> _getBusiness() async {
-    try {
-      Set<Map<String, dynamic>> businessData = await getBusiness();
-      businessData.forEach((marker) {
-        try {
-          geoPoint = marker['position'];
-          if (geoPoint is GeoPoint) {
-            LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
-            markers.add(Marker(
-              markerId: MarkerId(marker['name'] ?? 'Unknown'),
+    Set<Map<String, dynamic>> businessData = await getBusiness();
+    for (var marker in businessData) {
+      geoPoint = marker['position'];
+      if (geoPoint is GeoPoint) {
+        LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
+        markers.add(Marker(
+          markerId: MarkerId(marker['name'] ?? 'Unknown'),
+          position: latLng,
+          icon: marker['premium'] ? iconPremium : icon,
+          infoWindow: InfoWindow(
+            title: marker['name'] ?? 'Unknown',
+            snippet: marker['description'] ?? 'No description available',
+          ),
+          onTap: () {
+            List<double> ratings = (marker['rating'] as List<dynamic>)
+                .map((e) => e is int ? e.toDouble() : e as double)
+                .toList();
+            double rating = ratings.isNotEmpty
+                ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                : 0.0;
+
+            _showBottomSheet(
               position: latLng,
-              icon: marker['premium'] ? iconPremium : icon,
-              infoWindow: InfoWindow(
-                title: marker['name'] ?? 'Unknown',
-                snippet: marker['description'] ?? 'No description available',
-              ),
-              onTap: () {
-                List<double> ratings = (marker['rating'] as List<dynamic>)
-                    .map((e) => e is int ? e.toDouble() : e as double)
-                    .toList();
-                double rating = ratings.isNotEmpty
-                    ? (ratings.reduce((a, b) => a + b) / ratings.length)
-                    : 0.0;
+              name: marker['name'] ?? 'Unknown',
+              address: marker['address'] ?? 'Unknown',
+              phone: marker['phone'] ?? 'Unknown',
+              description: marker['description'] ?? 'No description available',
+              rating: rating,
+              imageUrls:
+                  marker['imageUrls'] != null && marker['imageUrls'] is List
+                      ? List<String>.from(marker['imageUrls'])
+                      : ['https://via.placeholder.com/1500x500'],
+              comments: marker['comments'] ?? [],
+            );
+          },
+        ));
+      } else {}
+    }
 
-                _showBottomSheet(
-                  position: latLng,
-                  name: marker['name'] ?? 'Unknown',
-                  address: marker['address'] ?? 'Unknown',
-                  phone: marker['phone'] ?? 'Unknown',
-                  description:
-                      marker['description'] ?? 'No description available',
-                  rating: rating,
-                  imageUrls:
-                      marker['imageUrls'] != null && marker['imageUrls'] is List
-                          ? List<String>.from(marker['imageUrls'])
-                          : ['https://via.placeholder.com/1500x500'],
-                  comments: marker['comments'] ?? [],
-                );
-              },
-            ));
-          } else {
-            print("Invalid GeoPoint for marker: ${marker['name']}");
-          }
-        } catch (e) {
-          print("Error processing marker: ${marker['name']} - $e");
-        }
-      });
-
-      if (mounted) {
-        setState(() {});
-      }
-    } catch (e) {
-      print("Error fetching business data: $e");
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -140,17 +131,13 @@ class _OpenMap extends State<OpenMap> {
   }
 
   void _getCurrentLocation() async {
-    try {
-      geo.Position position = await geo.Geolocator.getCurrentPosition(
-          desiredAccuracy: geo.LocationAccuracy.high);
-      if (mounted) {
-        setState(() {
-          _center = LatLng(position.latitude, position.longitude);
-          _isPermissionGranted = true;
-        });
-      }
-    } catch (e) {
-      print("ERROR CON UBICACION: $e");
+    geo.Position position = await geo.Geolocator.getCurrentPosition(
+        desiredAccuracy: geo.LocationAccuracy.high);
+    if (mounted) {
+      setState(() {
+        _center = LatLng(position.latitude, position.longitude);
+        _isPermissionGranted = true;
+      });
     }
   }
 
@@ -171,7 +158,7 @@ class _OpenMap extends State<OpenMap> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+            scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: Stack(
             children: [

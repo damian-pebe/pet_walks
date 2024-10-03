@@ -9,11 +9,11 @@ void showRatingPopup(BuildContext context, double currentRating,
       double tempRating = currentRating;
 
       return AlertDialog(
-        backgroundColor: Color.fromARGB(159, 229, 248, 210),
+        backgroundColor: const Color.fromARGB(159, 229, 248, 210),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: Text(
+        title: const Text(
           'Calificar / Rate',
           style: TextStyle(
             fontSize: 22,
@@ -69,7 +69,7 @@ void showRatingPopup(BuildContext context, double currentRating,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Icon(Icons.clear),
+                child: const Icon(Icons.clear),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -81,7 +81,7 @@ void showRatingPopup(BuildContext context, double currentRating,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Icon(Icons.check),
+                child: const Icon(Icons.check),
                 onPressed: () {
                   addRateToUser(tempRating, collection, id);
                   onRatingSelected(tempRating);

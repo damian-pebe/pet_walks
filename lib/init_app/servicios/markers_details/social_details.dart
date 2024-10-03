@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/init_app/servicios/chat.dart';
@@ -63,7 +65,7 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
                   child: SpinKitSpinningLines(
                       color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
               : Container(
-                  color: Color.fromARGB(255, 243, 239, 239),
+                  color: const Color.fromARGB(255, 243, 239, 239),
                   child: SingleChildScrollView(
                     child: Column(
                       children: posts.map((post) {
@@ -161,7 +163,7 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceAround,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.message,
                                           size: 20,
                                           color: Colors.black,
@@ -256,7 +258,7 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
                       color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
               : Container(
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(245, 255, 255, 255),
+                    color: const Color.fromARGB(245, 255, 255, 255),
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: SingleChildScrollView(
@@ -357,7 +359,7 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.message,
                                             size: 20,
                                             color: Colors.black,

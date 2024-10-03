@@ -14,6 +14,6 @@ class _ViewChatsState extends State<ViewChats> {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
-        home: Scaffold());
+        home: const Scaffold());
   }
 }
