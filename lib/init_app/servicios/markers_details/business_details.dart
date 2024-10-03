@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petwalks_app/init_app/servicios/travel_to.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -55,11 +56,13 @@ class _BusinessDetailsState extends State<BusinessDetails> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color.fromARGB(245, 255, 255, 255),
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
       ),
       child: lang == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

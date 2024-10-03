@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 
@@ -66,7 +67,9 @@ class _SuggestionsState extends State<Suggestions> {
           scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
       home: Scaffold(
         body: lang == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: SpinKitSpinningLines(
+                    color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
             : Column(
                 children: [
                   Stack(
@@ -100,7 +103,10 @@ class _SuggestionsState extends State<Suggestions> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return Center(
+                              child: SpinKitSpinningLines(
+                                  color: Color.fromRGBO(169, 200, 149, 1),
+                                  size: 50.0));
                         } else if (snapshot.hasError) {
                           return Center(
                               child: Text('Error: ${snapshot.error}'));

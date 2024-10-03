@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:petwalks_app/init_app/servicios/chat.dart';
@@ -40,7 +41,7 @@ class _ViewRequestState extends State<ViewRequest> {
 
   LatLng? position;
   LatLng? business;
-  void _getLatLngFromAddressOwner(String address) async {
+  void _getLatLngFromAddressWalk(String address) async {
     position = await getLatLngFromAddress(address);
     positionNotifier.value = position;
   }
@@ -59,6 +60,11 @@ class _ViewRequestState extends State<ViewRequest> {
 
   final TextStyle _textStyle = const TextStyle(
     fontSize: 16,
+    color: Colors.black,
+    fontWeight: FontWeight.w600,
+  );
+  final TextStyle _titleStyle = const TextStyle(
+    fontSize: 18,
     color: Colors.black,
     fontWeight: FontWeight.w600,
   );
@@ -109,13 +115,15 @@ class _ViewRequestState extends State<ViewRequest> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 163, 114, 96),
       body: lang == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
           : Column(
               children: [
                 Stack(
                   children: [
                     titleW(
-                      title: lang! ? 'Info paseo' : 'Walk info',
+                      title: lang! ? 'Info paseo    ' : 'Walk info    ',
                     ),
                     Positioned(
                         left: 30,
@@ -185,10 +193,21 @@ class _ViewRequestState extends State<ViewRequest> {
                               }
                             },
                             icon: const Icon(
-                              Icons.chat_sharp,
-                              size: 25,
+                              Icons.chat_rounded,
+                              size: 30,
                               color: Colors.black,
-                            )))
+                            ))),
+                    Positioned(
+                        left: 290,
+                        top: 70,
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.report_outlined,
+                            size: 30,
+                            color: Colors.black,
+                          ),
+                        ))
                   ],
                 ),
                 const Divider(),
@@ -202,7 +221,9 @@ class _ViewRequestState extends State<ViewRequest> {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const Center(
-                                  child: CircularProgressIndicator());
+                                  child: SpinKitSpinningLines(
+                                      color: Color.fromRGBO(169, 200, 149, 1),
+                                      size: 50.0));
                             } else if (snapshot.hasError) {
                               return Text('Error', style: _textStyle);
                             } else if (!snapshot.hasData ||
@@ -211,6 +232,7 @@ class _ViewRequestState extends State<ViewRequest> {
                             }
                             final info = snapshot.data!;
                             amount = info['price'];
+                            _getLatLngFromAddressWalk(info['address']);
 
                             return Column(
                               mainAxisSize: MainAxisSize.min,
@@ -283,7 +305,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                                   : (lang!
                                                       ? 'Finalizado'
                                                       : 'Done')),
-                                      style: _textStyle,
+                                      style: _titleStyle,
                                     ),
                                   ],
                                 ),
@@ -297,7 +319,10 @@ class _ViewRequestState extends State<ViewRequest> {
                                     if (petsSnapshot.connectionState ==
                                         ConnectionState.waiting) {
                                       return const Center(
-                                          child: CircularProgressIndicator());
+                                          child: SpinKitSpinningLines(
+                                              color: Color.fromRGBO(
+                                                  169, 200, 149, 1),
+                                              size: 50.0));
                                     } else if (petsSnapshot.hasError) {
                                       return Center(
                                           child: Text(
@@ -355,6 +380,57 @@ class _ViewRequestState extends State<ViewRequest> {
                                       ),
                                     );
                                   },
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                    lang!
+                                        ? 'Domicilio: ${info['address'] ?? ''}'
+                                        : 'Address: ${info['address'] ?? ''}',
+                                    style: _textStyle),
+                                const SizedBox(height: 5),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    ValueListenableBuilder<LatLng?>(
+                                      valueListenable: positionNotifier,
+                                      builder: (context, position, child) {
+                                        if (position != null) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: SizedBox(
+                                              height: 190,
+                                              width: 390,
+                                              child: GoogleMap(
+                                                initialCameraPosition:
+                                                    CameraPosition(
+                                                  target: position,
+                                                  zoom: 15,
+                                                ),
+                                                markers: {
+                                                  Marker(
+                                                    markerId: const MarkerId(
+                                                        'marker'),
+                                                    position: position,
+                                                  ),
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          return const Center(
+                                              child: SpinKitSpinningLines(
+                                                  color: Color.fromRGBO(
+                                                      169, 200, 149, 1),
+                                                  size: 50.0));
+                                        }
+                                      },
+                                    ),
+                                  ],
                                 )
                               ],
                             );
@@ -367,7 +443,9 @@ class _ViewRequestState extends State<ViewRequest> {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const Center(
-                                  child: CircularProgressIndicator());
+                                  child: SpinKitSpinningLines(
+                                      color: Color.fromRGBO(169, 200, 149, 1),
+                                      size: 50.0));
                             } else if (snapshot.hasError) {
                               return Text('Error', style: _textStyle);
                             } else if (!snapshot.hasData ||
@@ -404,7 +482,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                                 lang!
                                                     ? '  Paseador:'
                                                     : '  Walker:',
-                                                style: _textStyle),
+                                                style: _titleStyle),
                                             const SizedBox(
                                               height: 5,
                                             ),
@@ -489,7 +567,8 @@ class _ViewRequestState extends State<ViewRequest> {
                                                 ],
                                               ),
                                               const SizedBox(width: 8.0),
-                                              Text('${rating.toString()}/5',
+                                              Text(
+                                                  '${(rating).round().toString()}/5',
                                                   style: _ratingStyle),
                                             ],
                                           ),
@@ -520,53 +599,71 @@ class _ViewRequestState extends State<ViewRequest> {
                                 ),
                                 Column(
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        widget.status == 'awaiting'
-                                            ? Text(
-                                                lang!
-                                                    ? 'Esperando inicio'
-                                                    : 'Awaiting',
-                                                style: const TextStyle(
+                                    widget.status == 'awaiting'
+                                        ? Text(
+                                            lang!
+                                                ? 'Esperando inicio'
+                                                : 'Awaiting',
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black),
+                                          )
+                                        : TextButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      RouteMap(
+                                                    idWalk: widget.idHistory,
+                                                    lang: lang!,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            style: TextButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 16.0,
+                                                      horizontal: 32.0),
+                                              backgroundColor: Color.fromRGBO(
+                                                  169,
+                                                  200,
+                                                  149,
+                                                  1), // Background color
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        30.0), // Rounded corners
+                                              ),
+                                              elevation:
+                                                  5.0, // Adds a shadow to make it pop
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Text(
+                                                  lang!
+                                                      ? 'Ver ruta de paseo'
+                                                      : 'View walk route',
+                                                  style: const TextStyle(
                                                     fontSize: 16,
-                                                    color: Colors.black),
-                                              )
-                                            : OutlinedButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          RouteMap(
-                                                        idWalk:
-                                                            widget.idHistory,
-                                                        lang: lang!,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Text(
-                                                    lang!
-                                                        ? 'Ver ruta de paseo'
-                                                        : 'View walk route',
-                                                    style: const TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.black))),
-                                        IconButton(
-                                          onPressed: () {
-                                            toastF(
-                                              lang! ? 'Denunciar' : 'Report',
-                                            );
-                                          },
-                                          icon: const Icon(
-                                            Icons.report_problem,
-                                            color: Colors.black,
-                                          ),
-                                        )
-                                      ],
-                                    ),
+                                                    color: Colors
+                                                        .black, // Text color
+                                                    fontWeight: FontWeight
+                                                        .bold, // Bold text
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                const Icon(Icons.pets,
+                                                    color: Colors.black)
+                                              ],
+                                            ),
+                                          )
                                   ],
                                 )
                               ],
@@ -580,7 +677,9 @@ class _ViewRequestState extends State<ViewRequest> {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const Center(
-                                  child: CircularProgressIndicator());
+                                  child: SpinKitSpinningLines(
+                                      color: Color.fromRGBO(169, 200, 149, 1),
+                                      size: 50.0));
                             } else if (snapshot.hasError) {
                               return Text('Error', style: _textStyle);
                             } else if (!snapshot.hasData ||
@@ -597,8 +696,6 @@ class _ViewRequestState extends State<ViewRequest> {
                                 ? (ratings.reduce((a, b) => a + b) /
                                     ratings.length)
                                 : 0.0;
-
-                            _getLatLngFromAddressOwner(info['address']);
 
                             return Column(
                               children: [
@@ -617,7 +714,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                           children: [
                                             Text(
                                                 lang! ? '  Dueño:' : '  Owner:',
-                                                style: _textStyle),
+                                                style: _titleStyle),
                                             const SizedBox(height: 5),
                                             Text(
                                                 lang!
@@ -693,7 +790,8 @@ class _ViewRequestState extends State<ViewRequest> {
                                                 ],
                                               ),
                                               const SizedBox(width: 8.0),
-                                              Text('${rating.toString()}/5',
+                                              Text(
+                                                  '${(rating).round().toString()}/5',
                                                   style: _ratingStyle),
                                             ],
                                           ),
@@ -722,62 +820,6 @@ class _ViewRequestState extends State<ViewRequest> {
                                     )
                                   ],
                                 ),
-                                const SizedBox(height: 5),
-                                Text(
-                                    lang!
-                                        ? 'Domicilio:: ${info['address'] ?? ''}'
-                                        : 'Address: ${info['address'] ?? ''}',
-                                    style: _textStyle),
-                                const SizedBox(height: 5),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    ValueListenableBuilder<LatLng?>(
-                                      valueListenable: positionNotifier,
-                                      builder: (context, position, child) {
-                                        if (position != null) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: SizedBox(
-                                              height: 200,
-                                              width: 300,
-                                              child: GoogleMap(
-                                                initialCameraPosition:
-                                                    CameraPosition(
-                                                  target: position,
-                                                  zoom: 15,
-                                                ),
-                                                markers: {
-                                                  Marker(
-                                                    markerId: const MarkerId(
-                                                        'marker'),
-                                                    position: position,
-                                                  ),
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        } else {
-                                          return const Center(
-                                              child:
-                                                  CircularProgressIndicator());
-                                        }
-                                      },
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        toastF(
-                                          lang! ? 'Denunciar' : 'Report',
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.report_problem,
-                                        color: Colors.black,
-                                      ),
-                                    )
-                                  ],
-                                )
                               ],
                             );
                           },
@@ -790,7 +832,9 @@ class _ViewRequestState extends State<ViewRequest> {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const Center(
-                                    child: CircularProgressIndicator());
+                                    child: SpinKitSpinningLines(
+                                        color: Color.fromRGBO(169, 200, 149, 1),
+                                        size: 50.0));
                               } else if (snapshot.hasError) {
                                 return Text('Error', style: _textStyle);
                               } else if (!snapshot.hasData ||
@@ -832,7 +876,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                                   lang!
                                                       ? '  Empresa:'
                                                       : '  Company:',
-                                                  style: _textStyle),
+                                                  style: _titleStyle),
                                               const SizedBox(height: 5),
                                               Text(
                                                   lang!
@@ -910,7 +954,8 @@ class _ViewRequestState extends State<ViewRequest> {
                                                   ],
                                                 ),
                                                 const SizedBox(width: 8.0),
-                                                Text('${rating.toString()}/5',
+                                                Text(
+                                                    '${(rating).round().toString()}/5',
                                                     style: _ratingStyle),
                                               ],
                                             ),
@@ -950,55 +995,39 @@ class _ViewRequestState extends State<ViewRequest> {
                                           : 'Address: ${info['address'] ?? ''}',
                                       style: _textStyle),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          toastF(
-                                            lang! ? 'Denunciar' : 'Report',
-                                          );
-                                        },
-                                        icon: const Icon(
-                                          Icons.report_problem,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      ValueListenableBuilder<LatLng?>(
-                                        valueListenable: businessNotifier,
-                                        builder: (context, business, child) {
-                                          if (business != null) {
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: SizedBox(
-                                                height: 200,
-                                                width: 300,
-                                                child: GoogleMap(
-                                                  initialCameraPosition:
-                                                      CameraPosition(
-                                                    target: business,
-                                                    zoom: 15,
-                                                  ),
-                                                  markers: {
-                                                    Marker(
-                                                      markerId: const MarkerId(
-                                                          'Get pets here'),
-                                                      position: business,
-                                                    ),
-                                                  },
-                                                ),
+                                  ValueListenableBuilder<LatLng?>(
+                                    valueListenable: businessNotifier,
+                                    builder: (context, business, child) {
+                                      if (business != null) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: SizedBox(
+                                            height: 200,
+                                            width: 300,
+                                            child: GoogleMap(
+                                              initialCameraPosition:
+                                                  CameraPosition(
+                                                target: business,
+                                                zoom: 15,
                                               ),
-                                            );
-                                          } else {
-                                            return const Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          }
-                                        },
-                                      )
-                                    ],
+                                              markers: {
+                                                Marker(
+                                                  markerId: const MarkerId(
+                                                      'Get pets here'),
+                                                  position: business,
+                                                ),
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        return const Center(
+                                            child: SpinKitSpinningLines(
+                                                color: Color.fromRGBO(
+                                                    169, 200, 149, 1),
+                                                size: 50.0));
+                                      }
+                                    },
                                   )
                                 ],
                               );

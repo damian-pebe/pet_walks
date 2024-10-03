@@ -1,5 +1,6 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/init_app/configuration.dart';
 import 'package:petwalks_app/init_app/history.dart';
@@ -19,7 +20,6 @@ class _FuncionState extends State<Funcion> {
   @override
   void initState() {
     super.initState();
-    print('funcion language');
     _getLanguage();
   }
 
@@ -47,14 +47,18 @@ class _FuncionState extends State<Funcion> {
       ),
       home: Scaffold(
         body: lang == null
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: SpinKitSpinningLines(
+                    color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
             : Stack(
                 children: [
                   _pages[_pageIndex],
                 ],
               ),
         bottomNavigationBar: lang == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: SpinKitSpinningLines(
+                    color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
             : ConvexAppBar(
                 items: [
                   TabItem(

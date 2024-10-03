@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -113,7 +114,9 @@ class _AddPetsState extends State<AddPets> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 30, left: 15, right: 15),
       child: lang == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
           : Column(
               children: [
                 GestureDetector(
@@ -151,7 +154,7 @@ class _AddPetsState extends State<AddPets> {
                             keyboardType: TextInputType.name,
                             controller: raceController,
                             decoration:
-                                StyleTextField(lang! ? 'Raza' : 'Breed')),
+                                StyleTextField(lang! ? 'Raza' : 'Race')),
                         EmptyBox(h: 15),
                         TextField(
                             keyboardType: TextInputType.number,
@@ -247,7 +250,8 @@ class _AddPetsState extends State<AddPets> {
                         },
                   style: customOutlinedButtonStyle(),
                   child: _isLoading
-                      ? CircularProgressIndicator()
+                      ? const SpinKitSpinningLines(
+                          color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

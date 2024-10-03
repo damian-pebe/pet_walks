@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -369,6 +370,7 @@ Future<Set<Map<String, dynamic>>> getPost() async {
       posts.add({
         'id': element.id,
         'address': element['address'],
+        'premium': element['premium'],
       });
     }
   }
@@ -597,12 +599,18 @@ Future<String> newWalk(
     String? place,
     LatLng position,
     String? description,
-    List<String>? selectedPets,
-    String? type,
+    List<String> selectedPets,
     String ownerEmail,
-    bool premium) async {
-  int timeWalkingInt = int.parse(timeWalking!);
-  int price = getPriceWalk(timeWalkingInt, selectedPets!);
+    bool premium,
+    String? addressBusiness,
+    LatLng? positionBusiness) async {
+  int price;
+  if (timeWalking != null) {
+    int timeWalkingInt = int.parse(timeWalking);
+    price = getPriceWalk(timeWalkingInt, selectedPets);
+  } else {
+    price = getPriceTravel(positionBusiness!, position, selectedPets);
+  }
 
   DocumentReference userDoc = await db.collection("walks").add({
     "timeShow": timeShow,
@@ -614,11 +622,9 @@ Future<String> newWalk(
     "position": GeoPoint(position.latitude, position.longitude),
     "description": description ?? "",
     "selectedPets": selectedPets,
-    "mode": '',
-    "type": type ?? '',
     "price": price,
     "ownerEmail": ownerEmail,
-    "premium": premium
+    "premium": premium,
   });
   String lastWalkId = userDoc.id;
 
@@ -626,63 +632,6 @@ Future<String> newWalk(
     "id": lastWalkId,
   });
 
-  return lastWalkId;
-}
-
-Future<String> newProgramWalk(
-    DateTime? timeShow, //for the script as well
-    String? timeShowController, //for the script as well
-    String? payMethod,
-    String? walkWFriends,
-    String? timeWalking,
-    String? travelTo,
-    LatLng travelToPosition,
-    String? place,
-    LatLng position,
-    String? description,
-    List<String>? selectedPets,
-    //this fields are gonna be checked to return the walk or not
-    List<DateTime>? dateTime,
-    DateTime? startDate,
-    DateTime? endDate,
-    String? mode,
-    String? type,
-    String ownerEmail,
-    bool premium) async {
-  int? price;
-  if (timeWalking != '') {
-    int timeWalkingInt = int.parse(timeWalking!);
-    price = getPriceWalk(timeWalkingInt, selectedPets!);
-  } else {
-    price = getPriceTravel(travelToPosition);
-  }
-  DocumentReference userDoc = await db.collection("walks").add({
-    "timeShow": timeShow ?? "",
-    "timeShowController": timeShowController ?? "",
-    "payMethod": payMethod ?? "",
-    "walkWFriends": walkWFriends ?? "",
-    "timeWalking": timeWalking ?? "",
-    "travelTo": travelTo ?? "",
-    "travelToPosition":
-        GeoPoint(travelToPosition.latitude, travelToPosition.longitude),
-    "address": place ?? "",
-    "position": GeoPoint(position.latitude, position.longitude),
-    "description": description ?? "",
-    "selectedPets": selectedPets ?? [],
-    "dateTime": dateTime ?? [],
-    "startDate": startDate ?? [],
-    "endDate": endDate ?? [],
-    "mode": mode ?? '',
-    "type": type ?? '',
-    "price": price,
-    "ownerEmail": ownerEmail,
-    "premium": premium
-  });
-  String lastWalkId = userDoc.id;
-
-  await db.collection("walks").doc(lastWalkId).update({
-    "id": lastWalkId,
-  });
   return lastWalkId;
 }
 
@@ -702,8 +651,33 @@ int getPriceWalk(int time, List<String> pets) {
   return 0;
 }
 
-int getPriceTravel(LatLng goTo) {
-  return 0;
+// Function to calculate the distance between two LatLng points
+double calculateDistance(LatLng goTo, LatLng goFrom) {
+  const R = 6371;
+  final double lat1 = goFrom.latitude;
+  final double lon1 = goFrom.longitude;
+  final double lat2 = goTo.latitude;
+  final double lon2 = goTo.longitude;
+
+  final double dLat = radians(lat2 - lat1);
+  final double dLon = radians(lon2 - lon1);
+
+  final double a = sin(dLat / 2) * sin(dLat / 2) +
+      cos(radians(lat1)) * cos(radians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
+  final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+  return R * c;
+}
+
+double radians(double degree) {
+  return degree * pi / 180;
+}
+
+int getPriceTravel(LatLng goTo, LatLng goFrom, List<String> pets) {
+  double distance = calculateDistance(goTo, goFrom);
+  const double costPerKilometer = 5;
+  int costPets = pets.length * 20;
+  return (costPets + 10 + (distance * costPerKilometer)).round();
 }
 
 Future<String> newPreHistory(
@@ -865,79 +839,17 @@ Future<Set<Map<String, dynamic>>> getWalks() async {
   for (var element in queryWalks.docs) {
     var data = element.data() as Map<String, dynamic>?;
     if (data != null) {
-      String? mode = data['mode'] as String?;
-      Timestamp? timeShowTimestamp = data['timeShow'] as Timestamp?;
-      DateTime? timeShow = timeShowTimestamp?.toDate();
-      print('Processing data with mode: $mode, timeShow: $timeShow');
+      Timestamp timeShowTimestamp = data['timeShow'] as Timestamp;
+      DateTime timeShow = timeShowTimestamp.toDate();
+      int timeShowController = int.tryParse(data['timeShowController']) ?? 0;
+      DateTime timeShowEnd = timeShow.add(Duration(hours: timeShowController));
 
-      if (mode == '') {
-        //CORRECT!!!
-        if (timeShow != null && timeShow.isAfter(now)) {
-          walks.add(data);
-        }
-      } else if (mode == 'selectedDates') {
-        print('Processing selectedDates mode');
-        var listDynamic = data['dateTime'];
-        if (listDynamic is List<dynamic>) {
-          List<DateTime> list = listDynamic
-              .whereType<Timestamp>()
-              .map((item) => item.toDate())
-              .toList();
-          for (var elementInto in list) {
-            print('Checking date in selectedDates: $elementInto');
-            if (elementInto.isAfter(now)) {
-              int? timeShowController = data['timeShowController'] as int?;
-              if (timeShowController != null) {
-                DateTime dateFuture =
-                    now.add(Duration(hours: timeShowController));
-                print('Calculated dateFuture: $dateFuture');
-                if (elementInto.isBefore(dateFuture)) {
-                  walks.add(data);
-                  print('Added walk to set, selectedDates mode');
-                  break;
-                }
-              }
-            }
-          }
-        }
-      } else if (mode == 'startEnd') {
-        print('Processing startEnd mode');
-
-        List<DateTime> list = getArrayOfDateTime(data);
-        if (list.isNotEmpty) {
-          for (var elementInto in list) {
-            print('Checking date in startEnd: $elementInto');
-            if (elementInto.isAfter(now)) {
-              int? timeShowController;
-
-              if (data['timeShowController'] is String) {
-                timeShowController =
-                    int.tryParse(data['timeShowController'] as String);
-              } else if (data['timeShowController'] is int) {
-                timeShowController = data['timeShowController'] as int?;
-              }
-
-              if (timeShowController != null) {
-                DateTime dateFuture =
-                    elementInto.add(Duration(hours: timeShowController));
-                print('Calculated dateFuture from elementInto: $dateFuture');
-
-                if (elementInto.isBefore(now) && dateFuture.isAfter(now)) {
-                  // ELEMENT INTO BEFORE NOW & DATE FUTURE AFTER NOW i guess
-                  walks.add(data);
-                  print('Added walk to set, startEnd mode');
-                  break;
-                }
-              }
-            }
-          }
-        }
+      //CORRECT!!!
+      if (timeShow.isBefore(now) && timeShowEnd.isAfter(now)) {
+        walks.add(data);
       }
-    } else {
-      print('Data is null for document id: ${element.id}');
     }
   }
-
   print('Total walks collected: ${walks.length}');
   return walks;
 }
@@ -980,6 +892,7 @@ Future<String> newPost(
   DateTime futureDate = now.add(const Duration(days: 7));
 
   var address;
+  bool premium = false;
   String _email = await fetchUserEmail();
   var userDocEmail =
       await db.collection("users").where("email", isEqualTo: _email).get();
@@ -987,6 +900,7 @@ Future<String> newPost(
   if (userDocEmail.docs.isNotEmpty) {
     var user = userDocEmail.docs.first;
     address = user.data()['address'] ?? '';
+    premium = user.data()['premium'] == 'active' ? true : false;
   }
 
   DocumentReference userDoc = await db.collection("post").add({
@@ -996,7 +910,8 @@ Future<String> newPost(
     "type": type,
     "deleteTime": futureDate,
     "comments": ['RECOMENDADOOO!'],
-    "emailUser": _email
+    "emailUser": _email,
+    'premium': premium
   });
   String lastPostId = userDoc.id;
 
@@ -1283,10 +1198,13 @@ Future<void> updateOwner(bool bool, String id, bool col) async {
 Future<void> updateWalker(bool bool, String id, bool col) async {
   String status = bool ? 'ready' : '';
   String collection = col ? "startWalkHistory" : "endWalkHistory";
-
-  await db.collection(collection).doc(id).update({
-    "walkerStatus": status,
-  });
+  try {
+    await db.collection(collection).doc(id).update({
+      "walkerStatus": status,
+    });
+  } catch (e) {
+    print(e);
+  }
 }
 
 Future<bool> getOwnerStatus(String id, bool col) async {
@@ -1294,11 +1212,17 @@ Future<bool> getOwnerStatus(String id, bool col) async {
 
   DocumentSnapshot doc = await db.collection(collection).doc(id).get();
 
-  final data = doc.data() as Map<String, dynamic>;
-  if (data['ownerStatus'] == 'ready') {
-    return true;
+  // Check if the document exists and has data
+  if (doc.exists && doc.data() != null) {
+    final data = doc.data() as Map<String, dynamic>;
+
+    // Check if the 'ownerStatus' field is available and equals 'ready'
+    if (data['ownerStatus'] == 'ready') {
+      return true;
+    }
   }
 
+  // Return false if the conditions are not met
   return false;
 }
 
@@ -1647,4 +1571,12 @@ Future<void> getAndAddTokenToArray() async {
       });
     }
   }
+}
+
+Future<void> disableWalk(String idWalk) async {
+  DateTime set = DateTime.now().subtract(const Duration(days: 5000));
+  db
+      .collection('walks')
+      .doc(idWalk)
+      .update({"timeShow": set}); //just so its on the past
 }

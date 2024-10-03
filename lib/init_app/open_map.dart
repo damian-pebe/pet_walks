@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -167,27 +168,33 @@ class _OpenMap extends State<OpenMap> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (_isPermissionGranted)
-            GoogleMap(
-              markers: markers,
-              mapType: MapType.normal,
-              initialCameraPosition: _center == null
-                  ? initialCameraPosition
-                  : CameraPosition(
-                      target: _center!,
-                      zoom: 17,
-                    ),
-              onMapCreated: (GoogleMapController controller) {
-                googleMapController.complete(controller);
-              },
-            )
-          else
-            const Center(child: CircularProgressIndicator()),
-        ],
-      ),
-    );
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
+        home: Scaffold(
+          body: Stack(
+            children: [
+              if (_isPermissionGranted)
+                GoogleMap(
+                  markers: markers,
+                  mapType: MapType.normal,
+                  initialCameraPosition: _center == null
+                      ? initialCameraPosition
+                      : CameraPosition(
+                          target: _center!,
+                          zoom: 17,
+                        ),
+                  onMapCreated: (GoogleMapController controller) {
+                    googleMapController.complete(controller);
+                  },
+                )
+              else
+                const Center(
+                    child: SpinKitSpinningLines(
+                        color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)),
+            ],
+          ),
+        ));
   }
 }

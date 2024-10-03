@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 
@@ -38,9 +39,8 @@ class _PaymentSuccessState extends State<PaymentSuccess> {
               height: double.infinity,
             ),
             lang == null
-                ? const CircularProgressIndicator(
-                    color: Colors.black,
-                  )
+                ? const SpinKitSpinningLines(
+                    color: Color.fromRGBO(0, 0, 0, 1), size: 50.0)
                 : Padding(
                     padding: const EdgeInsets.all(40.0),
                     child: Column(

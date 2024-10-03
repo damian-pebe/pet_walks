@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
@@ -31,8 +32,8 @@ class WalkDetails extends StatefulWidget {
     required this.travelToPosition,
     required this.ownerEmail,
     required this.id,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<WalkDetails> createState() => _WalkDetailsState();
@@ -116,11 +117,13 @@ class _WalkDetailsState extends State<WalkDetails> {
     return FractionallySizedBox(
       heightFactor: 0.75,
       child: lang == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
           : Container(
               padding: const EdgeInsets.all(16.0),
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: Color.fromARGB(245, 255, 255, 255),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
               ),
               child: Column(
@@ -128,7 +131,13 @@ class _WalkDetailsState extends State<WalkDetails> {
                 children: [
                   Center(
                     child: Text(
-                      lang! ? 'Pasear mascotas' : 'Walk Pets',
+                      widget.timeWalking != ''
+                          ? lang!
+                              ? 'Paseo mascota'
+                              : 'Pet walk'
+                          : lang!
+                              ? 'Viaje mascota'
+                              : 'Pet travel',
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
@@ -184,7 +193,9 @@ class _WalkDetailsState extends State<WalkDetails> {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const Center(
-                              child: CircularProgressIndicator());
+                              child: SpinKitSpinningLines(
+                                  color: Color.fromRGBO(169, 200, 149, 1),
+                                  size: 50.0));
                         } else if (snapshot.hasError) {
                           return Center(
                               child: Text(lang!
@@ -316,16 +327,15 @@ class _WalkDetailsState extends State<WalkDetails> {
                                   width: 5,
                                 ),
                                 Container(
-                                  child: widget.travelTo.isEmpty
+                                  child: widget.timeWalking != ''
                                       ? Text(lang!
                                           ? "Tiempo de paseo: ${widget.timeWalking}"
                                           : "Walking time: ${widget.timeWalking}")
                                       : OutlinedButton(
                                           onPressed: () {},
                                           style: OutlinedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color.fromARGB(
-                                                    255, 131, 195, 248),
+                                            backgroundColor: Color.fromARGB(
+                                                255, 196, 189, 240),
                                             side: BorderSide(
                                                 color: Color.fromRGBO(
                                                     250, 244, 229, 1),
@@ -336,8 +346,6 @@ class _WalkDetailsState extends State<WalkDetails> {
                                                 ? 'Ubicación de destino'
                                                 : 'Destination location',
                                             style: TextStyle(
-                                                decoration:
-                                                    TextDecoration.underline,
                                                 fontSize: 13,
                                                 color: Colors.black),
                                           ),
@@ -370,7 +378,9 @@ class _WalkDetailsState extends State<WalkDetails> {
                             },
                             style: customOutlinedButtonStyle(),
                             child: _isLoading
-                                ? const CircularProgressIndicator()
+                                ? const SpinKitSpinningLines(
+                                    color: Color.fromRGBO(169, 200, 149, 1),
+                                    size: 50.0)
                                 : Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,

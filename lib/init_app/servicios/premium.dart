@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/services/stripe_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
@@ -32,9 +33,8 @@ class _PremiumState extends State<Premium> {
         ),
         home: Scaffold(
           body: lang == null
-              ? const CircularProgressIndicator(
-                  color: Colors.white,
-                )
+              ? const SpinKitSpinningLines(
+                  color: Color.fromRGBO(255, 255, 255, 1), size: 50.0)
               : Stack(
                   children: [
                     Image.asset(

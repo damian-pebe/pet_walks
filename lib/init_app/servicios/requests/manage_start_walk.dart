@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:petwalks_app/services/fcm_services.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/services/firebase_tracker.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
 class StartWalkManagement extends StatefulWidget {
@@ -13,6 +15,18 @@ class StartWalkManagement extends StatefulWidget {
 }
 
 class _StartWalkManagementState extends State<StartWalkManagement> {
+  //!TIMERS
+  void handleHalfTime(String email) async {
+    sendNotificationsToUserDevices(email, 'PET WALKS Tiempo de paseo',
+        'Te recordamos que su paseo activo va por la mitad');
+  }
+
+  void handleTimeout(String email) {
+    sendNotificationsToUserDevices(email, 'PET WALKS Tiempo de paseo',
+        'Faltn 5 minutos para terminar el viaje, te recomendamos estar preparado para finalizar el viaje');
+  }
+  //!TIMERS
+
   String? email;
   Map<String, bool> _loadingStates = {};
   List<DocumentSnapshot> _pendingRequests = [];
@@ -137,7 +151,11 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                       'https://img.freepik.com/free-vector/luxury-background-3d-gradient-design_343694-2843.jpg?w=1060&t=st=1727284022~exp=1727284622~hmac=9434f20079f35f6d7dac9ae8bac9b2331dc12262659ab531b428ce45ebd1be59'),
                                   fit: BoxFit.cover,
                                 )
-                              : null),
+                              : const DecorationImage(
+                                  image: NetworkImage(
+                                      'https://img.freepik.com/vector-gratis/ilustracion-panoramica-horizonte-edificio-urbano-copyspace_107791-1950.jpg?t=st=1727902238~exp=1727905838~hmac=e484dfa8e5195cdfadafc5c10432ef4b8b61d4fd797c92e7699b483be2d4b6f8&w=1380'),
+                                  fit: BoxFit.cover,
+                                  opacity: .5)),
                       child: ListTile(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
@@ -201,14 +219,16 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                         bool owner =
                                             manageStartWalkInfo['emailOwner'] ==
                                                 email;
+                                        Map<String, dynamic> walkIfno =
+                                            await getInfoWalk(
+                                                manageStartWalkInfo['idWalk']);
+                                        updateOwner(true, requestId, true);
+                                        await Future.delayed(
+                                            const Duration(seconds: 10));
 
+                                        bool status = await getWalkerStatus(
+                                            requestId, true);
                                         if (owner) {
-                                          updateOwner(true, requestId, true);
-                                          await Future.delayed(
-                                              const Duration(seconds: 10));
-
-                                          bool status = await getWalkerStatus(
-                                              requestId, true);
                                           if (status) {
                                             newHistoryWalk(
                                               manageStartWalkInfo['idWalk'],
@@ -234,31 +254,52 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                                 DateTime.now(),
                                                 true);
                                             toastF('walk started');
+                                            if (email ==
+                                                manageStartWalkInfo[
+                                                    'emailWalker']) {
+                                              checkUserAndStartTracking();
+                                            }
                                             setState(() {});
                                             await deleteStartHistory(
                                                 requestId, true);
                                             setState(() {
                                               _fetchPendingRequests();
                                             });
+
+                                            String? timeToEnd =
+                                                walkIfno['walkTime'];
+                                            if (timeToEnd != null) {
+                                              //*just in the case its a walk and not a travel
+                                              int timeToEndInt =
+                                                  int.parse(timeToEnd);
+                                              int timeHalf = timeToEndInt ~/ 2;
+                                              int timeEnd = timeToEndInt - 5;
+
+                                              Timer(Duration(minutes: timeHalf),
+                                                  () {
+                                                handleHalfTime(
+                                                  manageStartWalkInfo[
+                                                      'emailWalker'],
+                                                );
+                                              });
+                                              Timer(Duration(minutes: timeEnd),
+                                                  () {
+                                                handleTimeout(
+                                                  manageStartWalkInfo[
+                                                      'emailWalker'],
+                                                );
+                                              });
+                                            }
                                           } else {
                                             updateOwner(false, requestId, true);
                                             toastF(
                                                 'both users need to be ready');
                                           }
                                         } else {
-                                          print('status: aaaa');
                                           updateWalker(true, requestId, true);
                                           await Future.delayed(
                                               const Duration(seconds: 10));
-                                          if (await getOwnerStatus(
-                                              requestId, true)) {
-                                            toastF('walk started');
-                                          } else {
-                                            updateWalker(
-                                                false, requestId, true);
-                                            toastF(
-                                                'both users need to be ready');
-                                          }
+                                          updateWalker(false, requestId, true);
                                         }
                                       } finally {
                                         setState(() {

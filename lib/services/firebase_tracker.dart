@@ -54,7 +54,7 @@ void startListeningToStatus(String idHistoryWalk) {
 }
 
 void startTracking(String idHistoryWalk) {
-  trackingTimer = Timer.periodic(Duration(minutes: 5), (timer) async {
+  trackingTimer = Timer.periodic(Duration(minutes: 1), (timer) async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 

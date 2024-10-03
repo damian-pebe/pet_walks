@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/pages/opciones/sign_up.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
@@ -179,7 +180,9 @@ class _AddPostState extends State<AddPostBlur> {
                         height: 20,
                       ),
                       _isLoading
-                          ? CircularProgressIndicator()
+                          ? const SpinKitSpinningLines(
+                              color: Color.fromRGBO(169, 200, 149, 1),
+                              size: 50.0)
                           : OutlinedButton(
                               onPressed: () {},
                               style: customOutlinedButtonStyle(),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:path/path.dart' as path;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -173,7 +174,7 @@ class _EditUserState extends State<EditUser> {
               ),
             ],
           ),
-          backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
+          backgroundColor: Color.fromARGB(159, 229, 248, 210),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -297,7 +298,9 @@ class _EditUserState extends State<EditUser> {
             scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: SpinKitSpinningLines(
+                      color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
               : SingleChildScrollView(
                   child: Column(
                     children: [
@@ -691,7 +694,9 @@ class _EditUserState extends State<EditUser> {
                                 backgroundColor: Colors.grey[200],
                               ),
                               child: _isLoading
-                                  ? const CircularProgressIndicator()
+                                  ? const SpinKitSpinningLines(
+                                      color: Color.fromRGBO(169, 200, 149, 1),
+                                      size: 50.0)
                                   : Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,

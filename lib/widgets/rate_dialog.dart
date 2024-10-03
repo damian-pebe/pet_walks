@@ -9,6 +9,7 @@ void showRatingPopup(BuildContext context, double currentRating,
       double tempRating = currentRating;
 
       return AlertDialog(
+        backgroundColor: Color.fromARGB(159, 229, 248, 210),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),

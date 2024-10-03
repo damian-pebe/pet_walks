@@ -72,11 +72,11 @@ class _OpcionesState extends State<Opciones> {
       home: Scaffold(
         body: Column(
           children: [
-            titleW(title: 'Pet Walks'),
+            const titleW(title: 'Pet Walks'),
             SingleChildScrollView(
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 30),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -124,7 +124,7 @@ class _OpcionesState extends State<Opciones> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 5),
                       OutlinedButton(
                         onPressed: () {
                           Navigator.push(
@@ -159,8 +159,8 @@ class _OpcionesState extends State<Opciones> {
                         style: customOutlinedButtonStyle(),
                         child: Image.asset(
                           'assets/google.png',
-                          width: 40,
-                          height: 40,
+                          width: 30,
+                          height: 30,
                         ),
                       ),
                       OutlinedButton(
@@ -191,7 +191,7 @@ class _OpcionesState extends State<Opciones> {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 24.0),
+                                vertical: 8.0, horizontal: 24.0),
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
                               border: Border.all(

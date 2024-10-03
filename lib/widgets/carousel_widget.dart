@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class PhotoCarousel extends StatelessWidget {
   final List<String> imageUrls;
@@ -34,14 +35,10 @@ class PhotoCarousel extends StatelessWidget {
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                (loadingProgress.expectedTotalBytes ?? 1)
-                            : null,
-                      ),
-                    );
+                    return const Center(
+                        child: SpinKitSpinningLines(
+                            color: Color.fromRGBO(169, 200, 149, 1),
+                            size: 50.0));
                   },
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(child: Text('Image not available'));

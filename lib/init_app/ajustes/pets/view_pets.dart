@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/init_app/ajustes/pets/pet_info.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
@@ -54,7 +55,9 @@ class _ViewPetsState extends State<ViewPets> {
         future: getPets(email!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: SpinKitSpinningLines(
+                    color: Color.fromRGBO(169, 200, 149, 1), size: 50.0));
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -70,7 +73,10 @@ class _ViewPetsState extends State<ViewPets> {
                 var petInfo = showData[id] ?? {};
 
                 return lang == null
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(
+                        child: SpinKitSpinningLines(
+                            color: Color.fromRGBO(169, 200, 149, 1),
+                            size: 50.0))
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -93,7 +99,7 @@ class _ViewPetsState extends State<ViewPets> {
                                     builder: (BuildContext context) {
                                       return AlertDialog(
                                         backgroundColor:
-                                            Color.fromRGBO(244, 210, 248, .30),
+                                            Color.fromARGB(159, 229, 248, 210),
                                         actions: [
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
@@ -122,15 +128,30 @@ class _ViewPetsState extends State<ViewPets> {
                                                       _fetchBuilderInfo();
                                                     });
                                                   },
-                                                  child: Text(lang!
-                                                      ? 'Aceptar'
-                                                      : 'Accept')),
+                                                  child: Text(
+                                                    lang!
+                                                        ? 'Aceptar'
+                                                        : 'Accept',
+                                                    style: const TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: Colors.black,
+                                                    ),
+                                                  )),
                                               TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(context),
-                                                  child: Text(lang!
-                                                      ? 'Cancelar'
-                                                      : 'Cancel')),
+                                                  onPressed: () {},
+                                                  child: Text(
+                                                    lang!
+                                                        ? 'Cancelar'
+                                                        : 'Cancel',
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      color: Colors.black,
+                                                    ),
+                                                  )),
                                             ],
                                           )
                                         ],

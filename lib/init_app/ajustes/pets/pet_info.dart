@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/init_app/ajustes/pets/edit_pets_info.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
@@ -66,7 +67,9 @@ class _InfoPetState extends State<InfoPet> {
           scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
       home: Scaffold(
         body: lang == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: SpinKitSpinningLines(
+                    color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
             : Center(
                 child: Column(
                   children: [

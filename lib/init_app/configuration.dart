@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/init_app/servicios/about_us.dart';
 import 'package:petwalks_app/init_app/servicios/agreement.dart';
@@ -44,317 +45,330 @@ class _AjustesState extends State<Ajustes> {
             scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    titleW(title: lang! ? 'Configuracion' : 'Configuration'),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 26.0),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            const EmptyBox(w: 0, h: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 16.0, horizontal: 24.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 1.0,
+              ? const Center(
+                  child: SpinKitSpinningLines(
+                      color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      titleW(title: lang! ? 'Configuracion' : 'Configuration'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 26.0),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              const EmptyBox(w: 0, h: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16.0, horizontal: 24.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                        width: 1.0,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15.0),
                                     ),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        lang! ? 'Idioma' : 'Language',
-                                        style: const TextStyle(
-                                          fontSize: 16.0,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          lang! ? 'Idioma' : 'Language',
+                                          style: const TextStyle(
+                                            fontSize: 16.0,
+                                            color: Colors.black,
+                                            letterSpacing: 1.2,
+                                            shadows: [
+                                              Shadow(
+                                                offset: Offset(1.0, 1.0),
+                                                blurRadius: 2.0,
+                                                color: Colors.grey,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Icon(
+                                          Icons.language_outlined,
+                                          size: 25,
                                           color: Colors.black,
-                                          letterSpacing: 1.2,
-                                          shadows: [
-                                            Shadow(
-                                              offset: Offset(1.0, 1.0),
-                                              blurRadius: 2.0,
-                                              color: Colors.grey,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      lang! == true
+                                          ? updateLanguage(false)
+                                          : updateLanguage(true);
+
+                                      setState(() {
+                                        _getLanguage();
+                                      });
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const MainApp(),
+                                        ),
+                                      );
+                                    },
+                                    child: SizedBox(
+                                      height: 40,
+                                      child: lang == null
+                                          ? const SpinKitSpinningLines(
+                                              color: Color.fromRGBO(
+                                                  169, 200, 149, 1),
+                                              size: 50.0)
+                                          : Image.asset(
+                                              lang!
+                                                  ? 'assets/mexico.png'
+                                                  : 'assets/eu.png',
+                                              fit: BoxFit.cover,
+                                              height: 30,
                                             ),
-                                          ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const EmptyBox(w: 0, h: 30),
+                              OutlinedButton(
+                                  onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const EditUser(),
                                         ),
                                       ),
-                                      SizedBox(
+                                  style: customOutlinedButtonStyle(),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        lang!
+                                            ? 'Editar perfil'
+                                            : 'Edit user info',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                      const SizedBox(
                                         width: 10,
                                       ),
-                                      Icon(
-                                        Icons.language_outlined,
+                                      const Icon(
+                                        Icons.account_circle_outlined,
                                         size: 25,
                                         color: Colors.black,
                                       ),
                                     ],
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    lang! == true
-                                        ? updateLanguage(false)
-                                        : updateLanguage(true);
-
-                                    setState(() {
-                                      _getLanguage();
-                                    });
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const MainApp(),
-                                      ),
-                                    );
-                                  },
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: lang == null
-                                        ? CircularProgressIndicator()
-                                        : Image.asset(
-                                            lang!
-                                                ? 'assets/mexico.png'
-                                                : 'assets/eu.png',
-                                            fit: BoxFit.cover,
-                                            height: 30,
-                                          ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const EmptyBox(w: 0, h: 30),
-                            OutlinedButton(
-                                onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const EditUser(),
-                                      ),
-                                    ),
-                                style: customOutlinedButtonStyle(),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      lang!
-                                          ? 'Editar perfil'
-                                          : 'Edit user info',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18.0,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Icon(
-                                      Icons.account_circle_outlined,
-                                      size: 25,
-                                      color: Colors.black,
-                                    ),
-                                  ],
-                                )),
-                            const EmptyBox(w: 0, h: 30),
-                            OutlinedButton(
-                                onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const Mascotas(),
-                                      ),
-                                    ),
-                                style: customOutlinedButtonStyle(),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      lang!
-                                          ? 'Administrar mascotas'
-                                          : 'Manage pets',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18.0,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Icon(
-                                      FontAwesomeIcons.dog,
-                                      size: 25,
-                                      color: Colors.black,
-                                    ),
-                                  ],
-                                )),
-                            const EmptyBox(w: 0, h: 30),
-                            OutlinedButton(
-                                onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const Agreement(),
-                                      ),
-                                    ),
-                                style: customOutlinedButtonStyle(),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      lang! ? 'Contrato' : 'Agreement',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18.0,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Icon(
-                                      Icons.data_usage,
-                                      size: 25,
-                                      color: Colors.black,
-                                    ),
-                                  ],
-                                )),
-                            const EmptyBox(w: 0, h: 30),
-                            OutlinedButton(
-                                onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const AboutUs(),
-                                      ),
-                                    ),
-                                style: customOutlinedButtonStyle(),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      lang! ? 'Sobre nosotros' : 'About us',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18.0,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Icon(
-                                      Icons.perm_identity,
-                                      size: 25,
-                                      color: Colors.black,
-                                    ),
-                                  ],
-                                )),
-                            const EmptyBox(w: 0, h: 30),
-                            OutlinedButton(
-                                onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const Suggestions(),
-                                      ),
-                                    ),
-                                style: customOutlinedButtonStyle(),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      lang! ? 'Sugerencias' : 'Suggestions',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18.0,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Icon(
-                                      Icons.send,
-                                      size: 25,
-                                      color: Colors.black,
-                                    ),
-                                  ],
-                                )),
-                            const EmptyBox(w: 0, h: 30),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Column(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () => Navigator.push(
+                                  )),
+                              const EmptyBox(w: 0, h: 30),
+                              OutlinedButton(
+                                  onPressed: () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => const Premium(),
+                                          builder: (context) =>
+                                              const Mascotas(),
                                         ),
                                       ),
-                                      icon: const Icon(
-                                        Icons.workspace_premium,
-                                        size: 35,
+                                  style: customOutlinedButtonStyle(),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        lang!
+                                            ? 'Administrar mascotas'
+                                            : 'Manage pets',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      const Icon(
+                                        FontAwesomeIcons.dog,
+                                        size: 25,
                                         color: Colors.black,
                                       ),
-                                    ),
-                                    const Text(
-                                      'Premium',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14.0,
-                                        fontStyle: FontStyle.italic,
+                                    ],
+                                  )),
+                              const EmptyBox(w: 0, h: 30),
+                              OutlinedButton(
+                                  onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const Agreement(),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () async {
-                                        await _auth.signOut();
-
-                                        Navigator.push(
+                                  style: customOutlinedButtonStyle(),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        lang! ? 'Contrato' : 'Agreement',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      const Icon(
+                                        Icons.data_usage,
+                                        size: 25,
+                                        color: Colors.black,
+                                      ),
+                                    ],
+                                  )),
+                              const EmptyBox(w: 0, h: 30),
+                              OutlinedButton(
+                                  onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const AboutUs(),
+                                        ),
+                                      ),
+                                  style: customOutlinedButtonStyle(),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        lang! ? 'Sobre nosotros' : 'About us',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      const Icon(
+                                        Icons.perm_identity,
+                                        size: 25,
+                                        color: Colors.black,
+                                      ),
+                                    ],
+                                  )),
+                              const EmptyBox(w: 0, h: 30),
+                              OutlinedButton(
+                                  onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const Suggestions(),
+                                        ),
+                                      ),
+                                  style: customOutlinedButtonStyle(),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        lang! ? 'Sugerencias' : 'Suggestions',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      const Icon(
+                                        Icons.send,
+                                        size: 25,
+                                        color: Colors.black,
+                                      ),
+                                    ],
+                                  )),
+                              const EmptyBox(w: 0, h: 30),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Column(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                const Opciones(),
+                                                const Premium(),
                                           ),
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.logout_outlined,
-                                        size: 35,
-                                        color: Colors.black,
+                                        ),
+                                        icon: const Icon(
+                                          Icons.workspace_premium,
+                                          size: 35,
+                                          color: Colors.black,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      lang! ? 'Salir' : 'Log out',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14.0,
-                                        fontStyle: FontStyle.italic,
+                                      const Text(
+                                        'Premium',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                          fontStyle: FontStyle.italic,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () async {
+                                          await _auth.signOut();
+
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const Opciones(),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.logout_outlined,
+                                          size: 35,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      Text(
+                                        lang! ? 'Salir' : 'Log out',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
         ));
   }

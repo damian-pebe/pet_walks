@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:flutter/material.dart';
@@ -178,7 +179,10 @@ class _ChatViewState extends State<ChatView> {
                 stream: getChatStream(widget.chatId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(
+                        child: SpinKitSpinningLines(
+                            color: Color.fromRGBO(169, 200, 149, 1),
+                            size: 50.0));
                   }
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(child: Text("No messages"));

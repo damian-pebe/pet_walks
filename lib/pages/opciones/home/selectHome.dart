@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:geocoding/geocoding.dart';
@@ -149,7 +150,9 @@ class _SelectHome extends State<SelectHome> {
               },
             )
           else
-            Center(child: CircularProgressIndicator()),
+            const Center(
+                child: SpinKitSpinningLines(
+                    color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)),
           if (selectedMarker != null)
             Positioned(
               bottom: 130,

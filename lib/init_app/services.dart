@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/init_app/servicios/add_business.dart';
 import 'package:petwalks_app/init_app/servicios/agreement.dart';
@@ -86,7 +87,7 @@ class _ServiciosState extends State<Servicios> {
       barrierColor: Colors.white.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromRGBO(244, 210, 248, .30),
+          backgroundColor: Color.fromARGB(159, 229, 248, 210),
           actions: [
             Padding(
               padding:
@@ -108,7 +109,7 @@ class _ServiciosState extends State<Servicios> {
                     ),
                   ),
                   const SizedBox(
-                    height: 50,
+                    height: 40,
                   ),
                   OutlinedButton(
                       onPressed: () => Navigator.push(
@@ -155,7 +156,7 @@ class _ServiciosState extends State<Servicios> {
       barrierColor: Colors.white.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromRGBO(244, 210, 248, .30),
+          backgroundColor: Color.fromARGB(159, 229, 248, 210),
           actions: [
             Padding(
               padding:
@@ -164,20 +165,23 @@ class _ServiciosState extends State<Servicios> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Center(
-                    child: Text(
-                      lang!
-                          ? '¿Desea programar \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tor\n solicitar un paseo?'
-                          : 'Do you want to schedule\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\to\n request a new walk?',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Center(
+                      child: Text(
+                        lang!
+                            ? '¿Desea programar o solicitar un paseo?'
+                            : 'Do you want to scheduleor request a new walk?',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(
-                    height: 50,
+                    height: 30,
                   ),
                   OutlinedButton(
                       onPressed: () => Navigator.push(
@@ -257,7 +261,7 @@ class _ServiciosState extends State<Servicios> {
       barrierColor: Colors.white.withOpacity(0.65),
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromRGBO(244, 210, 248, .30),
+          backgroundColor: Color.fromARGB(159, 229, 248, 210),
           actions: [
             Padding(
               padding:
@@ -362,7 +366,9 @@ class _ServiciosState extends State<Servicios> {
             scaffoldBackgroundColor: Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: SpinKitSpinningLines(
+                      color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
               : Column(
                   children: [
                     titleW(title: lang! ? 'Servicios' : 'Services'),
@@ -402,7 +408,7 @@ class _ServiciosState extends State<Servicios> {
                                 ),
                               ),
                               SizedBox(
-                                height: 30,
+                                height: 10,
                               ),
                               Visibility(
                                 visible: _visible,

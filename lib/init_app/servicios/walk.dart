@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -104,7 +105,7 @@ class _PasearState extends State<Pasear> {
               ),
               onTap: () {
                 _showBottomSheet(
-                    timeWalking: marker['timeWalking'] ?? 'Unknown',
+                    timeWalking: marker['timeWalking'] ?? '',
                     payMethod: marker['payMethod'] ?? 'Unknown',
                     price: marker['price'] ?? 'Unknown',
                     walkWFriends: marker['walkWFriends'] ?? 'Unknown',
@@ -542,7 +543,9 @@ class _PasearState extends State<Pasear> {
               backgroundColor: const Color.fromRGBO(169, 200, 149, 1),
             ),
       body: lang == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
           : Stack(
               children: [
                 if (_isPermissionGranted)
@@ -560,7 +563,9 @@ class _PasearState extends State<Pasear> {
                     },
                   )
                 else
-                  const Center(child: CircularProgressIndicator()),
+                  const Center(
+                      child: SpinKitSpinningLines(
+                          color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)),
 
                 //TODO ICON BUTTON FOR FILTERS
                 Positioned(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 
 class AboutUs extends StatefulWidget {
@@ -26,7 +27,9 @@ class _AboutUsState extends State<AboutUs> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: lang == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: SpinKitSpinningLines(
+                    color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
             : Stack(children: [
                 Column(
                   children: [

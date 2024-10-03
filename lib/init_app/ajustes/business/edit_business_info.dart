@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart' as path;
 
@@ -139,7 +140,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
               ),
             ],
           ),
-          backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
+          backgroundColor: Color.fromARGB(159, 229, 248, 210),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -286,7 +287,9 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
           scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
       home: Scaffold(
         body: lang == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: SpinKitSpinningLines(
+                    color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
             : Column(
                 children: [
                   Stack(children: [
@@ -689,7 +692,8 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
                           },
                     style: customOutlinedButtonStyle(),
                     child: _isLoading
-                        ? const CircularProgressIndicator()
+                        ? const SpinKitSpinningLines(
+                            color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

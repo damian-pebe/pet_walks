@@ -138,7 +138,11 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                   'https://img.freepik.com/free-vector/luxury-background-3d-gradient-design_343694-2843.jpg?w=1060&t=st=1727284022~exp=1727284622~hmac=9434f20079f35f6d7dac9ae8bac9b2331dc12262659ab531b428ce45ebd1be59'),
                               fit: BoxFit.cover,
                             )
-                          : null),
+                          : const DecorationImage(
+                              image: NetworkImage(
+                                  'https://img.freepik.com/vector-gratis/paisaje-bosque-natural-escena-nocturna_1308-58710.jpg?t=st=1727902303~exp=1727905903~hmac=3f8c3979e0ad325613139525014ab86817b01e4cee32e9f846e4ef72a44ded91&w=1380'),
+                              fit: BoxFit.cover,
+                              opacity: .5)),
                   child: ListTile(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -215,12 +219,12 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                     bool owner =
                                         manageEndWalkInfo['emailOwner'] ==
                                             email;
+                                    updateOwner(true, requestId, false);
+                                    await Future.delayed(
+                                        const Duration(seconds: 10));
+                                    bool status =
+                                        await getWalkerStatus(requestId, false);
                                     if (owner) {
-                                      updateOwner(true, requestId, false);
-                                      await Future.delayed(
-                                          const Duration(seconds: 10));
-                                      bool status = await getWalkerStatus(
-                                          requestId, false);
                                       if (status) {
                                         updateHistory(
                                             manageEndWalkInfo['idHistory'],
@@ -245,17 +249,8 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                       updateWalker(true, requestId, false);
                                       await Future.delayed(
                                           const Duration(seconds: 10));
-                                      if (await getOwnerStatus(
-                                          requestId, false)) {
-                                        toastF(lang!
-                                            ? 'Viaje terminado'
-                                            : 'Walk finished');
-                                      } else {
-                                        updateWalker(false, requestId, false);
-                                        toastF(lang!
-                                            ? 'Ambos usuarios deben estar listos'
-                                            : 'Both users need to be ready');
-                                      }
+
+                                      updateWalker(false, requestId, false);
                                     }
                                   } finally {
                                     setState(() {

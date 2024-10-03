@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
@@ -92,7 +93,9 @@ class _AddPostState extends State<AddPost> {
             scaffoldBackgroundColor: const Color.fromRGBO(250, 244, 229, 1)),
         home: Scaffold(
           body: lang == null
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: SpinKitSpinningLines(
+                      color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
               : SingleChildScrollView(
                   child: Column(
                     children: [
@@ -223,7 +226,9 @@ class _AddPostState extends State<AddPost> {
                               height: 20,
                             ),
                             _isLoading
-                                ? CircularProgressIndicator()
+                                ? const SpinKitSpinningLines(
+                                    color: Color.fromRGBO(169, 200, 149, 1),
+                                    size: 50.0)
                                 : OutlinedButton(
                                     onPressed: _isLoading
                                         ? null

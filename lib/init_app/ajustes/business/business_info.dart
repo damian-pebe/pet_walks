@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/init_app/ajustes/business/edit_business_info.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
@@ -70,8 +71,10 @@ class _InfoBusinessState extends State<InfoBusiness> {
   @override
   Widget build(BuildContext context) {
     if (lang == null || fetchedInfoBusiness == null) {
-      return Scaffold(
-        body: Center(child: const CircularProgressIndicator()),
+      return const Scaffold(
+        body: Center(
+            child: SpinKitSpinningLines(
+                color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)),
       );
     }
 

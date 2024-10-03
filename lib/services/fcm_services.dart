@@ -3,7 +3,8 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Future<void> sendNotificationsToUserDevices(String emailID) async {
+Future<void> sendNotificationsToUserDevices(
+    String emailID, String title, String body) async {
   DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
       .collection('tokenNotifications')
       .doc(emailID)
@@ -13,7 +14,8 @@ Future<void> sendNotificationsToUserDevices(String emailID) async {
     List<String> tokens = List<String>.from(userSnapshot['tokens']);
 
     for (String token in tokens) {
-      await PushNotifications.sendNotificationToDeviceByToken(token);
+      await PushNotifications.sendNotificationToDeviceByToken(
+          token, title, body);
     }
   } else {
     print("No device tokens found for user.");
@@ -21,7 +23,8 @@ Future<void> sendNotificationsToUserDevices(String emailID) async {
 }
 
 class PushNotifications {
-  static Future<void> sendNotificationToDeviceByToken(String token) async {
+  static Future<void> sendNotificationToDeviceByToken(
+      String token, String title, String body) async {
     final String serverKey = await getAccessToken();
     print("Access Token: $serverKey");
 
@@ -35,9 +38,6 @@ class PushNotifications {
           'title': 'PET WALKS, Has sido aceptado',
           'body': 'Has sido aceptado en el programa PetWalks...'
         },
-        'data': {
-          'additionalDataKey': 'additionalDataValue',
-        }
       }
     };
 

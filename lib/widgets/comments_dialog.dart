@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 
 class CommentsDialog extends StatefulWidget {
@@ -43,7 +44,9 @@ class _CommentsDialogState extends State<CommentsDialog> {
   Widget build(BuildContext context) {
     return Center(
       child: lang == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
           : Material(
               borderRadius: BorderRadius.circular(20.0),
               elevation: 10,

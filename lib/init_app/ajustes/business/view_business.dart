@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/init_app/ajustes/business/business_info.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/box.dart';
@@ -37,12 +38,16 @@ class _ViewBusinessState extends State<ViewBusiness> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: lang == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
           : FutureBuilder<Map<String, dynamic>>(
               future: _businessDataFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: SpinKitSpinningLines(
+                          color: Color.fromRGBO(169, 200, 149, 1), size: 50.0));
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -74,8 +79,8 @@ class _ViewBusinessState extends State<ViewBusiness> {
                                 barrierColor: Colors.white.withOpacity(0.65),
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    backgroundColor: const Color.fromRGBO(
-                                        244, 210, 248, .30),
+                                    backgroundColor:
+                                        Color.fromARGB(159, 229, 248, 210),
                                     actions: [
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -185,7 +190,9 @@ class _BusinessState extends State<Business> {
         ),
         home: Scaffold(
           body: lang == null
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: SpinKitSpinningLines(
+                      color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
               : Column(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

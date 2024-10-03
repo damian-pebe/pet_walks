@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,6 +10,7 @@ import 'package:petwalks_app/init_app/servicios/markers_details/social_details.d
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/utils/constans.dart';
 import 'package:petwalks_app/utils/utils.dart';
+import 'package:petwalks_app/widgets/toast.dart';
 
 class SocialNetwork extends StatefulWidget {
   const SocialNetwork({super.key});
@@ -22,6 +23,7 @@ class _SocialNetwork extends State<SocialNetwork> {
   Completer<GoogleMapController> googleMapController = Completer();
   late CameraPosition initialCameraPosition;
   late BitmapDescriptor icon;
+  late BitmapDescriptor iconDeluxe;
   Marker? selectedMarker;
   LatLng? selectedPosition;
   String? domicilio;
@@ -33,6 +35,7 @@ class _SocialNetwork extends State<SocialNetwork> {
   Future<void> _getPosts(Set<Map<String, dynamic>> idsAddress) async {
     if (idsAddress.isNotEmpty) {
       String addressToCheck = idsAddress.first['address'];
+      bool premium = idsAddress.first['premium'];
 
       List<String> idsWithSameAddress = [];
       for (var element in idsAddress) {
@@ -43,7 +46,7 @@ class _SocialNetwork extends State<SocialNetwork> {
 
       idsAddress.removeWhere((element) => element['address'] == addressToCheck);
 
-      _addMarker(idsWithSameAddress, addressToCheck);
+      _addMarker(idsWithSameAddress, addressToCheck, premium);
 
       if (idsAddress.isNotEmpty) {
         await _getPosts(idsAddress);
@@ -51,8 +54,8 @@ class _SocialNetwork extends State<SocialNetwork> {
     }
   }
 
-  Future<void> _addMarker(
-      List<String> idsWithSameAddress, String addressToCheck) async {
+  Future<void> _addMarker(List<String> idsWithSameAddress,
+      String addressToCheck, bool premium) async {
     LatLng? position = await getLatLngFromAddress(addressToCheck);
 
     if (position != null) {
@@ -61,7 +64,7 @@ class _SocialNetwork extends State<SocialNetwork> {
           lang! ? 'Publicacion' : 'Post',
         ),
         position: position,
-        icon: icon,
+        icon: premium ? iconDeluxe : icon,
         onTap: () {
           _showBottomSheet(postIds: idsWithSameAddress);
         },
@@ -160,21 +163,14 @@ class _SocialNetwork extends State<SocialNetwork> {
   }
 
   Future<void> setIcon() async {
-    Uint8List iconBytes = await Utils.getBytesFromAsset(postMarker, 120);
+    Uint8List iconBytes = await Utils.getBytesFromAsset(postMarker, 170);
     icon = BitmapDescriptor.fromBytes(iconBytes);
+    Uint8List iconBytesDeluxe =
+        await Utils.getBytesFromAsset(postMarkerDeluxe, 170);
+    iconDeluxe = BitmapDescriptor.fromBytes(iconBytesDeluxe);
   }
 
   bool _isTypeWindowVisible = false;
-
-  void toastF(String msg) {
-    Fluttertoast.showToast(
-      msg: msg,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-      textColor: Colors.black,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +179,9 @@ class _SocialNetwork extends State<SocialNetwork> {
 
     return Scaffold(
       body: lang == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
           : Stack(
               children: [
                 if (_isPermissionGranted)
@@ -201,7 +199,9 @@ class _SocialNetwork extends State<SocialNetwork> {
                     },
                   )
                 else
-                  const Center(child: CircularProgressIndicator()),
+                  const Center(
+                      child: SpinKitSpinningLines(
+                          color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)),
                 if (!_isTypeWindowVisible)
                   Positioned(
                     left: 20,
@@ -241,7 +241,10 @@ class _SocialNetwork extends State<SocialNetwork> {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return const Center(
-                                      child: CircularProgressIndicator());
+                                      child: SpinKitSpinningLines(
+                                          color:
+                                              Color.fromRGBO(169, 200, 149, 1),
+                                          size: 50.0));
                                 } else if (snapshot.hasError) {
                                   return Center(
                                       child: Text('Error: ${snapshot.error}'));
@@ -310,16 +313,17 @@ class _SocialNetwork extends State<SocialNetwork> {
                                                                       context) {
                                                                 return AlertDialog(
                                                                   backgroundColor:
-                                                                      Colors
-                                                                          .white
-                                                                          .withOpacity(
-                                                                              .1),
+                                                                      Color.fromARGB(
+                                                                          159,
+                                                                          229,
+                                                                          248,
+                                                                          210),
                                                                   actions: [
                                                                     Padding(
                                                                       padding: const EdgeInsets
                                                                           .symmetric(
                                                                           horizontal:
-                                                                              20.0,
+                                                                              10.0,
                                                                           vertical:
                                                                               50),
                                                                       child:
@@ -328,7 +332,7 @@ class _SocialNetwork extends State<SocialNetwork> {
                                                                             Text(
                                                                           lang!
                                                                               ? '¿Estas seguro de querer eliminar el post?'
-                                                                              : 'Do u really want to delete the post?',
+                                                                              : 'Do you really want to delete the post?',
                                                                           style:
                                                                               const TextStyle(
                                                                             fontSize:
@@ -342,6 +346,9 @@ class _SocialNetwork extends State<SocialNetwork> {
                                                                       ),
                                                                     ),
                                                                     Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
                                                                       children: [
                                                                         TextButton(
                                                                             onPressed:
@@ -359,7 +366,7 @@ class _SocialNetwork extends State<SocialNetwork> {
                                                                                 Text(
                                                                               lang! ? 'Aceptar' : 'Accept',
                                                                               style: const TextStyle(
-                                                                                fontSize: 10,
+                                                                                fontSize: 18,
                                                                                 fontWeight: FontWeight.w400,
                                                                                 color: Colors.black,
                                                                               ),
@@ -369,9 +376,9 @@ class _SocialNetwork extends State<SocialNetwork> {
                                                                                 Navigator.pop(context),
                                                                             child: Text(
                                                                               lang! ? 'Cancelar' : 'Cancel',
-                                                                              style: TextStyle(
-                                                                                fontSize: 10,
-                                                                                fontWeight: FontWeight.w400,
+                                                                              style: const TextStyle(
+                                                                                fontSize: 20,
+                                                                                fontWeight: FontWeight.w900,
                                                                                 color: Colors.black,
                                                                               ),
                                                                             )),

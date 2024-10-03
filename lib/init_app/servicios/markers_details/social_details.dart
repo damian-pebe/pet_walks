@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:petwalks_app/init_app/servicios/chat.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
@@ -38,7 +39,9 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
       future: _futurePosts,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0));
         } else if (snapshot.hasError) {
           return Center(
               child: Text(lang!
@@ -56,124 +59,134 @@ class _SocialNetworkDetailsState extends State<SocialNetworkDetails> {
         return FractionallySizedBox(
           heightFactor: 1.7,
           child: lang == null
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  child: Column(
-                    children: posts.map((post) {
-                      String id = post['id'];
+              ? const Center(
+                  child: SpinKitSpinningLines(
+                      color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
+              : Container(
+                  color: Color.fromARGB(255, 243, 239, 239),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: posts.map((post) {
+                        String id = post['id'];
 
-                      String description = post['description'] ?? '';
-                      String type = post['type'] ?? '';
-                      List<String> imageUrls =
-                          List<String>.from(post['imageUrls'] ?? []);
-                      List<String> comments =
-                          List<String>.from(post['comments'] ?? []);
-                      String emailUser2 = post['emailUser'] ?? '';
+                        String description = post['description'] ?? '';
+                        String type = post['type'] ?? '';
+                        List<String> imageUrls =
+                            List<String>.from(post['imageUrls'] ?? []);
+                        List<String> comments =
+                            List<String>.from(post['comments'] ?? []);
+                        String emailUser2 = post['emailUser'] ?? '';
 
-                      return Container(
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(16.0)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Center(
-                              child: Text(
-                                type,
-                                style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
+                        return Container(
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(16.0)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                child: Text(
+                                  type,
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
-                            Stack(
-                              children: [
-                                Center(
-                                  child: SizedBox(
-                                    height: 200,
-                                    child: PhotoCarousel(imageUrls: imageUrls),
+                              Stack(
+                                children: [
+                                  Center(
+                                    child: SizedBox(
+                                      height: 200,
+                                      child:
+                                          PhotoCarousel(imageUrls: imageUrls),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              lang!
-                                  ? 'Descripcion: $description'
-                                  : 'Description: $description',
-                              style: const TextStyle(
-                                  fontSize: 15, color: Colors.black),
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    showCommentsDialog(
-                                        context, comments, 'post', id, true);
-                                  },
-                                  child: Text(
-                                    lang! ? "Comentarios" : "Comments",
-                                    style: const TextStyle(color: Colors.black),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                lang!
+                                    ? 'Descripcion: $description'
+                                    : 'Description: $description',
+                                style: const TextStyle(
+                                    fontSize: 15, color: Colors.black),
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      showCommentsDialog(
+                                          context, comments, 'post', id, true);
+                                    },
+                                    child: Text(
+                                      lang! ? "Comentarios" : "Comments",
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
                                   ),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    //working
-                                    String? oldChat =
-                                        await getOldChatId(emailUser2);
-                                    if (oldChat == null) {
-                                      String idChat = await newChat(emailUser2);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ChatView(
-                                            chatId: idChat,
+                                  TextButton(
+                                    onPressed: () async {
+                                      //working
+                                      String? oldChat =
+                                          await getOldChatId(emailUser2);
+                                      if (oldChat == null) {
+                                        String idChat =
+                                            await newChat(emailUser2);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatView(
+                                              chatId: idChat,
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    } else {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ChatView(
-                                            chatId: oldChat,
+                                        );
+                                      } else {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatView(
+                                              chatId: oldChat,
+                                            ),
                                           ),
+                                        );
+                                      }
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Icon(
+                                          Icons.message,
+                                          size: 20,
+                                          color: Colors.black,
                                         ),
-                                      );
-                                    }
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Icon(
-                                        Icons.message,
-                                        size: 20,
-                                        color: Colors.black,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        lang! ? "Chat" : "Chat",
-                                        style: const TextStyle(
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
-                                            fontSize: 16),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          lang! ? "Chat" : "Chat",
+                                          style: const TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                              fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8.0),
-                            const Divider()
-                          ],
-                        ),
-                      );
-                    }).toList(),
+                                ],
+                              ),
+                              const SizedBox(height: 8.0),
+                              const Divider()
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
         );
@@ -218,7 +231,9 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
       future: _futurePosts,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0));
         } else if (snapshot.hasError) {
           return Center(
               child: Text(lang!
@@ -236,10 +251,12 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
         return FractionallySizedBox(
           heightFactor: 1,
           child: lang == null
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: SpinKitSpinningLines(
+                      color: Color.fromRGBO(169, 200, 149, 1), size: 50.0))
               : Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Color.fromARGB(245, 255, 255, 255),
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: SingleChildScrollView(
@@ -295,6 +312,9 @@ class _SocialNetworkDetailsAlone extends State<SocialNetworkDetailsAlone> {
                               const SizedBox(height: 5),
                               Center(
                                 child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  mainAxisSize: MainAxisSize.max,
                                   children: [
                                     TextButton(
                                       onPressed: () {

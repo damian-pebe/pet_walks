@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:petwalks_app/utils/constans.dart';
@@ -216,7 +217,9 @@ class _RouteMapState extends State<RouteMap> {
                     )),
               ],
             )
-          : Center(child: CircularProgressIndicator()),
+          : Center(
+              child: SpinKitSpinningLines(
+                  color: Color.fromRGBO(169, 200, 149, 1), size: 50.0)),
     );
   }
 }

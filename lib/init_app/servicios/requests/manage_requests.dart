@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:petwalks_app/services/fcm_services.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
@@ -89,6 +91,7 @@ class _PendingRequestsNotificationsState
             'name': name,
             'isPremium': isPremium,
             'doc': doc,
+            'emailUser': viewUser
           });
         }
       } catch (e) {
@@ -105,7 +108,9 @@ class _PendingRequestsNotificationsState
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+          child: SpinKitSpinningLines(
+              color: Color.fromRGBO(169, 200, 149, 1), size: 50.0));
     }
 
     if (email == null || lang == null) {
@@ -144,7 +149,11 @@ class _PendingRequestsNotificationsState
                             'https://img.freepik.com/free-vector/luxury-background-3d-gradient-design_343694-2843.jpg?w=1060&t=st=1727284022~exp=1727284622~hmac=9434f20079f35f6d7dac9ae8bac9b2331dc12262659ab531b428ce45ebd1be59'),
                         fit: BoxFit.cover,
                       )
-                    : null,
+                    : const DecorationImage(
+                        image: NetworkImage(
+                            'https://img.freepik.com/vector-gratis/paisaje-ciudad-verano-nadie-escena-parque-ciudad_107791-20124.jpg?t=st=1727902073~exp=1727905673~hmac=d037ba7909bb16e2b5ab03b155c675a35aa8fb0510a96d419e4e7e01a42fce55&w=1380'),
+                        fit: BoxFit.cover,
+                        opacity: .5),
               ),
               child: ListTile(
                 shape: RoundedRectangleBorder(
@@ -209,15 +218,25 @@ class _PendingRequestsNotificationsState
                               manageStartWalkInfo['idBusiness'],
                               id);
                           toastF(lang! ? 'Aceptado' : 'Accepted');
-                          setState(() {
-                            for (var data in pendingRequestsData) {
-                              deletePreHistory(data['requestId']);
-                            }
-                            pendingRequestsData.clear();
-                          });
+                          setState(() {});
+                          for (var data in pendingRequestsData) {
+                            sendNotificationsToUserDevices(
+                                data['emailUser'],
+                                'PET WALKS Status, su solicitud de paseo ha sido rechazada',
+                                'Te invitamos a buscar mas paseos con nuestra aplicacion!');
+
+                            deletePreHistory(data['requestId']);
+                          }
+                          pendingRequestsData.clear();
                           setState(() {
                             _fetchAndShowNotifications(email!);
                           });
+                          await sendNotificationsToUserDevices(
+                              manageStartWalkInfo['emailWalker'],
+                              'PET WALKS Status, su solicitud de paseo ha sido aceptada',
+                              'Revise la informacion para realizar el paseo de manera correcta');
+                          //!disable walk
+                          disableWalk(manageStartWalkInfo['idWalk']);
                         } catch (e) {
                           toastF(lang!
                               ? 'Error al aceptar solicitud'
@@ -236,20 +255,24 @@ class _PendingRequestsNotificationsState
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         toastF(lang! ? 'Denegado' : 'Denied');
                         deletePreHistory(requestId);
                         setState(() {
                           pendingRequestsData.removeAt(index);
                         });
+                        await sendNotificationsToUserDevices(
+                            pendingRequestsData[index]['emailUser'],
+                            'PET WALKS Status, su solicitud de paseo ha sido rechazada',
+                            'Te invitamos a buscar mas paseos con nuestra aplicacion!');
                       },
                       child: Column(
                         children: [
-                          Icon(Icons.close,
+                          const Icon(Icons.close,
                               color: Color.fromARGB(255, 239, 62, 49)),
                           Text(
                             lang! ? 'Denegar' : 'Deny',
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: Color.fromARGB(255, 239, 62, 49),
                                 fontSize: 10),
                           )
