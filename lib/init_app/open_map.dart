@@ -35,48 +35,58 @@ class _OpenMap extends State<OpenMap> {
   Set<Marker> markers = {};
 
   Future<void> _getBusiness() async {
-    Set<Map<String, dynamic>> businessData = await getBusiness();
-    for (var marker in businessData) {
-      geoPoint = marker['position'];
-      if (geoPoint is GeoPoint) {
-        LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
-        markers.add(Marker(
-          markerId: MarkerId(marker['name'] ?? 'Unknown'),
-          position: latLng,
-          icon: marker['premium'] ? iconPremium : icon,
-          infoWindow: InfoWindow(
-            title: marker['name'] ?? 'Unknown',
-            snippet: marker['description'] ?? 'No description available',
-          ),
-          onTap: () {
-            List<double> ratings = (marker['rating'] as List<dynamic>)
-                .map((e) => e is int ? e.toDouble() : e as double)
-                .toList();
-            double rating = ratings.isNotEmpty
-                ? (ratings.reduce((a, b) => a + b) / ratings.length)
-                : 0.0;
+    try {
+      Set<Map<String, dynamic>> businessData = await getBusiness();
+      for (var marker in businessData) {
+        try {
+          geoPoint = marker['position'];
+          if (geoPoint is GeoPoint) {
+            LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
 
-            _showBottomSheet(
+            markers.add(Marker(
+              markerId: MarkerId(marker['name'] ?? 'Unknown'),
               position: latLng,
-              name: marker['name'] ?? 'Unknown',
-              address: marker['address'] ?? 'Unknown',
-              phone: marker['phone'] ?? 'Unknown',
-              description: marker['description'] ?? 'No description available',
-              rating: rating,
-              imageUrls:
-                  marker['imageUrls'] != null && marker['imageUrls'] is List
-                      ? List<String>.from(marker['imageUrls'])
-                      : ['https://via.placeholder.com/1500x500'],
-              comments: marker['comments'] ?? [],
-            );
-          },
-        ));
-      } else {}
-    }
+              icon: marker['premium'] ? iconPremium : icon,
+              infoWindow: InfoWindow(
+                title: marker['name'] ?? 'Unknown',
+                snippet: marker['description'] ?? 'No description available',
+              ),
+              onTap: () {
+                List<double> ratings = (marker['rating'] as List<dynamic>)
+                    .where((e) => e != null) // Remove null values
+                    .map((e) =>
+                        e is int ? e.toDouble() : (e is double ? e : 0.0))
+                    .toList();
 
-    if (mounted) {
-      setState(() {});
-    }
+                double rating = ratings.isNotEmpty
+                    ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                    : 0.0;
+
+                _showBottomSheet(
+                    position: latLng,
+                    name: marker['name'] ?? 'Unknown',
+                    address: marker['address'] ?? 'Unknown',
+                    phone: marker['phone'] ?? 'Unknown',
+                    description:
+                        marker['description'] ?? 'No description available',
+                    rating: rating,
+                    imageUrls: marker['imageUrls'] != null &&
+                            marker['imageUrls'] is List
+                        ? List<String>.from(marker['imageUrls'])
+                        : ['https://via.placeholder.com/1500x500'],
+                    comments: marker['comments'] ?? [],
+                    id: marker['id'] ?? "",
+                    category: marker['category'] ?? '');
+              },
+            ));
+          } else {}
+        } catch (e) {}
+      }
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {}
   }
 
   void _showBottomSheet(
@@ -87,20 +97,23 @@ class _OpenMap extends State<OpenMap> {
       required double rating,
       required List<String> imageUrls,
       required List<dynamic> comments,
-      required LatLng position}) {
+      required LatLng position,
+      required String id,
+      required String category}) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return BusinessDetails(
-          name: name,
-          address: address,
-          phone: phone,
-          description: description,
-          rating: rating,
-          imageUrls: imageUrls,
-          comments: comments,
-          geoPoint: position,
-        );
+            name: name,
+            address: address,
+            phone: phone,
+            description: description,
+            rating: rating,
+            imageUrls: imageUrls,
+            comments: comments,
+            geoPoint: position,
+            id: id,
+            category: category);
       },
     );
   }
@@ -131,14 +144,16 @@ class _OpenMap extends State<OpenMap> {
   }
 
   void _getCurrentLocation() async {
-    geo.Position position = await geo.Geolocator.getCurrentPosition(
-        desiredAccuracy: geo.LocationAccuracy.high);
-    if (mounted) {
-      setState(() {
-        _center = LatLng(position.latitude, position.longitude);
-        _isPermissionGranted = true;
-      });
-    }
+    try {
+      geo.Position position = await geo.Geolocator.getCurrentPosition(
+          desiredAccuracy: geo.LocationAccuracy.high);
+      if (mounted) {
+        setState(() {
+          _center = LatLng(position.latitude, position.longitude);
+          _isPermissionGranted = true;
+        });
+      }
+    } catch (e) {}
   }
 
   Future<void> initData() async {

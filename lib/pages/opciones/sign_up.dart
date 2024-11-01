@@ -1,14 +1,18 @@
 // ignore_for_file: camel_case_types, empty_catches, use_build_context_synchronously
 
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/pages/opciones/login.dart';
+import 'package:petwalks_app/services/twilio.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:petwalks_app/widgets/toast.dart';
@@ -22,6 +26,10 @@ class Sign_Up extends StatefulWidget {
 }
 
 class _Sign_UpState extends State<Sign_Up> {
+//!TEXTBELT KEY ONLY ONE PER DAY ON FREE TIER
+
+  late final TwilioService twilioService;
+
   bool lang = true;
   Future<void> getLang() async {
     bool savedLang = await getLanguagePreference();
@@ -40,8 +48,6 @@ class _Sign_UpState extends State<Sign_Up> {
 
   TextEditingController tokenController = TextEditingController(text: "");
   //token phone verification == 4 digits
-  String inTokenPhone = '1234';
-  String tokenSent = '';
   bool verificationModule = false;
 
   String homelatlng = '';
@@ -110,7 +116,7 @@ class _Sign_UpState extends State<Sign_Up> {
                       keyboardType: TextInputType.number,
                       controller: tokenController,
                       decoration: StyleTextField(
-                        lang ? 'Telefono' : 'Phone',
+                        lang ? 'Token' : 'Token',
                       )),
                 ),
                 const SizedBox(height: 5),
@@ -170,7 +176,11 @@ class _Sign_UpState extends State<Sign_Up> {
             ),
             OutlinedButton(
               onPressed: () {
-                //enviar token
+                //!enviar token
+                String phone = phoneController.text;
+                String message =
+                    'PET WALKS, Token de verificacion para: ${phoneController.text}\nSu token de verificacion es: $tokenKey';
+                twilioService.sendSms(phone, message);
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(
@@ -214,18 +224,21 @@ class _Sign_UpState extends State<Sign_Up> {
   }
 
   bool sameToken(String sent) {
-    if (inTokenPhone != sent) return false;
+    if (tokenKey != sent) return false;
 
     return true;
   }
 
   bool verifyFieldsName() {
     if (nameController.text == "") return false;
+    if (emailController.text.length > 35) return false;
+
     return true;
   }
 
   bool verifyFieldsEmail() {
     if (emailController.text == "") return false;
+    if (emailController.text.length > 75) return false;
     return true;
   }
 
@@ -264,7 +277,7 @@ class _Sign_UpState extends State<Sign_Up> {
   bool _isVerified = true;
   bool _isPrivacity = true;
   final _isSame = true;
-
+  String? tokenKey;
   @override
   void initState() {
     getLang();
@@ -280,6 +293,14 @@ class _Sign_UpState extends State<Sign_Up> {
         }
       }
     });
+    generateFourDigitToken();
+    twilioService = twilioServiceKeys;
+  }
+
+  void generateFourDigitToken() {
+    final random = Random();
+    int number = 1000 + random.nextInt(9000);
+    tokenKey = number.toString();
   }
 
   @override
@@ -586,6 +607,7 @@ class _Sign_UpState extends State<Sign_Up> {
                           height: 30,
                         ),
                         TextField(
+                            obscureText: true,
                             controller: passwordController,
                             decoration: StyleTextField(
                               lang ? 'Contraseña' : 'Password',
@@ -594,6 +616,7 @@ class _Sign_UpState extends State<Sign_Up> {
                           height: 10,
                         ),
                         TextField(
+                            obscureText: true,
                             controller: verifyPasswordController,
                             decoration: StyleTextField(
                               lang

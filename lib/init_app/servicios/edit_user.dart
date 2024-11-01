@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:path/path.dart' as path;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,10 +9,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/services/twilio.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 import 'package:petwalks_app/widgets/toast.dart';
@@ -31,8 +34,6 @@ class _EditUserState extends State<EditUser> {
   final TextEditingController homeController = TextEditingController();
   final TextEditingController tokenController = TextEditingController();
 
-  String inTokenPhone = '1234';
-  String tokenSent = '';
   bool verificationModule = false;
 
   String homelatlng = '';
@@ -102,7 +103,18 @@ class _EditUserState extends State<EditUser> {
       }
     });
     _getLanguage();
+    generateFourDigitToken();
+    twilioService = twilioServiceKeys;
   }
+
+  void generateFourDigitToken() {
+    final random = Random();
+    int number = 1000 + random.nextInt(9000);
+    tokenKey = number.toString();
+  }
+
+  late final TwilioService twilioService;
+  String? tokenKey;
 
   bool? lang;
   void _getLanguage() async {
@@ -111,7 +123,7 @@ class _EditUserState extends State<EditUser> {
   }
 
   bool sameToken(String sent) {
-    return inTokenPhone == sent;
+    return tokenKey == sent;
   }
 
   bool verifyFieldsName() {
@@ -242,7 +254,10 @@ class _EditUserState extends State<EditUser> {
             ),
             OutlinedButton(
               onPressed: () {
-                // Send token
+                String phone = phoneController.text;
+                String message =
+                    'PET WALKS, Token de verificacion para: ${phoneController.text}\nSu token de verificacion es: $tokenKey';
+                twilioService.sendSms(phone, message);
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(

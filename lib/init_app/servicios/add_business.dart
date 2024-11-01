@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_final_fields, use_build_context_synchronously
 
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:path/path.dart' as path;
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,10 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/services/twilio.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
@@ -36,8 +39,18 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
     super.initState();
     _email();
     _getLanguage();
+    generateFourDigitToken();
+    twilioService = twilioServiceKeys;
   }
 
+  void generateFourDigitToken() {
+    final random = Random();
+    int number = 1000 + random.nextInt(9000);
+    tokenKey = number.toString();
+  }
+
+  late final TwilioService twilioService;
+  String? tokenKey;
   bool? lang;
   void _getLanguage() async {
     lang = await getLanguage();
@@ -214,7 +227,10 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
             ),
             OutlinedButton(
               onPressed: () {
-                //enviar token
+                String phone = phoneController.text;
+                String message =
+                    'PET WALKS, Token de verificacion para: ${phoneController.text}\nSu token de verificacion es: $tokenKey';
+                twilioService.sendSms(phone, message);
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(
@@ -256,9 +272,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
   }
 
   bool sameToken(String sent) {
-    if (inTokenPhone != sent) return false;
-
-    return true;
+    return tokenKey == sent;
   }
 
   bool verifyFieldsName() {
@@ -641,6 +655,12 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                                         }
 
                                         Future<void> save() async {
+                                          while (_downloadUrls.length > 8) {
+                                            _downloadUrls.removeLast();
+                                          }
+                                          toastF(lang!
+                                              ? 'Solo seran guardadas las primeras 8 imagenes'
+                                              : 'Only the first 8 images will be saved');
                                           String lastBusinessId =
                                               await newBusiness(
                                             nameController.text,

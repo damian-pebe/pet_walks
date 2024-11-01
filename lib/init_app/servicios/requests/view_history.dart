@@ -6,6 +6,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:petwalks_app/init_app/servicios/chat.dart';
+import 'package:petwalks_app/init_app/servicios/markers_details/place_view.dart';
+import 'package:petwalks_app/init_app/servicios/reports.dart';
 import 'package:petwalks_app/init_app/servicios/view_active_route.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/services/stripe_services.dart';
@@ -90,10 +92,20 @@ class _ViewRequestState extends State<ViewRequest> {
     _getLanguage();
   }
 
+  String? reported;
+  String? sender;
   bool? lang;
   void _getLanguage() async {
     lang = await getLanguage();
     setState(() {});
+
+    String temp = await fetchUserEmail();
+    temp == widget.emailOwner
+        ? reported = widget.emailWalker
+        : reported = widget.emailWalker;
+    temp == widget.emailOwner
+        ? sender = widget.emailOwner
+        : sender = widget.emailOwner;
   }
 
   String? idOwner;
@@ -202,7 +214,26 @@ class _ViewRequestState extends State<ViewRequest> {
                         left: 290,
                         top: 70,
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Reports(
+                                  lang: lang ?? false,
+                                  options: [
+                                    'Urgent/Urgente',
+                                    'Attack/Agresion',
+                                    'Tief/Robo',
+                                    'Doubt question/Duda sobre robo',
+                                    'Incorrect Payments/Pagos Incorrectos'
+                                  ],
+                                  reported: reported!,
+                                  sender: sender!,
+                                  priority: 'high',
+                                ),
+                              ),
+                            );
+                          },
                           icon: const Icon(
                             Icons.report_outlined,
                             size: 30,
@@ -417,6 +448,18 @@ class _ViewRequestState extends State<ViewRequest> {
                                                     markerId: const MarkerId(
                                                         'marker'),
                                                     position: position,
+                                                    onTap: () => Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ViewPlaceMap(
+                                                                  position: LatLng(
+                                                                      position
+                                                                          .latitude,
+                                                                      position
+                                                                          .longitude),
+                                                                  lang: lang!),
+                                                        )),
                                                   ),
                                                 },
                                               ),
@@ -993,6 +1036,12 @@ class _ViewRequestState extends State<ViewRequest> {
                                   const SizedBox(height: 5),
                                   Text(
                                       lang!
+                                          ? 'Categoria: ${info['category'] ?? ''}'
+                                          : 'Category: ${info['category'] ?? ''}',
+                                      style: _textStyle),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                      lang!
                                           ? 'Domicilio:: ${info['address'] ?? ''}'
                                           : 'Address: ${info['address'] ?? ''}',
                                       style: _textStyle),
@@ -1004,8 +1053,8 @@ class _ViewRequestState extends State<ViewRequest> {
                                         return Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: SizedBox(
-                                            height: 200,
-                                            width: 300,
+                                            height: 190,
+                                            width: 390,
                                             child: GoogleMap(
                                               initialCameraPosition:
                                                   CameraPosition(
@@ -1017,6 +1066,18 @@ class _ViewRequestState extends State<ViewRequest> {
                                                   markerId: const MarkerId(
                                                       'Get pets here'),
                                                   position: business,
+                                                  onTap: () => Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ViewPlaceMap(
+                                                                position: LatLng(
+                                                                    business
+                                                                        .latitude,
+                                                                    business
+                                                                        .longitude),
+                                                                lang: lang!),
+                                                      )),
                                                 ),
                                               },
                                             ),

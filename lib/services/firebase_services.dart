@@ -285,7 +285,8 @@ Future<void> newUser(
       "activeServices": ['walk', 'request', 'business'],
       "language": true, //true == sp/ false == en
       "rating": rating,
-      "docs": 'unverified'
+      "docs": 'unverified',
+      "reports": 0
     });
   }
 }
@@ -534,10 +535,14 @@ Future<String> newBusiness(
       'super buen servicio!!'
     ],
     "imageUrls": downloadUrls ?? [],
-    "email": fetchedEmail
+    "email": fetchedEmail,
+    "premium": false
   });
   String lastBusinessId = userDoc.id;
 
+  await db.collection("business").doc(lastBusinessId).update({
+    "id": lastBusinessId,
+  });
   return lastBusinessId;
 }
 
@@ -554,7 +559,8 @@ Future<String> newWalk(
     String ownerEmail,
     bool premium,
     String? addressBusiness,
-    LatLng? positionBusiness) async {
+    LatLng? positionBusiness,
+    String? idBusiness) async {
   int price;
   if (timeWalking != null) {
     int timeWalkingInt = int.parse(timeWalking);
@@ -563,20 +569,42 @@ Future<String> newWalk(
     price = getPriceTravel(positionBusiness!, position, selectedPets);
   }
 
-  DocumentReference userDoc = await db.collection("walks").add({
-    "timeShow": timeShow,
-    "timeShowController": timeShowController ?? "",
-    "payMethod": payMethod ?? "",
-    "walkWFriends": walkWFriends ?? "",
-    "timeWalking": timeWalking,
-    "address": place ?? "",
-    "position": GeoPoint(position.latitude, position.longitude),
-    "description": description ?? "",
-    "selectedPets": selectedPets,
-    "price": price,
-    "ownerEmail": ownerEmail,
-    "premium": premium,
-  });
+  DocumentReference userDoc;
+  if (timeWalking != null) {
+    userDoc = await db.collection("walks").add({
+      "timeShow": timeShow,
+      "timeShowController": timeShowController ?? "",
+      "payMethod": payMethod ?? "",
+      "walkWFriends": walkWFriends ?? "",
+      "timeWalking": timeWalking,
+      "address": place ?? "",
+      "position": GeoPoint(position.latitude, position.longitude),
+      "description": description ?? "",
+      "selectedPets": selectedPets,
+      "price": price,
+      "ownerEmail": ownerEmail,
+      "premium": premium,
+    });
+  } else {
+    userDoc = await db.collection("walks").add({
+      "timeShow": timeShow,
+      "timeShowController": timeShowController ?? "",
+      "payMethod": payMethod ?? "",
+      "walkWFriends": walkWFriends ?? "",
+      "timeWalking": timeWalking,
+      "address": place ?? "",
+      "position": GeoPoint(position.latitude, position.longitude),
+      "description": description ?? "",
+      "selectedPets": selectedPets,
+      "price": price,
+      "ownerEmail": ownerEmail,
+      "premium": premium,
+      "addressBusiness": addressBusiness,
+      "positionBusiness":
+          GeoPoint(positionBusiness!.latitude, positionBusiness.longitude),
+      "idBusiness": idBusiness
+    });
+  }
   String lastWalkId = userDoc.id;
 
   await db.collection("walks").doc(lastWalkId).update({
@@ -641,7 +669,7 @@ Future<String> newPreHistory(
     "idWalk": idWalk,
     "emailOwner": emailOwner,
     "emailWalker": emailWalker,
-    "position": idBusiness ?? "",
+    "idBusiness": idBusiness ?? "",
   });
   String lastWalkId = userDoc.id;
 
@@ -659,7 +687,7 @@ Future<String> newStartWalk(
     "idWalk": idWalk,
     "emailOwner": emailOwner,
     "emailWalker": emailWalker,
-    "position": idBusiness ?? "",
+    "idBusiness": idBusiness ?? "",
     "idHistory": idHistory,
     //staatus to start walk
     "ownerStatus": '', //'ready' or ''
@@ -681,7 +709,7 @@ Future<String> newEndWalk(
     "idWalk": idWalk,
     "emailOwner": emailOwner,
     "emailWalker": emailWalker,
-    "position": idBusiness ?? "",
+    "idBusiness": idBusiness ?? "",
     "idHistory": idHistory,
     //staatus to start walk
     "ownerStatus": '', //'ready' or ''
@@ -1339,6 +1367,30 @@ Future<String> newChat(String emailUser2) async {
   return userDoc.id;
 }
 
+Future<String> newChatReport(String emailUser2, bool msg) async {
+  String currentUserByEmail = await fetchUserEmail();
+  Map message = msg
+      ? {
+          "m":
+              "Para confirmar que la empresa que está siendo reclamada es suya será necesario que envíe: imágenes de la empresa, RFC, nombre, escritura o contrato de arrendamiento del lugar y cualquier información extra que pueda ayudar a la verificación\nTo confirm that the company that is being claimed is yours, you will need to send: images of the company, RFC, name, deed or lease contract for the location and any extra information that may help with verification.",
+          "t": DateTime.now().millisecondsSinceEpoch,
+          "s": "admin",
+        }
+      : {
+          "m":
+              "Por favor envie la informacion necesaria para verificar su reporte\nPlease send the information necessary to verify your report",
+          "t": DateTime.now().millisecondsSinceEpoch,
+          "s": "admin",
+        };
+  var userDoc = await db.collection("chat").add({
+    "user1": currentUserByEmail,
+    "user2": emailUser2,
+    "messages": [message]
+  });
+  await db.collection("chat").doc(userDoc.id).update({"chatId": userDoc.id});
+  return userDoc.id;
+}
+
 Future<String?> getOldChatId(String emailUser2) async {
   String currentUserByEmail = await fetchUserEmail();
   var userDoc = await db
@@ -1514,4 +1566,32 @@ Future<void> disableWalk(String idWalk) async {
       .collection('walks')
       .doc(idWalk)
       .update({"timeShow": set}); //just so its on the past
+}
+
+Future<String> getUserPhone(String email) async {
+  var userDoc =
+      await db.collection("users").where("email", isEqualTo: email).get();
+
+  if (userDoc.docs.isEmpty) {
+    return '';
+  } else {
+    return userDoc.docs.first.data()['phone'];
+  }
+}
+
+Future<void> newReport(
+    String sender, String reported, String reason, String type) async {
+  await db.collection("reports").add(
+      {"sender": sender, "reported": reported, "reason": reason, "type": type});
+}
+
+Future<String> fetchEmailByIdBusiness(String idBusiness) async {
+  var userDoc = await db
+      .collection("users")
+      .where("idBusiness", arrayContains: idBusiness)
+      .get();
+
+  var doc = userDoc.docs.first;
+  String? email = doc['email'];
+  return email ?? '';
 }

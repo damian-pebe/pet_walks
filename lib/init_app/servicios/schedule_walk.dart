@@ -776,32 +776,36 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 24.0),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 2.0,
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 30.0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 24.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: Text(
-                              lang!
-                                  ? 'Domicilio: ${homeController.text}'
-                                  : 'Address: ${homeController.text}',
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.black,
-                                letterSpacing: 1.2,
-                                shadows: [
-                                  Shadow(
-                                    offset: Offset(1.0, 1.0),
-                                    blurRadius: 2.0,
-                                    color: Colors.grey,
-                                  ),
-                                ],
+                              child: Text(
+                                lang!
+                                    ? 'Domicilio: ${homeController.text}'
+                                    : 'Address: ${homeController.text}',
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.black,
+                                  letterSpacing: 1.2,
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(1.0, 1.0),
+                                      blurRadius: 2.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -1104,6 +1108,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                           selectedPets,
                                           email!,
                                           premium!,
+                                          null,
                                           null,
                                           null);
                                       await addWalkToUser(email!, lastWalkId);

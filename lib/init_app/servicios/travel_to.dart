@@ -20,7 +20,12 @@ import 'package:petwalks_app/widgets/visibility.dart';
 class TravelTo extends StatefulWidget {
   final LatLng geoPoint;
   final String address;
-  const TravelTo({required this.address, required this.geoPoint, super.key});
+  final String id;
+  const TravelTo(
+      {required this.address,
+      required this.geoPoint,
+      required this.id,
+      super.key});
 
   @override
   State<TravelTo> createState() => _TravelToState();
@@ -645,32 +650,36 @@ class _TravelToState extends State<TravelTo> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 24.0),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 2.0,
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 30.0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 24.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: Text(
-                              lang!
-                                  ? 'Domicilio: ${homeController.text}'
-                                  : 'Address: ${homeController.text}',
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.black,
-                                letterSpacing: 1.2,
-                                shadows: [
-                                  Shadow(
-                                    offset: Offset(1.0, 1.0),
-                                    blurRadius: 2.0,
-                                    color: Colors.grey,
-                                  ),
-                                ],
+                              child: Text(
+                                lang!
+                                    ? 'Domicilio: ${homeController.text}'
+                                    : 'Address: ${homeController.text}',
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.black,
+                                  letterSpacing: 1.2,
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(1.0, 1.0),
+                                      blurRadius: 2.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -957,22 +966,25 @@ class _TravelToState extends State<TravelTo> {
                                     save(DateTime dateElement) async {
                                       //by doing this, im splitting the walks on more walks, doesnt necesary needs to save the array as before
                                       String lastWalkId = await newWalk(
-                                        dateElement,
-                                        timeShowController.text,
-                                        payMethod,
-                                        walkWFriends,
-                                        null,
-                                        homeController.text,
-                                        homelatlng!,
-                                        descriptionController.text,
-                                        selectedPets,
-                                        email!,
-                                        premium!,
-
-                                        widget
-                                            .address, //address from the place to go
-                                        widget.geoPoint, //travel to this place
-                                      );
+                                          dateElement,
+                                          timeShowController.text,
+                                          payMethod,
+                                          walkWFriends,
+                                          null,
+                                          homeController.text,
+                                          homelatlng!,
+                                          descriptionController.text,
+                                          selectedPets,
+                                          email!,
+                                          premium!,
+                                          widget
+                                              .address, //address from the place to go
+                                          LatLng(
+                                              widget.geoPoint.latitude,
+                                              widget.geoPoint
+                                                  .longitude), //travel to this place
+                                          widget.id //id business
+                                          );
                                       await addWalkToUser(email!, lastWalkId);
                                     }
 
@@ -1015,29 +1027,6 @@ class _TravelToState extends State<TravelTo> {
                                         }
                                       }
                                     }
-                                    // save() async {
-                                    //   String lastWalkId = await newProgramWalk(
-                                    //       date,
-                                    //       timeShowController.text,
-                                    //       payMethod,
-                                    //       walkWFriends,
-                                    //       '',
-                                    //       widget
-                                    //           .address, //address from the place to go
-                                    //       widget.geoPoint, //travel to this place
-                                    //       homeController.text,
-                                    //       homelatlng,
-                                    //       descriptionController.text,
-                                    //       selectedPets,
-                                    //       selectedDates,
-                                    //       startDate,
-                                    //       endDate,
-                                    //       mode,
-                                    //       'travel',
-                                    //       email!,
-                                    //       premium!);
-                                    //   await addWalkToUser(email!, lastWalkId);
-                                    // }
 
                                     if (pass()) {
                                       setState(() {

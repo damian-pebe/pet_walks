@@ -620,32 +620,36 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 24.0),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 2.0,
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 30.0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 24.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: Text(
-                              lang!
-                                  ? 'Domicilio: ${homeController.text}'
-                                  : 'Address: ${homeController.text}',
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.black,
-                                letterSpacing: 1.2,
-                                shadows: [
-                                  Shadow(
-                                    offset: Offset(1.0, 1.0),
-                                    blurRadius: 2.0,
-                                    color: Colors.grey,
-                                  ),
-                                ],
+                              child: Text(
+                                lang!
+                                    ? 'Domicilio: ${homeController.text}'
+                                    : 'Address: ${homeController.text}',
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.black,
+                                  letterSpacing: 1.2,
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(1.0, 1.0),
+                                      blurRadius: 2.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -897,70 +901,63 @@ class _SolicitarPaseoState extends State<SolicitarPaseo> {
                           ),
                           const SizedBox(height: 10),
                           OutlinedButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () async {
-                                    bool pass() {
-                                      if (selectedPets.isEmpty) {
-                                        mascotas = false;
-                                      } else {
-                                        mascotas = true;
-                                      }
-                                      if (homeController.text.isEmpty) {
-                                        domicilio = false;
-                                      } else {
-                                        domicilio = true;
-                                      }
-                                      setState(() {});
+                            onPressed: () async {
+                              bool pass() {
+                                if (selectedPets.isEmpty) {
+                                  mascotas = false;
+                                } else {
+                                  mascotas = true;
+                                }
+                                if (homeController.text.isEmpty) {
+                                  domicilio = false;
+                                } else {
+                                  domicilio = true;
+                                }
+                                if (mascotas != false && domicilio != false) {
+                                  return true;
+                                } else {
+                                  return false;
+                                }
+                              }
 
-                                      return mascotas && domicilio;
-                                    }
+                              DateTime date = DateTime.now();
 
-                                    DateTime date = DateTime.now();
+                              save() async {
+                                String lastWalkId = await newWalk(
+                                    date,
+                                    timeShowController.text,
+                                    payMethod,
+                                    walkWFriends,
+                                    timeWalking,
+                                    homeController.text,
+                                    homelatlng,
+                                    descriptionController.text,
+                                    selectedPets,
+                                    email!,
+                                    premium!,
+                                    null,
+                                    null,
+                                    null);
+                                await addWalkToUser(email!, lastWalkId);
+                              }
 
-                                    save() async {
-                                      String lastWalkId = await newWalk(
-                                          date,
-                                          timeShowController.text,
-                                          payMethod,
-                                          walkWFriends,
-                                          timeWalking,
-                                          homeController.text,
-                                          homelatlng,
-                                          descriptionController.text,
-                                          selectedPets,
-                                          email!,
-                                          premium!,
-                                          null,
-                                          null);
-                                      await addWalkToUser(email!, lastWalkId);
-                                    }
-
-                                    if (pass()) {
-                                      setState(() {
-                                        _isLoading = true;
-                                      });
-
-                                      await save();
-
-                                      setState(() {
-                                        _isLoading = false;
-                                      });
-
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const Funcion(),
-                                        ),
-                                      );
-                                    } else {
-                                      toastF(
-                                        lang!
-                                            ? 'Falta llenar informacion del paseo'
-                                            : 'First, complete the empty information',
-                                      );
-                                    }
-                                  },
+                              if (pass()) {
+                                await save();
+                                Navigator.of(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const Funcion(),
+                                  ),
+                                );
+                              } else {
+                                toastF(
+                                  lang!
+                                      ? 'Falta llenar informacion del paseo'
+                                      : 'First, complete the empty information',
+                                );
+                              }
+                            },
                             style: customOutlinedButtonStyle(),
                             child: _isLoading
                                 ? const SpinKitSpinningLines(

@@ -285,7 +285,7 @@ class _BusinessDetailsState extends State<BusinessDetails> {
                 const SizedBox(width: 50),
                 IconButton(
                   onPressed: () {
-                    toastF('Firt, Log In');
+                    toastF('Fisrt, Log In');
                   },
                   icon: const Icon(
                     Icons.report_outlined,

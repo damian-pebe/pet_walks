@@ -3,7 +3,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:petwalks_app/env.dart';
+import 'package:petwalks_app/init_app/servicios/markers_details/place_view.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/services/twilio.dart';
 import 'package:petwalks_app/widgets/box.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
@@ -21,6 +25,7 @@ class WalkDetails extends StatefulWidget {
   final GeoPoint travelToPosition;
   final String ownerEmail;
   final String id;
+  final String? idBusiness;
 
   const WalkDetails({
     required this.payMethod,
@@ -34,6 +39,7 @@ class WalkDetails extends StatefulWidget {
     required this.travelToPosition,
     required this.ownerEmail,
     required this.id,
+    this.idBusiness,
     super.key,
   });
 
@@ -60,7 +66,10 @@ class _WalkDetailsState extends State<WalkDetails> {
     idPets = List<String>.from(widget.selectedPets);
     _email();
     _getLanguage();
+    twilioService = twilioServiceKeys;
   }
+
+  late final TwilioService twilioService;
 
   bool? lang;
   void _getLanguage() async {
@@ -333,7 +342,20 @@ class _WalkDetailsState extends State<WalkDetails> {
                                           ? "Tiempo de paseo: ${widget.timeWalking}"
                                           : "Walking time: ${widget.timeWalking}")
                                       : OutlinedButton(
-                                          onPressed: () {},
+                                          onPressed: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ViewPlaceMap(
+                                                        position: LatLng(
+                                                            widget
+                                                                .travelToPosition
+                                                                .latitude,
+                                                            widget
+                                                                .travelToPosition
+                                                                .longitude),
+                                                        lang: lang!),
+                                              )),
                                           style: OutlinedButton.styleFrom(
                                             backgroundColor:
                                                 const Color.fromARGB(
@@ -367,10 +389,15 @@ class _WalkDetailsState extends State<WalkDetails> {
                               setState(() {
                                 _isLoading = true;
                               });
-                              String? idBusiness =
-                                  await findMatchingBusinessId(widget.travelTo);
+
                               await newPreHistory(widget.id, widget.ownerEmail,
-                                  email, idBusiness);
+                                  email, widget.idBusiness);
+                              String phone =
+                                  await getUserPhone(widget.ownerEmail);
+                              String message = lang!
+                                  ? 'PET WALKS Estatus, Usted recibio una solicitud de paseo\n Te invitamos a revisarla y aceptar o denegar al usuario!'
+                                  : 'PET WALKS Status, You received a walk request\nWe invite you to review it and accept or deny the user!';
+                              twilioService.sendSms(phone, message);
 
                               setState(() {
                                 _isLoading = false;
@@ -398,7 +425,7 @@ class _WalkDetailsState extends State<WalkDetails> {
                                       Text(
                                         lang!
                                             ? "Solicitar viaje"
-                                            : "Request trip",
+                                            : "Request walk",
                                         style: const TextStyle(
                                             fontStyle: FontStyle.italic,
                                             fontWeight: FontWeight.bold,

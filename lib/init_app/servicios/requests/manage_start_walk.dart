@@ -1,12 +1,15 @@
 // ignore_for_file: prefer_final_fields
 
 import 'dart:async';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/services/fcm_services.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/services/firebase_tracker.dart';
+import 'package:petwalks_app/services/twilio.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
 class StartWalkManagement extends StatefulWidget {
@@ -19,13 +22,23 @@ class StartWalkManagement extends StatefulWidget {
 class _StartWalkManagementState extends State<StartWalkManagement> {
   //!TIMERS
   void handleHalfTime(String email) async {
-    sendNotificationsToUserDevices(email, 'PET WALKS Tiempo de paseo',
+    await sendNotificationsToUserDevices(email, 'PET WALKS Tiempo de paseo',
         'Te recordamos que su paseo activo va por la mitad');
+    String phone = await getUserPhone(email);
+    String message = lang!
+        ? 'PET WALKS Tiempo de paseo\n Te recordamos que su paseo activo va por la mitad'
+        : 'PET WALKS Walk time\nWe remind you that your active walk is half over';
+    twilioService.sendSms(phone, message);
   }
 
-  void handleTimeout(String email) {
-    sendNotificationsToUserDevices(email, 'PET WALKS Tiempo de paseo',
+  void handleTimeout(String email) async {
+    await sendNotificationsToUserDevices(email, 'PET WALKS Tiempo de paseo',
         'Faltn 5 minutos para terminar el viaje, te recomendamos estar preparado para finalizar el viaje');
+    String phone = await getUserPhone(email);
+    String message = lang!
+        ? 'PET WALKS Tiempo de paseo\n Faltn 5 minutos para terminar el viaje, te recomendamos estar preparado para finalizar el viaje'
+        : 'PET WALKS Walking time\n There are 5 minutes left to finish the trip, we recommend that you be prepared to finish the trip';
+    twilioService.sendSms(phone, message);
   }
   //!TIMERS
 
@@ -39,7 +52,18 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
     super.initState();
     _fetchEmail();
     _getLanguage();
+    generateFourDigitToken();
+    twilioService = twilioServiceKeys;
   }
+
+  void generateFourDigitToken() {
+    final random = Random();
+    int number = 1000 + random.nextInt(9000);
+    tokenKey = number.toString();
+  }
+
+  late final TwilioService twilioService;
+  String? tokenKey;
 
   bool? typePremium;
   void _getLanguage() async {
@@ -231,20 +255,19 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                         if (owner) {
                                           if (status) {
                                             newHistoryWalk(
-                                              manageStartWalkInfo['idWalk'],
-                                              manageStartWalkInfo['emailOwner'],
-                                              manageStartWalkInfo[
-                                                  'emailWalker'],
-                                              manageStartWalkInfo['idBusiness'],
-                                            );
+                                                manageStartWalkInfo['idWalk'],
+                                                manageStartWalkInfo[
+                                                    'emailOwner'],
+                                                manageStartWalkInfo[
+                                                    'emailWalker'],
+                                                walkIfno['idBusiness']);
                                             await newEndWalk(
                                                 manageStartWalkInfo['idWalk'],
                                                 manageStartWalkInfo[
                                                     'emailOwner'],
                                                 manageStartWalkInfo[
                                                     'emailWalker'],
-                                                manageStartWalkInfo[
-                                                    'idBusiness'],
+                                                walkIfno['idBusiness'],
                                                 manageStartWalkInfo[
                                                     'idHistory']);
                                             updateHistory(

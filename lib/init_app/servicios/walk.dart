@@ -61,20 +61,21 @@ class _PasearState extends State<Pasear> {
               ),
               onTap: () {
                 _showBottomSheet(
-                  timeWalking: marker['timeWalking'] ?? 'Unknown',
-                  payMethod: marker['payMethod'] ?? 'Unknown',
-                  price: marker['price'] ?? 'Unknown',
-                  walkWFriends: marker['walkWFriends'] ?? 'Unknown',
-                  place: marker['address'] ?? 'Unknown',
-                  selectedPets: List<String>.from(marker['selectedPets'] ?? []),
-                  description:
-                      marker['description'] ?? 'No description available',
-                  travelTo: marker['travelTo'] ?? '',
-                  travelToPosition:
-                      marker['travelToPosition'] ?? const GeoPoint(0, 0),
-                  email: marker['ownerEmail'],
-                  id: marker['id'],
-                );
+                    timeWalking: marker['timeWalking'] ?? 'Unknown',
+                    payMethod: marker['payMethod'] ?? 'Unknown',
+                    price: marker['price'] ?? 'Unknown',
+                    walkWFriends: marker['walkWFriends'] ?? 'Unknown',
+                    place: marker['address'] ?? 'Unknown',
+                    selectedPets:
+                        List<String>.from(marker['selectedPets'] ?? []),
+                    description:
+                        marker['description'] ?? 'No description available',
+                    travelTo: marker['travelTo'] ?? '',
+                    travelToPosition:
+                        marker['travelToPosition'] ?? const GeoPoint(0, 0),
+                    email: marker['ownerEmail'],
+                    id: marker['id'],
+                    idBusiness: marker['idBusiness']);
               },
             ));
           } else {}
@@ -110,11 +111,12 @@ class _PasearState extends State<Pasear> {
                         List<String>.from(marker['selectedPets'] ?? []),
                     description:
                         marker['description'] ?? 'No description available',
-                    travelTo: marker['travelTo'] ?? '',
+                    travelTo: marker['addressBusiness'] ?? '',
                     travelToPosition:
-                        marker['travelToPosition'] ?? const GeoPoint(0, 0),
+                        marker['positionBusiness'] ?? const GeoPoint(0, 0),
                     email: marker['ownerEmail'],
-                    id: marker['id']);
+                    id: marker['id'],
+                    idBusiness: marker['idBusiness']);
               },
             ));
           } else {}
@@ -137,6 +139,7 @@ class _PasearState extends State<Pasear> {
     required travelToPosition,
     required email,
     required id,
+    idBusiness,
   }) {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -153,7 +156,8 @@ class _PasearState extends State<Pasear> {
             travelTo: travelTo,
             travelToPosition: travelToPosition,
             ownerEmail: email,
-            id: id);
+            id: id,
+            idBusiness: idBusiness);
       },
     );
   }

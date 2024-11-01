@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/services/fcm_services.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/services/twilio.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
 class PendingRequestsNotifications extends StatefulWidget {
@@ -25,7 +29,18 @@ class _PendingRequestsNotificationsState
     super.initState();
     _initializeEmail();
     _getLanguage();
+    generateFourDigitToken();
+    twilioService = twilioServiceKeys;
   }
+
+  void generateFourDigitToken() {
+    final random = Random();
+    int number = 1000 + random.nextInt(9000);
+    tokenKey = number.toString();
+  }
+
+  late final TwilioService twilioService;
+  String? tokenKey;
 
   void _getLanguage() async {
     lang = await getLanguage();
@@ -221,12 +236,20 @@ class _PendingRequestsNotificationsState
                           toastF(lang! ? 'Aceptado' : 'Accepted');
                           setState(() {});
                           for (var data in pendingRequestsData) {
-                            sendNotificationsToUserDevices(
+                            await sendNotificationsToUserDevices(
                                 data['emailUser'],
                                 'PET WALKS Status, su solicitud de paseo ha sido rechazada',
                                 'Te invitamos a buscar mas paseos con nuestra aplicacion!');
-
+                            String phone =
+                                await getUserPhone(data['emailUser']);
+                            String message = lang!
+                                ? 'PET WALKS Estatus, su solicitud de paseo ha sido rechazada\n Te invitamos a buscar mas paseos con nuestra aplicacion!'
+                                : 'PET WALKS Status, your walk request has been rejected\nWe invite you to search for more walks with our application!';
+                            twilioService.sendSms(phone, message);
                             deletePreHistory(data['requestId']);
+                            setState(() {
+                              pendingRequestsData.removeAt(index);
+                            });
                           }
                           pendingRequestsData.clear();
                           setState(() {
@@ -236,6 +259,11 @@ class _PendingRequestsNotificationsState
                               manageStartWalkInfo['emailWalker'],
                               'PET WALKS Status, su solicitud de paseo ha sido aceptada',
                               'Revise la informacion para realizar el paseo de manera correcta');
+                          String phone = await getUserPhone(data['emailUser']);
+                          String message = lang!
+                              ? 'PET WALKS Estatus, su solicitud de paseo ha sido aceptada\n Revise la informacion para realizar el paseo de manera correcta'
+                              : 'PET WALKS Status, your walk request has been accepted\n Review the information to carry out the walk correctly';
+                          twilioService.sendSms(phone, message);
                           //!disable walk
                           disableWalk(manageStartWalkInfo['idWalk']);
                         } catch (e) {
@@ -257,15 +285,22 @@ class _PendingRequestsNotificationsState
                     ),
                     TextButton(
                       onPressed: () async {
+                        Map<String, dynamic> manageStartWalkInfo =
+                            await managePreHistory(requestId);
+                        await sendNotificationsToUserDevices(
+                            manageStartWalkInfo['emailWalker'],
+                            'PET WALKS Status, su solicitud de paseo ha sido rechazada',
+                            'Te invitamos a buscar mas paseos con nuestra aplicacion!');
+                        String phone = await getUserPhone(data['emailUser']);
+                        String message = lang!
+                            ? 'PET WALKS Estatus, su solicitud de paseo ha sido rechazada\n Te invitamos a buscar mas paseos con nuestra aplicacion!'
+                            : 'PET WALKS Status, your walk request has been rejected\nWe invite you to search for more walks with our application!';
+                        twilioService.sendSms(phone, message);
                         toastF(lang! ? 'Denegado' : 'Denied');
                         deletePreHistory(requestId);
                         setState(() {
                           pendingRequestsData.removeAt(index);
                         });
-                        await sendNotificationsToUserDevices(
-                            pendingRequestsData[index]['emailUser'],
-                            'PET WALKS Status, su solicitud de paseo ha sido rechazada',
-                            'Te invitamos a buscar mas paseos con nuestra aplicacion!');
                       },
                       child: Column(
                         children: [

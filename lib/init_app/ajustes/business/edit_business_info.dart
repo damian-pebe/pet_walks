@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
+import 'dart:math';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,9 +9,11 @@ import 'package:path/path.dart' as path;
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/pages/opciones/home/editHome.dart';
 import 'package:petwalks_app/pages/opciones/home/selectHome.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
+import 'package:petwalks_app/services/twilio.dart';
 import 'package:petwalks_app/widgets/box.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
@@ -89,10 +92,19 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
 
     carrouselGet();
     _getLanguage();
+    generateFourDigitToken();
+    twilioService = twilioServiceKeys;
   }
 
-  String inTokenPhone = '1234';
-  String tokenSent = '';
+  void generateFourDigitToken() {
+    final random = Random();
+    int number = 1000 + random.nextInt(9000);
+    tokenKey = number.toString();
+  }
+
+  late final TwilioService twilioService;
+  String? tokenKey;
+
   bool verificationModule = false;
   bool? lang;
   void _getLanguage() async {
@@ -214,7 +226,10 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
             ),
             OutlinedButton(
               onPressed: () {
-                // Send token
+                String phone = phoneController.text;
+                String message =
+                    'PET WALKS, Token de verificacion para: ${phoneController.text}\nSu token de verificacion es: $tokenKey';
+                twilioService.sendSms(phone, message);
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(
@@ -264,7 +279,7 @@ class _EditInfoBusiness extends State<EditInfoBusiness> {
   bool _isVerified = true;
 
   bool sameToken(String sent) {
-    return inTokenPhone == sent;
+    return tokenKey == sent;
   }
 
   bool verifyFieldsName() {

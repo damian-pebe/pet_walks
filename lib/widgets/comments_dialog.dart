@@ -111,25 +111,6 @@ class _CommentsDialogState extends State<CommentsDialog> {
                                     ),
                                   ),
                                 ),
-                                Column(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.report,
-                                        color: Color(0xFFBB1408),
-                                        size: 28,
-                                      ),
-                                      onPressed: () {},
-                                    ),
-                                    Text(
-                                      lang! ? 'Denunciar' : 'Report',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.redAccent,
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ],
                             ),
                             Divider(
