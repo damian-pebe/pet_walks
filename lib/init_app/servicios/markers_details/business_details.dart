@@ -160,7 +160,7 @@ class _BusinessDetailsState extends State<BusinessDetails> {
                               MaterialPageRoute(
                                 builder: (context) => Reports(
                                   lang: lang ?? false,
-                                  options: [
+                                  options: const [
                                     'False information/Falsa informacion',
                                     'Different content/Contenido no referente al tema',
                                   ],

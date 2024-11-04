@@ -128,6 +128,7 @@ class _ReportsState extends State<Reports> {
                     widget.priority);
 
                 Navigator.push(
+                  // ignore: use_build_context_synchronously
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatView(chatId: idChat),

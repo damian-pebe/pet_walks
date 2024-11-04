@@ -20,20 +20,20 @@ class TwilioService {
       Uri.parse(url),
       headers: {
         'Authorization':
-            'Basic ' + base64Encode(utf8.encode('$accountSid:$authToken')),
+            'Basic ${base64Encode(utf8.encode('$accountSid:$authToken'))}',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: {
         'From': fromNumber,
-        'To': '+$to',
+        'To': '+52$to',
         'Body': message,
       },
     );
 
     if (response.statusCode == 201) {
-      print('SMS sent successfully!');
+      // print('SMS sent successfully!');
     } else {
-      print('Failed to send SMS: ${response.body}');
+      // print('Failed to send SMS: ${response.body}');
     }
   }
 }

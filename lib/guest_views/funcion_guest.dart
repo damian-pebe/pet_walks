@@ -5,7 +5,7 @@ import 'package:petwalks_app/guest_views/blur_screen_community.dart';
 import 'package:petwalks_app/guest_views/blur_screen_history.dart';
 import 'package:petwalks_app/guest_views/blur_screen_services.dart';
 import 'package:petwalks_app/guest_views/blur_screen_settings.dart';
-import 'package:petwalks_app/init_app/open_map.dart';
+import 'package:petwalks_app/guest_views/guest_map.dart';
 
 class FuncionGuest extends StatefulWidget {
   const FuncionGuest({super.key});
@@ -17,7 +17,7 @@ class FuncionGuest extends StatefulWidget {
 class _FuncionGuestState extends State<FuncionGuest> {
   int _pageIndex = 0;
   final List<Widget> _pages = [
-    const OpenMap(),
+    const OpenMapGuest(),
     const BlurScreenServices(),
     const BlurScreenHistory(),
     const BlurScreenPosts(),

@@ -10,7 +10,8 @@ import 'package:petwalks_app/init_app/services.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 
 class Funcion extends StatefulWidget {
-  const Funcion({super.key});
+  final int? index;
+  const Funcion({this.index, super.key});
 
   @override
   State<Funcion> createState() => _FuncionState();
@@ -21,6 +22,7 @@ class _FuncionState extends State<Funcion> {
   void initState() {
     super.initState();
     _getLanguage();
+    index();
   }
 
   bool? lang;
@@ -28,6 +30,14 @@ class _FuncionState extends State<Funcion> {
     lang = await getLanguage();
     if (mounted) setState(() {});
     await getAndAddTokenToArray();
+  }
+
+  index() {
+    if (widget.index != null) {
+      setState(() {
+        _pageIndex = widget.index!;
+      });
+    }
   }
 
   int _pageIndex = 0;
@@ -92,6 +102,7 @@ class _FuncionState extends State<Funcion> {
                 top: -20,
                 elevation: 30,
                 style: TabStyle.reactCircle,
+                initialActiveIndex: _pageIndex,
                 onTap: (index) {
                   setState(() {
                     _pageIndex = index;

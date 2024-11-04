@@ -1,8 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:petwalks_app/init_app/function.dart';
 import 'package:petwalks_app/init_app/servicios/about_us.dart';
 import 'package:petwalks_app/init_app/servicios/agreement.dart';
 import 'package:petwalks_app/init_app/servicios/edit_user.dart';
@@ -53,7 +52,7 @@ class _AjustesState extends State<Ajustes> {
               : SingleChildScrollView(
                   child: Column(
                     children: [
-                      titleW(title: lang! ? 'Configuracion' : 'Configuration'),
+                      titleW(title: lang! ? 'Configuracion' : 'Settings'),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 26.0),
                         child: Center(
@@ -106,20 +105,20 @@ class _AjustesState extends State<Ajustes> {
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: () {
-                                      lang! == true
-                                          ? updateLanguage(false)
-                                          : updateLanguage(true);
+                                    onPressed: () async {
+                                      nav() {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Funcion(index: 4),
+                                          ),
+                                        );
+                                      }
 
-                                      setState(() {
-                                        _getLanguage();
+                                      await updateLanguage(!lang!).then((_) {
+                                        nav();
                                       });
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const MainApp(),
-                                        ),
-                                      );
                                     },
                                     child: SizedBox(
                                       height: 40,

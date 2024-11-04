@@ -219,6 +219,14 @@ class _BusinessDetailsState extends State<BusinessDetails> {
     id = await findMatchingBusinessId(widget.address);
   }
 
+  bool lang = true;
+  Future<void> getLang() async {
+    bool savedLang = await getLanguagePreference();
+    setState(() {
+      lang = savedLang;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -271,7 +279,11 @@ class _BusinessDetailsState extends State<BusinessDetails> {
               children: [
                 TextButton(
                   onPressed: () {
-                    toastF('Firt, Log In');
+                    toastF(
+                      lang
+                          ? 'Inicia sesion para utilizar esta funcion'
+                          : 'Log in to use this function',
+                    );
                   },
                   child: const Text(
                     "Comments",

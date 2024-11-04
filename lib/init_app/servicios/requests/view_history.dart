@@ -220,7 +220,7 @@ class _ViewRequestState extends State<ViewRequest> {
                               MaterialPageRoute(
                                 builder: (context) => Reports(
                                   lang: lang ?? false,
-                                  options: [
+                                  options: const [
                                     'Urgent/Urgente',
                                     'Attack/Agresion',
                                     'Tief/Robo',

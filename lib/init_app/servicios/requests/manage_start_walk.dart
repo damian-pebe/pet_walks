@@ -5,6 +5,8 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/services/fcm_services.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
@@ -252,8 +254,24 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
 
                                         bool status = await getWalkerStatus(
                                             requestId, true);
+                                        LatLng? walkerPosition =
+                                            await getWalkerPosition(
+                                                requestId, true);
+                                        Position ownerPosition =
+                                            await Geolocator.getCurrentPosition(
+                                                desiredAccuracy:
+                                                    LocationAccuracy.high);
+                                        double distanceInMeters =
+                                            Geolocator.distanceBetween(
+                                          ownerPosition.latitude,
+                                          ownerPosition.longitude,
+                                          walkerPosition!.latitude,
+                                          walkerPosition.longitude,
+                                        );
+
                                         if (owner) {
-                                          if (status) {
+                                          if (status &&
+                                              distanceInMeters < 400) {
                                             newHistoryWalk(
                                                 manageStartWalkInfo['idWalk'],
                                                 manageStartWalkInfo[
@@ -292,7 +310,6 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                             String? timeToEnd =
                                                 walkIfno['walkTime'];
                                             if (timeToEnd != null) {
-                                              //*just in the case its a walk and not a travel
                                               int timeToEndInt =
                                                   int.parse(timeToEnd);
                                               int timeHalf = timeToEndInt ~/ 2;
@@ -315,8 +332,9 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                             }
                                           } else {
                                             updateOwner(false, requestId, true);
-                                            toastF(
-                                                'both users need to be ready');
+                                            toastF(lang!
+                                                ? 'Ambos usuarios deben estar listos y cerca'
+                                                : 'both users need to be ready and close to each other');
                                           }
                                         } else {
                                           updateWalker(true, requestId, true);

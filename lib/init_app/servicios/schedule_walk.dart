@@ -487,7 +487,7 @@ class _ProgramarPaseo extends State<ProgramarPaseo> {
                                           endDate = result['end'];
                                           mode = 'startEnd';
                                         }
-                                      } else {}
+                                      }
                                     },
                                     style: OutlinedButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(

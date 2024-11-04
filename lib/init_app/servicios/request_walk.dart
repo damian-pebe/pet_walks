@@ -26,7 +26,7 @@ class SolicitarPaseo extends StatefulWidget {
 class _SolicitarPaseoState extends State<SolicitarPaseo> {
   bool mascotas = true;
   bool domicilio = true;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   TextEditingController timeShowController = TextEditingController(text: "1");
   TextEditingController homeController = TextEditingController(text: "");
   String payMethod = 'Efectivo';

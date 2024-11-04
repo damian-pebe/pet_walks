@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
@@ -225,8 +227,22 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                         const Duration(seconds: 10));
                                     bool status =
                                         await getWalkerStatus(requestId, false);
+                                    LatLng? walkerPosition =
+                                        await getWalkerPosition(
+                                            requestId, true);
+                                    Position ownerPosition =
+                                        await Geolocator.getCurrentPosition(
+                                            desiredAccuracy:
+                                                LocationAccuracy.high);
+                                    double distanceInMeters =
+                                        Geolocator.distanceBetween(
+                                      ownerPosition.latitude,
+                                      ownerPosition.longitude,
+                                      walkerPosition!.latitude,
+                                      walkerPosition.longitude,
+                                    );
                                     if (owner) {
-                                      if (status) {
+                                      if (status && distanceInMeters < 400) {
                                         updateHistory(
                                             manageEndWalkInfo['idHistory'],
                                             'done',
@@ -243,8 +259,8 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                       } else {
                                         updateOwner(false, requestId, false);
                                         toastF(lang!
-                                            ? 'Ambos usuarios deben estar listos'
-                                            : 'Both users need to be ready');
+                                            ? 'Ambos usuarios deben estar listos y cerca'
+                                            : 'both users need to be ready and close to each other');
                                       }
                                     } else {
                                       updateWalker(true, requestId, false);

@@ -905,7 +905,7 @@ Future<LatLng?> getLatLngFromAddress(String address) async {
     final location = locations.first;
     return LatLng(location.latitude, location.longitude);
   }
-  return null; // Return null if the address cannot be converted to LatLng
+  return null;
 }
 
 Future<String> newPet(
@@ -1179,17 +1179,14 @@ Future<bool> getOwnerStatus(String id, bool col) async {
 
   DocumentSnapshot doc = await db.collection(collection).doc(id).get();
 
-  // Check if the document exists and has data
   if (doc.exists && doc.data() != null) {
     final data = doc.data() as Map<String, dynamic>;
 
-    // Check if the 'ownerStatus' field is available and equals 'ready'
     if (data['ownerStatus'] == 'ready') {
       return true;
     }
   }
 
-  // Return false if the conditions are not met
   return false;
 }
 
@@ -1204,6 +1201,15 @@ Future<bool> getWalkerStatus(String id, bool col) async {
   }
 
   return false;
+}
+
+Future<LatLng?> getWalkerPosition(String id, bool col) async {
+  String collection = col ? "startWalkHistory" : "endWalkHistory";
+
+  DocumentSnapshot doc = await db.collection(collection).doc(id).get();
+
+  final data = doc.data() as Map<String, dynamic>;
+  return data['walkerPosition'];
 }
 
 Future<void> deletePreHistory(requestId) async {

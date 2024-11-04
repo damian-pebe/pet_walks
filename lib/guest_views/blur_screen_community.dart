@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petwalks_app/pages/opciones/sign_up.dart';
+import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
@@ -15,6 +16,14 @@ class BlurScreenPosts extends StatefulWidget {
 }
 
 class _BlurScreenState extends State<BlurScreenPosts> {
+  bool lang = true;
+  Future<void> getLang() async {
+    bool savedLang = await getLanguagePreference();
+    setState(() {
+      lang = savedLang;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,8 +48,11 @@ class _BlurScreenState extends State<BlurScreenPosts> {
                       builder: (context) => const Sign_Up(),
                     ),
                   ),
-                  child: const Text('Log in to use this function',
-                      style: TextStyle(
+                  child: Text(
+                      lang
+                          ? 'Inicia sesion para utilizar esta funcion'
+                          : 'Log in to use this function',
+                      style: const TextStyle(
                           decoration: TextDecoration.underline,
                           fontSize: 18,
                           color: Colors.black)),

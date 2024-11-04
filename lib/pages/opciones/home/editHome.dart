@@ -3,12 +3,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'dart:convert';
 import 'package:petwalks_app/widgets/titleW.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:petwalks_app/widgets/toast.dart';
 
 class EditHome extends StatefulWidget {
   final String? homeToEdit;
@@ -135,10 +138,44 @@ class _EditHomeState extends State<EditHome> {
                 height: 50,
               ),
               OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context, {
-                    'domicilio': homeController.text,
-                  });
+                onPressed: () async {
+                  nav() {
+                    Navigator.pop(context, {
+                      'domicilio': homeController.text,
+                    });
+                  }
+
+                  LatLng? selected =
+                      await getLatLngFromAddress(widget.homeToEdit!);
+                  LatLng? edited =
+                      await getLatLngFromAddress(homeController.text);
+                  double distanceInMeters;
+                  if (selected != null && edited != null) {
+                    distanceInMeters = Geolocator.distanceBetween(
+                      selected.latitude,
+                      selected.longitude,
+                      edited.latitude,
+                      edited.longitude,
+                    );
+                  } else {
+                    distanceInMeters = -1;
+                  }
+                  if (distanceInMeters > 0) {
+                    if (distanceInMeters > 400) {
+                      toastF(lang
+                          ? 'El domicilio editado esta demaciado lejos del seleccionado, vuelva a intentar'
+                          : 'The edited address is too far from the selected one, try again');
+                    } else {
+                      toastF(lang
+                          ? 'Domicilio editado con exito'
+                          : 'Address edited successfully');
+                      nav();
+                    }
+                  } else {
+                    toastF(lang
+                        ? 'No se puede editar este domicilio'
+                        : 'Cannot edit this address');
+                  }
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
