@@ -261,13 +261,17 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                             await Geolocator.getCurrentPosition(
                                                 desiredAccuracy:
                                                     LocationAccuracy.high);
-                                        double distanceInMeters =
-                                            Geolocator.distanceBetween(
-                                          ownerPosition.latitude,
-                                          ownerPosition.longitude,
-                                          walkerPosition!.latitude,
-                                          walkerPosition.longitude,
-                                        );
+                                        double distanceInMeters = 0;
+
+                                        if (walkerPosition != null) {
+                                          distanceInMeters =
+                                              Geolocator.distanceBetween(
+                                            ownerPosition.latitude,
+                                            ownerPosition.longitude,
+                                            walkerPosition.latitude,
+                                            walkerPosition.longitude,
+                                          );
+                                        }
 
                                         if (owner) {
                                           if (status &&

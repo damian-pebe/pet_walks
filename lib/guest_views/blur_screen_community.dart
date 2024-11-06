@@ -183,8 +183,8 @@ class _AddPostState extends State<AddPostBlur> {
                       SizedBox(
                         width: 250,
                         child: TextField(
-                          controller: descriptionController,
-                          maxLines: 6,
+                            controller: descriptionController,
+                            maxLines: 6,
                           keyboardType: TextInputType.multiline,
                         ),
                       ),

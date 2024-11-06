@@ -38,18 +38,24 @@ class _SocialNetwork extends State<SocialNetwork> {
     if (idsAddress.isNotEmpty) {
       String addressToCheck = idsAddress.first['address'];
       bool premium = idsAddress.first['premium'];
+      String type = idsAddress.first['type'];
 
       List<String> idsWithSameAddress = [];
-      for (var element in idsAddress) {
-        if (element['address'] == addressToCheck) {
-          idsWithSameAddress.add(element['id']);
+      if (filterType == '') {
+        for (var element in idsAddress) {
+          if (element['address'] == addressToCheck) {
+            idsWithSameAddress.add(element['id']);
+          }
+        }
+      } else {
+        for (var element in idsAddress) {
+          if (element['address'] == addressToCheck && type == filterType) {
+            idsWithSameAddress.add(element['id']);
+          }
         }
       }
-
       idsAddress.removeWhere((element) => element['address'] == addressToCheck);
-
       _addMarker(idsWithSameAddress, addressToCheck, premium);
-
       if (idsAddress.isNotEmpty) {
         await _getPosts(idsAddress);
       }
@@ -60,7 +66,7 @@ class _SocialNetwork extends State<SocialNetwork> {
       String addressToCheck, bool premium) async {
     LatLng? position = await getLatLngFromAddress(addressToCheck);
 
-    if (position != null) {
+    if (position != null && idsWithSameAddress.isNotEmpty) {
       markers.add(Marker(
         markerId: MarkerId(
           lang! ? 'Publicacion' : 'Post',
@@ -169,6 +175,143 @@ class _SocialNetwork extends State<SocialNetwork> {
   }
 
   bool _isTypeWindowVisible = false;
+
+  String filterType = "";
+
+  dialog() {
+    showModalBottomSheet(
+      backgroundColor: const Color.fromRGBO(250, 244, 229, 1),
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Text(
+                lang! ? 'Filtrar publicaciones' : 'Filter posts',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const Divider(),
+            Column(
+              children: [
+                const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          filterType = "Extravio";
+                        });
+
+                        Navigator.pop(context);
+                        dialog();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: filterType == "Extravio"
+                              ? Colors.black
+                              : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      child: const Text(
+                        'Extravio',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          filterType = "Adopcion";
+                        });
+                        Navigator.pop(context);
+                        dialog();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: filterType == "Adopcion"
+                              ? Colors.black
+                              : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      child: const Text(
+                        'Adopcion',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 80.0),
+                  child: OutlinedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        markers.clear();
+                        _arrayPost();
+                        setState(() {});
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Text(
+                            lang! ? 'Filtrar' : 'Filter',
+                            style: const TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          const Icon(
+                            Icons.settings_applications_rounded,
+                            size: 20,
+                            color: Colors.black,
+                          ),
+                        ],
+                      )),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                const SizedBox(height: 15),
+                OutlinedButton(
+                  onPressed: () {
+                    filterType = "";
+
+                    Navigator.pop(context);
+                    dialog();
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.delete_forever_rounded,
+                        size: 20,
+                        color: Colors.black,
+                      ),
+                      Text(
+                        lang! ? 'Quitar' : 'Remove',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -470,6 +613,29 @@ class _SocialNetwork extends State<SocialNetwork> {
                       ),
                     ),
                   ),
+                Positioned(
+                  top: 20,
+                  right: 20,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color.fromRGBO(169, 200, 149, .2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: IconButton(
+                      color: Colors.black,
+                      iconSize: 30,
+                      onPressed: () {
+                        dialog();
+                      },
+                      icon: Column(
+                        children: [
+                          const Icon(Icons.settings),
+                          Text(lang! ? 'Filtros' : 'Filters')
+                        ],
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
     );

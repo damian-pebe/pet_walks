@@ -340,6 +340,7 @@ Future<Set<Map<String, dynamic>>> getPost() async {
         'id': element.id,
         'address': element['address'],
         'premium': element['premium'],
+        'type': element['type'],
       });
     }
   }
@@ -397,7 +398,7 @@ Future<void> updateServices(String email, List? services) async {
         .collection("users")
         .doc(user.id)
         .update({"activeServices": services});
-  } else {}
+  }
 }
 
 Future<bool> getLanguage() async {
@@ -1600,4 +1601,32 @@ Future<String> fetchEmailByIdBusiness(String idBusiness) async {
   var doc = userDoc.docs.first;
   String? email = doc['email'];
   return email ?? '';
+}
+
+Future<void> addNewDistribution(bool type) async {
+  //*type true = travel
+  Timestamp today = Timestamp.now();
+
+  DateTime onlyDay =
+      DateTime(today.toDate().year, today.toDate().month, today.toDate().day);
+
+  String campo = type ? 'travel' : 'walk';
+
+  var userDoc = await db
+      .collection("distributionWalks")
+      .where("t", isEqualTo: onlyDay)
+      .get();
+
+  if (userDoc.docs.isNotEmpty) {
+    var user = userDoc.docs.first;
+    int c = user[campo];
+
+    await db.collection("walksDistribution").doc(user.id).update({
+      campo: c + 1, // Increment the counter
+    });
+  } else {
+    await db
+        .collection("walksDistribution")
+        .add({"t": onlyDay, "travel": type ? 1 : 0, "walk": !type ? 1 : 0});
+  }
 }

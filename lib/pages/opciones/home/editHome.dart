@@ -141,7 +141,7 @@ class _EditHomeState extends State<EditHome> {
                 onPressed: () async {
                   nav() {
                     Navigator.pop(context, {
-                      'domicilio': homeController.text,
+                      'domicilio': widget.homeToEdit,
                     });
                   }
 

@@ -174,7 +174,7 @@ class _AgregarEmpresaState extends State<AgregarEmpresa> {
                     keyboardType: TextInputType.number,
                     controller: tokenController,
                     decoration: StyleTextField(
-                      lang! ? 'Telefono' : 'Phone number',
+                      'TOKEN',
                     ),
                   ),
                 ),

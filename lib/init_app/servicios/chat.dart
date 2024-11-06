@@ -12,6 +12,7 @@ import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:intl/intl.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
+import 'package:petwalks_app/widgets/video_preview_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ChatView extends StatefulWidget {
@@ -23,6 +24,22 @@ class ChatView extends StatefulWidget {
 }
 
 class _ChatViewState extends State<ChatView> {
+//VIDEOS
+  Future<String?> pickVideo() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.video);
+    if (result != null && result.files.first.size < 40 * 1024 * 1024) {
+      final videoFile = result.files.first;
+      final storageRef =
+          FirebaseStorage.instance.ref().child('videos/${videoFile.name}');
+      final uploadTask = await storageRef.putFile(File(videoFile.path!));
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
+    }
+
+    return null;
+  }
+
+  //IMAGES
   List<File> _imageFiles = [];
   List<String> _downloadUrls = [];
 
@@ -104,36 +121,43 @@ class _ChatViewState extends State<ChatView> {
     return url.contains(".doc") || url.endsWith(".docx");
   }
 
+  bool isVideo(String url) {
+    return url.toLowerCase().endsWith('.mp4');
+  }
+
   Widget buildFilePreview(String fileUrl) {
-    if (isPdf(fileUrl)) {
-      // PDF preview with icon
+    if (!isPdf(fileUrl)) {
       return GestureDetector(
-        onTap: () {
-          _launchFileUrl(fileUrl); // Open the PDF file
-        },
+        onTap: () => _launchFileUrl(fileUrl),
+        child: const Column(
+          children: [
+            Icon(Icons.play_circle_outline, size: 50, color: Colors.blue),
+            Text('Reproducir Video'),
+          ],
+        ),
+      );
+    } else if (isPdf(fileUrl)) {
+      return GestureDetector(
+        onTap: () => _launchFileUrl(fileUrl),
         child: const Column(
           children: [
             Icon(Icons.picture_as_pdf, size: 50, color: Colors.red),
-            Text('Open PDF'),
+            Text('Abrir PDF'),
           ],
         ),
       );
     } else if (isWordDoc(fileUrl)) {
-      // Word document preview with icon
       return GestureDetector(
-        onTap: () {
-          _launchFileUrl(fileUrl); // Open the Word file
-        },
+        onTap: () => _launchFileUrl(fileUrl),
         child: const Column(
           children: [
             Icon(Icons.description, size: 50, color: Colors.blue),
-            Text('Open Word Document'),
+            Text('Abrir Documento Word'),
           ],
         ),
       );
     } else {
-      // Fallback for unsupported file types
-      return const Text('error');
+      return const Text('Tipo de archivo no soportado');
     }
   }
 
@@ -226,7 +250,7 @@ class _ChatViewState extends State<ChatView> {
                             children: [
                               if (message['m'] != null)
                                 Text(
-                                  message['m'], // Message content
+                                  message['m'],
                                   style: const TextStyle(fontSize: 16),
                                 ),
                               if (message['f'] != null)
@@ -238,6 +262,8 @@ class _ChatViewState extends State<ChatView> {
                                       .map((item) => item.toString())
                                       .toList(),
                                 ),
+                              if (message['v'] != null)
+                                buildFilePreview(message['v'].toString()),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -282,7 +308,7 @@ class _ChatViewState extends State<ChatView> {
                       if (fileUrl != null) {
                         //?file picker is not empty
                         updateChatWithNewMessage(widget.chatId, {
-                          "f": fileUrl, //just file not message
+                          "f": fileUrl,
                           "t": DateTime.now().millisecondsSinceEpoch,
                           "s": fetchedEmail,
                         });
@@ -297,6 +323,21 @@ class _ChatViewState extends State<ChatView> {
                       if (imagesUrl != null) {
                         updateChatWithNewMessage(widget.chatId, {
                           "i": imagesUrl,
+                          "t": DateTime.now().millisecondsSinceEpoch,
+                          "s": fetchedEmail,
+                        });
+                        messageController.clear();
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.video_collection_sharp,
+                        color: Colors.black),
+                    onPressed: () async {
+                      String? videoUrl = await pickVideo();
+                      if (videoUrl != null) {
+                        updateChatWithNewMessage(widget.chatId, {
+                          "v": videoUrl,
                           "t": DateTime.now().millisecondsSinceEpoch,
                           "s": fetchedEmail,
                         });

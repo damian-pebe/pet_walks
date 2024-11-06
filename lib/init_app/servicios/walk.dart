@@ -572,8 +572,8 @@ class _PasearState extends State<Pasear> {
                       },
                       icon: Column(
                         children: [
-                          const Icon(Icons.settings_applications_outlined),
-                          Text(lang! ? 'Filtrar paseos' : 'Filter walks')
+                          const Icon(Icons.settings),
+                          Text(lang! ? 'Filtros' : 'Filters')
                         ],
                       ),
                     ),

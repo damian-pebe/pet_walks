@@ -222,6 +222,8 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                     bool owner =
                                         manageEndWalkInfo['emailOwner'] ==
                                             email;
+                                    bool business =
+                                        manageEndWalkInfo['idBusiness'] == "";
                                     updateOwner(true, requestId, false);
                                     await Future.delayed(
                                         const Duration(seconds: 10));
@@ -229,18 +231,21 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                         await getWalkerStatus(requestId, false);
                                     LatLng? walkerPosition =
                                         await getWalkerPosition(
-                                            requestId, true);
+                                            requestId, false);
                                     Position ownerPosition =
                                         await Geolocator.getCurrentPosition(
                                             desiredAccuracy:
                                                 LocationAccuracy.high);
-                                    double distanceInMeters =
-                                        Geolocator.distanceBetween(
-                                      ownerPosition.latitude,
-                                      ownerPosition.longitude,
-                                      walkerPosition!.latitude,
-                                      walkerPosition.longitude,
-                                    );
+                                    double distanceInMeters = 0;
+                                    if (walkerPosition != null) {
+                                      distanceInMeters =
+                                          Geolocator.distanceBetween(
+                                        ownerPosition.latitude,
+                                        ownerPosition.longitude,
+                                        walkerPosition.latitude,
+                                        walkerPosition.longitude,
+                                      );
+                                    }
                                     if (owner) {
                                       if (status && distanceInMeters < 400) {
                                         updateHistory(
@@ -256,6 +261,7 @@ class _EndWalkManagementState extends State<EndWalkManagement> {
                                         setState(() {
                                           _fetchPendingRequests();
                                         });
+                                        await addNewDistribution(!business);
                                       } else {
                                         updateOwner(false, requestId, false);
                                         toastF(lang!

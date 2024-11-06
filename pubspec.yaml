@@ -45,7 +45,7 @@ dependencies:
   googleapis: 
   googleapis_auth: 
   win32: 5.8.0
-
+  video_player: ^2.9.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

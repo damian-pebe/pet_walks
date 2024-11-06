@@ -136,46 +136,46 @@ class _BusinessDetailsState extends State<BusinessDetails> {
                         ),
                       ),
                       const SizedBox(width: 50),
-                      IconButton(
-                        onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TravelTo(
-                                  address: widget.address,
-                                  geoPoint: widget.geoPoint,
-                                  id: widget.id),
-                            )),
-                        icon: const Icon(
-                          Icons.flight_takeoff,
-                          size: 35,
-                        ),
-                      ),
                       if (widget.category != 'Mascotienda/Pet store' &&
                           widget.category != 'Tienda comida/Pet food store' &&
                           widget.category != 'Otros/Others')
                         IconButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
+                          onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Reports(
-                                  lang: lang ?? false,
-                                  options: const [
-                                    'False information/Falsa informacion',
-                                    'Different content/Contenido no referente al tema',
-                                  ],
-                                  reported: reported!,
-                                  sender: sender!,
-                                  priority: 'low',
-                                ),
-                              ),
-                            );
-                          },
+                                builder: (context) => TravelTo(
+                                    address: widget.address,
+                                    geoPoint: widget.geoPoint,
+                                    id: widget.id),
+                              )),
                           icon: const Icon(
-                            Icons.report_outlined,
+                            Icons.flight_takeoff,
                             size: 35,
                           ),
                         ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Reports(
+                                lang: lang ?? false,
+                                options: const [
+                                  'False information/Falsa informacion',
+                                  'Different content/Contenido no referente al tema',
+                                ],
+                                reported: reported!,
+                                sender: sender!,
+                                priority: 'low',
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.report_outlined,
+                          size: 35,
+                        ),
+                      ),
                     ],
                   ),
                   const Divider(),
