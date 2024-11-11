@@ -12,7 +12,6 @@ import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:intl/intl.dart';
 import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
-import 'package:petwalks_app/widgets/video_preview_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ChatView extends StatefulWidget {

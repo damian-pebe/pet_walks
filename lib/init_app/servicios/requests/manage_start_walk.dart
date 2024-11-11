@@ -42,8 +42,18 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
         : 'PET WALKS Walking time\n There are 5 minutes left to finish the trip, we recommend that you be prepared to finish the trip';
     twilioService.sendSms(phone, message);
   }
-  //!TIMERS
 
+  void handleThief(String email) async {
+    await sendNotificationsToUserDevices(email, 'PET WALKS Tiempo de paseo',
+        'Su viaje debio haber terminado hace 1 hora, porfavor revise el estatus de su viaje en historial, si ya recibio a su mascota y no termino el viaje puede forzar el fin, si no, por favor reporte al usuario desde historial');
+    String phone = await getUserPhone(email);
+    String message = lang!
+        ? 'PET WALKS Estatus de su viaje\n Su viaje debio haber terminado hace 1 hora, porfavor revise el estatus de su viaje en historial, si ya recibio a su mascota y no termino el viaje puede forzar el fin, si no, por favor reporte al usuario desde historial'
+        : 'PET WALKS Status of your trip\nYour trip should have ended 1 hour ago, please check the status of your trip in history, if you have already received your pet and have not finished the trip you can force the end, if not, please report to the user from history';
+    twilioService.sendSms(phone, message);
+  }
+
+  //!TIMERS\
   String? email;
   Map<String, bool> _loadingStates = {};
   List<DocumentSnapshot> _pendingRequests = [];
@@ -276,13 +286,6 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
                                         if (owner) {
                                           if (status &&
                                               distanceInMeters < 400) {
-                                            newHistoryWalk(
-                                                manageStartWalkInfo['idWalk'],
-                                                manageStartWalkInfo[
-                                                    'emailOwner'],
-                                                manageStartWalkInfo[
-                                                    'emailWalker'],
-                                                walkIfno['idBusiness']);
                                             await newEndWalk(
                                                 manageStartWalkInfo['idWalk'],
                                                 manageStartWalkInfo[
@@ -313,27 +316,33 @@ class _StartWalkManagementState extends State<StartWalkManagement> {
 
                                             String? timeToEnd =
                                                 walkIfno['walkTime'];
-                                            if (timeToEnd != null) {
-                                              int timeToEndInt =
-                                                  int.parse(timeToEnd);
-                                              int timeHalf = timeToEndInt ~/ 2;
-                                              int timeEnd = timeToEndInt - 5;
+                                            int timeToEndInt =
+                                                int.parse(timeToEnd ?? '15');
+                                            int timeHalf = timeToEndInt ~/ 2;
+                                            int timeEnd = timeToEndInt - 5;
+                                            int thief = timeToEndInt + 60;
+                                            //!change seconds to minutes for deploy mode
+                                            await Future.delayed(
+                                                Duration(seconds: timeHalf));
 
-                                              Timer(Duration(minutes: timeHalf),
-                                                  () {
-                                                handleHalfTime(
-                                                  manageStartWalkInfo[
-                                                      'emailWalker'],
-                                                );
-                                              });
-                                              Timer(Duration(minutes: timeEnd),
-                                                  () {
-                                                handleTimeout(
-                                                  manageStartWalkInfo[
-                                                      'emailWalker'],
-                                                );
-                                              });
-                                            }
+                                            handleHalfTime(manageStartWalkInfo[
+                                                'emailWalker']);
+                                            handleHalfTime(manageStartWalkInfo[
+                                                'emailOwner']);
+
+                                            await Future.delayed(
+                                                Duration(seconds: timeEnd));
+
+                                            handleTimeout(manageStartWalkInfo[
+                                                'emailWalker']);
+                                            handleTimeout(manageStartWalkInfo[
+                                                'emailOwner']);
+
+                                            await Future.delayed(
+                                                Duration(seconds: thief));
+
+                                            handleThief(manageStartWalkInfo[
+                                                'emailOwner']);
                                           } else {
                                             updateOwner(false, requestId, true);
                                             toastF(lang!

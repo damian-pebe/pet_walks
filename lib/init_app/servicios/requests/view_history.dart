@@ -84,12 +84,17 @@ class _ViewRequestState extends State<ViewRequest> {
     email = await fetchUserEmail();
   }
 
+  DateTime thief = DateTime.now().subtract(const Duration(hours: 1));
+  Timestamp identifierNow = Timestamp.now();
   @override
   void initState() {
     super.initState();
     _refreshData();
     initEmail();
     _getLanguage();
+    if (widget.timeStart != null) {
+      thief = widget.timeStart!.toDate().add(const Duration(minutes: 60));
+    }
   }
 
   String? reported;
@@ -202,7 +207,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                   }
                                 }
                               } catch (e) {
-                                // Handle error (show a message, log it, etc.)
+                                // Handle error but it works so i dont need it now
                               }
                             },
                             icon: const Icon(
@@ -223,7 +228,6 @@ class _ViewRequestState extends State<ViewRequest> {
                                   options: const [
                                     'Urgent/Urgente',
                                     'Attack/Agresion',
-                                    'Tief/Robo',
                                     'Doubt question/Duda sobre robo',
                                     'Incorrect Payments/Pagos Incorrectos'
                                   ],
@@ -242,6 +246,57 @@ class _ViewRequestState extends State<ViewRequest> {
                         ))
                   ],
                 ),
+                if (identifierNow.toDate().isAfter(thief)) const Divider(),
+                if (identifierNow.toDate().isAfter(thief))
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Column(
+                      children: [
+                        Text(
+                            lang!
+                                ? 'Si su viaje ya concluyo y no lo termino, puede finalizar, si no es asi, reportelo porfavor.'
+                                : 'If your trip has already concluded and you have not finished it, you can end it, if not, report it please.',
+                            style: _textStyle),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            OutlinedButton(
+                                onPressed: () {},
+                                style: customOutlinedButtonStyleGreen(),
+                                child: Text(lang! ? 'Forzar fin' : 'Force end',
+                                    style: _titleStyle)),
+                            OutlinedButton(
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Reports(
+                                        lang: lang ?? false,
+                                        options: const [
+                                          'Tief/Robo',
+                                        ],
+                                        reported: reported!,
+                                        sender: sender!,
+                                        priority: 'high',
+                                      ),
+                                    ),
+                                  );
+                                },
+                                style: customOutlinedButtonStyleGreen(),
+                                child: Text(
+                                    lang!
+                                        ? 'Reportar por robo'
+                                        : 'Report thief',
+                                    style: _titleStyle)),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 5),
                 const Divider(),
                 Expanded(
                   child: SingleChildScrollView(
@@ -416,7 +471,6 @@ class _ViewRequestState extends State<ViewRequest> {
                                 const SizedBox(
                                   height: 5,
                                 ),
-                                const SizedBox(height: 5),
                                 Text(
                                     lang!
                                         ? 'Domicilio: ${info['address'] ?? ''}'
@@ -475,7 +529,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                       },
                                     ),
                                   ],
-                                )
+                                ),
                               ],
                             );
                           },

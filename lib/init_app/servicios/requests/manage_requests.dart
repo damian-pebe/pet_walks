@@ -235,10 +235,22 @@ class _PendingRequestsNotificationsState
                               id);
                           toastF(lang! ? 'Aceptado' : 'Accepted');
                           setState(() {});
+                          await sendNotificationsToUserDevices(
+                              manageStartWalkInfo['emailWalker'],
+                              'PET WALKS Status, su solicitud de paseo ha sido aceptada',
+                              'Revise la informacion para realizar el paseo de manera correcta');
+                          String phone = await getUserPhone(
+                              manageStartWalkInfo['emailWalker']);
+                          String message = lang!
+                              ? 'PET WALKS Estatus, su solicitud de paseo ha sido aceptada\n Revise la informacion para realizar el paseo de manera correcta'
+                              : 'PET WALKS Status, your walk request has been accepted\n Review the information to carry out the walk correctly';
+                          twilioService.sendSms(phone, message);
+                          deletePreHistory(requestId);
+
                           for (var data in pendingRequestsData) {
                             await sendNotificationsToUserDevices(
                                 data['emailUser'],
-                                'PET WALKS Status, su solicitud de paseo ha sido rechazada',
+                                'PET WALKS Status, su solicitud de paseo ha sido aceptada',
                                 'Te invitamos a buscar mas paseos con nuestra aplicacion!');
                             String phone =
                                 await getUserPhone(data['emailUser']);
@@ -255,15 +267,7 @@ class _PendingRequestsNotificationsState
                           setState(() {
                             _fetchAndShowNotifications(email!);
                           });
-                          await sendNotificationsToUserDevices(
-                              manageStartWalkInfo['emailWalker'],
-                              'PET WALKS Status, su solicitud de paseo ha sido aceptada',
-                              'Revise la informacion para realizar el paseo de manera correcta');
-                          String phone = await getUserPhone(data['emailUser']);
-                          String message = lang!
-                              ? 'PET WALKS Estatus, su solicitud de paseo ha sido aceptada\n Revise la informacion para realizar el paseo de manera correcta'
-                              : 'PET WALKS Status, your walk request has been accepted\n Review the information to carry out the walk correctly';
-                          twilioService.sendSms(phone, message);
+
                           //!disable walk
                           disableWalk(manageStartWalkInfo['idWalk']);
                         } catch (e) {

@@ -8,7 +8,6 @@ import 'package:petwalks_app/init_app/servicios/edit_user.dart';
 import 'package:petwalks_app/init_app/ajustes/pets.dart';
 import 'package:petwalks_app/init_app/servicios/premium.dart';
 import 'package:petwalks_app/init_app/servicios/suggestions.dart';
-import 'package:petwalks_app/main.dart';
 import 'package:petwalks_app/pages/opciones/options.dart';
 import 'package:petwalks_app/services/auth_service.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
