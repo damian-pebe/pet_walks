@@ -1,17 +1,14 @@
-// ignore_for_file: empty_catches
-
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:petwalks_app/init_app/servicios/markers_details/business_details.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/utils/constans.dart';
-import 'package:petwalks_app/utils/utils.dart';
+import 'package:latlong2/latlong.dart' as latLng;
 import 'package:petwalks_app/widgets/carousel_widget.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
@@ -23,56 +20,57 @@ class OpenMapGuest extends StatefulWidget {
 }
 
 class _OpenMap extends State<OpenMapGuest> {
-  Completer<GoogleMapController> googleMapController = Completer();
-  late CameraPosition initialCameraPosition;
-  late BitmapDescriptor icon;
-  Marker? selectedMarker;
-  LatLng? selectedPosition;
-  String? domicilio;
-  LatLng? _center;
+  late latLng.LatLng _center;
+  List<Marker> markers = [];
   bool _isPermissionGranted = false;
-  // ignore: prefer_typing_uninitialized_variables
-  late var geoPoint;
-  Set<Marker> markers = {};
 
   Future<void> _getBusiness() async {
     Set<Map<String, dynamic>> businessData = await getBusiness();
-    for (var marker in businessData) {
-      geoPoint = marker['position'];
+    for (var markerData in businessData) {
+      var geoPoint = markerData['position'];
       if (geoPoint is GeoPoint) {
-        LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
-        markers.add(Marker(
-          markerId: MarkerId(marker['name'] ?? 'Unknown'),
-          position: latLng,
-          icon: icon,
-          infoWindow: InfoWindow(
-            title: marker['name'] ?? 'Unknown',
-            snippet: marker['description'] ?? 'No description available',
-          ),
-          onTap: () {
-            List<double> ratings = (marker['rating'] as List<dynamic>)
-                .map((e) => e is int ? e.toDouble() : e as double)
-                .toList();
-            double rating = ratings.isNotEmpty
-                ? (ratings.reduce((a, b) => a + b) / ratings.length)
-                : 0.0;
+        latLng.LatLng latLngPosition =
+            latLng.LatLng(geoPoint.latitude, geoPoint.longitude);
+        bool isPremium = markerData['premium'] ?? false;
 
-            _showBottomSheet(
-              position: latLng,
-              name: marker['name'] ?? 'Unknown',
-              address: marker['address'] ?? 'Unknown',
-              phone: marker['phone'] ?? 'Unknown',
-              description: marker['description'] ?? 'No description available',
-              rating: rating,
-              imageUrls:
-                  marker['imageUrls'] != null && marker['imageUrls'] is List
-                      ? List<String>.from(marker['imageUrls'])
-                      : ['https://via.placeholder.com/1500x500'],
-              comments: marker['comments'] ?? [],
-            );
-          },
+        String assetPath = isPremium ? businessMarkerDeluxe : businessMarker;
+
+        markers.add(Marker(
+          point: latLngPosition,
+          width: 80,
+          height: 80,
+          child: TextButton(
+            child: Image.asset(
+              assetPath,
+              width: 80,
+              height: 80,
+            ),
+            onPressed: () {
+              List<double> ratings = (markerData['rating'] as List<dynamic>)
+                  .map((e) => e is int ? e.toDouble() : e as double)
+                  .toList();
+              double rating = ratings.isNotEmpty
+                  ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                  : 0.0;
+
+              _showBottomSheet(
+                position: latLngPosition,
+                name: markerData['name'] ?? 'Unknown',
+                address: markerData['address'] ?? 'Unknown',
+                phone: markerData['phone'] ?? 'Unknown',
+                description:
+                    markerData['description'] ?? 'No description available',
+                rating: rating,
+                imageUrls: markerData['imageUrls'] != null &&
+                        markerData['imageUrls'] is List
+                    ? List<String>.from(markerData['imageUrls'])
+                    : ['https://via.placeholder.com/1500x500'],
+                comments: markerData['comments'] ?? [],
+              );
+            },
+          ),
         ));
-      } else {}
+      }
     }
 
     if (mounted) {
@@ -80,15 +78,16 @@ class _OpenMap extends State<OpenMapGuest> {
     }
   }
 
-  void _showBottomSheet(
-      {required String name,
-      required String address,
-      required String phone,
-      required String description,
-      required double rating,
-      required List<String> imageUrls,
-      required List<dynamic> comments,
-      required LatLng position}) {
+  void _showBottomSheet({
+    required String name,
+    required String address,
+    required String phone,
+    required String description,
+    required double rating,
+    required List<String> imageUrls,
+    required List<dynamic> comments,
+    required latLng.LatLng position,
+  }) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -109,13 +108,8 @@ class _OpenMap extends State<OpenMapGuest> {
   @override
   void initState() {
     super.initState();
-    initialCameraPosition = const CameraPosition(
-      target: LatLng(0, 0),
-    );
     _checkLocationPermission();
-    initData().then((_) {
-      _getBusiness();
-    });
+    _getBusiness();
   }
 
   Future<void> _checkLocationPermission() async {
@@ -136,20 +130,10 @@ class _OpenMap extends State<OpenMapGuest> {
         desiredAccuracy: geo.LocationAccuracy.high);
     if (mounted) {
       setState(() {
-        _center = LatLng(position.latitude, position.longitude);
+        _center = latLng.LatLng(position.latitude, position.longitude);
         _isPermissionGranted = true;
       });
     }
-  }
-
-  Future<void> initData() async {
-    await setIcon();
-  }
-
-  Future<void> setIcon() async {
-    Uint8List iconBytes = await Utils.getBytesFromAsset(businessMarker, 120);
-    // ignore: deprecated_member_use
-    icon = BitmapDescriptor.fromBytes(iconBytes);
   }
 
   @override
@@ -158,18 +142,17 @@ class _OpenMap extends State<OpenMapGuest> {
       body: Stack(
         children: [
           if (_isPermissionGranted)
-            GoogleMap(
-              markers: markers,
-              mapType: MapType.normal,
-              initialCameraPosition: _center == null
-                  ? initialCameraPosition
-                  : CameraPosition(
-                      target: _center!,
-                      zoom: 17,
-                    ),
-              onMapCreated: (GoogleMapController controller) {
-                googleMapController.complete(controller);
-              },
+            FlutterMap(
+              options: MapOptions(
+                initialCenter: _center,
+                initialZoom: 17,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: urlMap,
+                ),
+                MarkerLayer(markers: markers),
+              ],
             )
           else
             const Center(
@@ -181,7 +164,7 @@ class _OpenMap extends State<OpenMapGuest> {
   }
 }
 
-class BusinessDetailsGuest extends StatefulWidget {
+class BusinessDetailsGuest extends StatelessWidget {
   final String name;
   final String address;
   final String phone;
@@ -189,7 +172,7 @@ class BusinessDetailsGuest extends StatefulWidget {
   final double rating;
   final List<String> imageUrls;
   final List<dynamic> comments;
-  final LatLng geoPoint;
+  final latLng.LatLng geoPoint;
 
   const BusinessDetailsGuest({
     required this.name,
@@ -202,30 +185,6 @@ class BusinessDetailsGuest extends StatefulWidget {
     required this.geoPoint,
     super.key,
   });
-
-  @override
-  State<BusinessDetails> createState() => _BusinessDetailsState();
-}
-
-class _BusinessDetailsState extends State<BusinessDetails> {
-  @override
-  void initState() {
-    matchId();
-    super.initState();
-  }
-
-  String? id;
-  matchId() async {
-    id = await findMatchingBusinessId(widget.address);
-  }
-
-  bool lang = true;
-  Future<void> getLang() async {
-    bool savedLang = await getLanguagePreference();
-    setState(() {
-      lang = savedLang;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -243,34 +202,33 @@ class _BusinessDetailsState extends State<BusinessDetails> {
               child: SizedBox(
                 height: 200,
                 child: PhotoCarousel(
-                  imageUrls:
-                      widget.imageUrls.isNotEmpty ? widget.imageUrls : [],
+                  imageUrls: imageUrls.isNotEmpty ? imageUrls : [],
                 ),
               ),
             ),
             const SizedBox(height: 8.0),
             Text(
-              widget.name,
+              name,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8.0),
-            Text("Address: ${widget.address}"),
-            Text("Phone: ${widget.phone}"),
+            Text("Address: $address"),
+            Text("Phone: $phone"),
             const Divider(),
             Row(
               children: [
-                Icon(widget.rating > 0 ? Icons.star : Icons.star_border,
+                Icon(rating > 0 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
-                Icon(widget.rating > 1 ? Icons.star : Icons.star_border,
+                Icon(rating > 1 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
-                Icon(widget.rating > 2 ? Icons.star : Icons.star_border,
+                Icon(rating > 2 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
-                Icon(widget.rating > 3 ? Icons.star : Icons.star_border,
+                Icon(rating > 3 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
-                Icon(widget.rating > 4 ? Icons.star : Icons.star_border,
+                Icon(rating > 4 ? Icons.star : Icons.star_border,
                     color: Colors.amber),
                 const SizedBox(width: 8.0),
-                Text("${widget.rating}/5"),
+                Text("$rating/5"),
               ],
             ),
             const SizedBox(height: 8.0),
@@ -280,9 +238,7 @@ class _BusinessDetailsState extends State<BusinessDetails> {
                 TextButton(
                   onPressed: () {
                     toastF(
-                      lang
-                          ? 'Inicia sesion para utilizar esta funcion'
-                          : 'Log in to use this function',
+                      'Log in to use this function',
                     );
                   },
                   child: const Text(
@@ -297,7 +253,7 @@ class _BusinessDetailsState extends State<BusinessDetails> {
                 const SizedBox(width: 50),
                 IconButton(
                   onPressed: () {
-                    toastF('Fisrt, Log In');
+                    toastF('First, Log In');
                   },
                   icon: const Icon(
                     Icons.report_outlined,
@@ -308,7 +264,7 @@ class _BusinessDetailsState extends State<BusinessDetails> {
             ),
             const Divider(),
             Text(
-              widget.description,
+              description,
               style: const TextStyle(fontSize: 16),
             ),
           ],

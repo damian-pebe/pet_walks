@@ -1,17 +1,18 @@
 // ignore_for_file: non_constant_identifier_names, empty_catches, deprecated_member_use
 
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart' as geo;
+import 'package:latlong2/latlong.dart' as latLng;
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/init_app/servicios/markers_details/walk_details.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/utils/constans.dart';
-import 'package:petwalks_app/utils/utils.dart';
 
 class Pasear extends StatefulWidget {
   const Pasear({super.key});
@@ -21,17 +22,13 @@ class Pasear extends StatefulWidget {
 }
 
 class _PasearState extends State<Pasear> {
-  Completer<GoogleMapController> googleMapController = Completer();
-  late CameraPosition initialCameraPosition;
-  late BitmapDescriptor icon;
-  late BitmapDescriptor iconPremium;
   Marker? selectedMarker;
-  LatLng? selectedPosition;
+  map.LatLng? selectedPosition;
   String? domicilio;
-  LatLng? _center;
+  late latLng.LatLng _center;
   bool _isPermissionGranted = false;
 
-  Set<Marker> markers = {};
+  List<Marker> markers = [];
 
   Future<void> _filterWalks(String? time, String? payment) async {
     markers.clear();
@@ -41,43 +38,52 @@ class _PasearState extends State<Pasear> {
         try {
           if (marker['timeWalking'] != null) {
             if (time != null && marker['timeWalking'] != time) {
-              continue; // Skip this marker if time doesn't match
+              continue;
             }
           }
 
           if (payment != null && marker['payMethod'] != payment) {
-            continue; // Skip this marker if payment doesn't match
+            continue;
           }
 
           var geoPoint = marker['position'];
           if (geoPoint is GeoPoint) {
-            LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
+            latLng.LatLng latLngPosition =
+                latLng.LatLng(geoPoint.latitude, geoPoint.longitude);
+            bool isPremium = marker['premium'] ?? false;
+
+            String assetPath =
+                isPremium ? businessMarkerDeluxe : businessMarker;
+
             markers.add(Marker(
-              markerId: MarkerId(marker['timeWalking'] ?? 'Travel'),
-              position: latLng,
-              icon: marker['premium'] ? iconPremium : icon,
-              infoWindow: const InfoWindow(
-                title: 'Paseo/Viaje',
-              ),
-              onTap: () {
-                _showBottomSheet(
-                    timeWalking: marker['timeWalking'] ?? 'Unknown',
-                    payMethod: marker['payMethod'] ?? 'Unknown',
-                    price: marker['price'] ?? 'Unknown',
-                    walkWFriends: marker['walkWFriends'] ?? 'Unknown',
-                    place: marker['address'] ?? 'Unknown',
-                    selectedPets:
-                        List<String>.from(marker['selectedPets'] ?? []),
-                    description:
-                        marker['description'] ?? 'No description available',
-                    travelTo: marker['travelTo'] ?? '',
-                    travelToPosition:
-                        marker['travelToPosition'] ?? const GeoPoint(0, 0),
-                    email: marker['ownerEmail'],
-                    id: marker['id'],
-                    idBusiness: marker['idBusiness']);
-              },
-            ));
+                point: latLngPosition,
+                width: 80,
+                height: 80,
+                child: TextButton(
+                  child: Image.asset(
+                    assetPath,
+                    width: 80,
+                    height: 80,
+                  ),
+                  onPressed: () {
+                    _showBottomSheet(
+                        timeWalking: marker['timeWalking'] ?? 'Unknown',
+                        payMethod: marker['payMethod'] ?? 'Unknown',
+                        price: marker['price'] ?? 'Unknown',
+                        walkWFriends: marker['walkWFriends'] ?? 'Unknown',
+                        place: marker['address'] ?? 'Unknown',
+                        selectedPets:
+                            List<String>.from(marker['selectedPets'] ?? []),
+                        description:
+                            marker['description'] ?? 'No description available',
+                        travelTo: marker['travelTo'] ?? '',
+                        travelToPosition:
+                            marker['travelToPosition'] ?? const GeoPoint(0, 0),
+                        email: marker['ownerEmail'],
+                        id: marker['id'],
+                        idBusiness: marker['idBusiness']);
+                  },
+                )));
           } else {}
         } catch (e) {}
       }
@@ -92,33 +98,42 @@ class _PasearState extends State<Pasear> {
         try {
           var geoPoint = marker['position'];
           if (geoPoint is GeoPoint) {
-            LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
+            latLng.LatLng latLngPosition =
+                latLng.LatLng(geoPoint.latitude, geoPoint.longitude);
+            bool isPremium = marker['premium'] ?? false;
+
+            String assetPath =
+                isPremium ? businessMarkerDeluxe : businessMarker;
+
             markers.add(Marker(
-              markerId: MarkerId(marker['timeWalking'] ?? 'Travel'),
-              position: latLng,
-              icon: marker['premium'] ? iconPremium : icon,
-              infoWindow: const InfoWindow(
-                title: 'Paseo/Viaje',
-              ),
-              onTap: () {
-                _showBottomSheet(
-                    timeWalking: marker['timeWalking'] ?? '',
-                    payMethod: marker['payMethod'] ?? 'Unknown',
-                    price: marker['price'] ?? 'Unknown',
-                    walkWFriends: marker['walkWFriends'] ?? 'Unknown',
-                    place: marker['address'] ?? 'Unknown',
-                    selectedPets:
-                        List<String>.from(marker['selectedPets'] ?? []),
-                    description:
-                        marker['description'] ?? 'No description available',
-                    travelTo: marker['addressBusiness'] ?? '',
-                    travelToPosition:
-                        marker['positionBusiness'] ?? const GeoPoint(0, 0),
-                    email: marker['ownerEmail'],
-                    id: marker['id'],
-                    idBusiness: marker['idBusiness']);
-              },
-            ));
+                point: latLngPosition,
+                width: 80,
+                height: 80,
+                child: TextButton(
+                  child: Image.asset(
+                    assetPath,
+                    width: 80,
+                    height: 80,
+                  ),
+                  onPressed: () {
+                    _showBottomSheet(
+                        timeWalking: marker['timeWalking'] ?? '',
+                        payMethod: marker['payMethod'] ?? 'Unknown',
+                        price: marker['price'] ?? 'Unknown',
+                        walkWFriends: marker['walkWFriends'] ?? 'Unknown',
+                        place: marker['address'] ?? 'Unknown',
+                        selectedPets:
+                            List<String>.from(marker['selectedPets'] ?? []),
+                        description:
+                            marker['description'] ?? 'No description available',
+                        travelTo: marker['addressBusiness'] ?? '',
+                        travelToPosition:
+                            marker['positionBusiness'] ?? const GeoPoint(0, 0),
+                        email: marker['ownerEmail'],
+                        id: marker['id'],
+                        idBusiness: marker['idBusiness']);
+                  },
+                )));
           } else {}
         } catch (e) {}
       }
@@ -459,14 +474,8 @@ class _PasearState extends State<Pasear> {
   @override
   void initState() {
     super.initState();
-
-    initialCameraPosition = const CameraPosition(
-      target: LatLng(0, 0),
-    );
     _checkLocationPermission();
-    initData().then((_) {
-      _getWalks();
-    });
+    _getWalks();
     _getLanguage();
   }
 
@@ -495,23 +504,11 @@ class _PasearState extends State<Pasear> {
           desiredAccuracy: geo.LocationAccuracy.high);
       if (mounted) {
         setState(() {
-          _center = LatLng(position.latitude, position.longitude);
+          _center = latLng.LatLng(position.latitude, position.longitude);
           _isPermissionGranted = true;
         });
       }
     } catch (e) {}
-  }
-
-  Future<void> initData() async {
-    await setIcon();
-  }
-
-  Future<void> setIcon() async {
-    Uint8List iconBytes = await Utils.getBytesFromAsset(walkMarker, 120);
-    icon = BitmapDescriptor.fromBytes(iconBytes);
-    Uint8List iconPremiumBytes =
-        await Utils.getBytesFromAsset(walkMarkerDeluxe, 140); //premium
-    iconPremium = BitmapDescriptor.fromBytes(iconPremiumBytes);
   }
 
   @override
@@ -539,18 +536,17 @@ class _PasearState extends State<Pasear> {
           : Stack(
               children: [
                 if (_isPermissionGranted)
-                  GoogleMap(
-                    markers: markers,
-                    mapType: MapType.normal,
-                    initialCameraPosition: _center == null
-                        ? initialCameraPosition
-                        : CameraPosition(
-                            target: _center!,
-                            zoom: 17,
-                          ),
-                    onMapCreated: (GoogleMapController controller) {
-                      googleMapController.complete(controller);
-                    },
+                  FlutterMap(
+                    options: MapOptions(
+                      initialCenter: _center,
+                      initialZoom: 17,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate: urlMap,
+                      ),
+                      MarkerLayer(markers: markers),
+                    ],
                   )
                 else
                   const Center(

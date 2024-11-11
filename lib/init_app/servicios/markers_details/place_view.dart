@@ -1,15 +1,18 @@
 // ignore_for_file: library_private_types_in_public_api, empty_catches, deprecated_member_use
 
 import 'dart:async';
-import 'dart:typed_data';
+
+import 'package:latlong2/latlong.dart' as latLng;
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/utils/constans.dart';
 import 'package:petwalks_app/utils/utils.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 
 class ViewPlaceMap extends StatefulWidget {
-  final LatLng position;
+  final map.LatLng position;
   final bool lang;
 
   const ViewPlaceMap({super.key, required this.position, required this.lang});
@@ -19,55 +22,50 @@ class ViewPlaceMap extends StatefulWidget {
 }
 
 class _RouteMapState extends State<ViewPlaceMap> {
-  GoogleMapController? _mapController;
   List<Marker> markers = [];
-  late BitmapDescriptor icon;
   int currentMarkerIndex = 0;
 
   @override
   void initState() {
     super.initState();
     initData();
+
+    _center =
+        latLng.LatLng(widget.position.latitude, widget.position.longitude);
   }
 
   Future<void> initData() async {
-    await setIcon();
     _createMarker();
   }
 
-  Future<void> setIcon() async {
-    Uint8List iconBytes = await Utils.getBytesFromAsset(walkMarker, 120);
-    icon = BitmapDescriptor.fromBytes(iconBytes);
-  }
+  late latLng.LatLng _center;
 
   void _createMarker() {
     setState(() {
       markers.add(
         Marker(
-          markerId: const MarkerId('Go to/Ir a'),
-          position: widget.position, // Use widget.position
-          infoWindow: const InfoWindow(title: 'Go to/Ir a'),
-          icon: icon,
-        ),
+            point: _center,
+            width: 80,
+            height: 80,
+            child: TextButton(
+              child: Image.asset(
+                walkMarker,
+                width: 80,
+                height: 80,
+              ),
+              onPressed: () {},
+            )),
       );
     });
   }
 
-  void _moveToMarker(int index) {
-    if (index >= 0 && index < markers.length) {
-      LatLng markerPosition = markers[index].position;
-      _mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: markerPosition,
-            zoom: 18,
-          ),
-        ),
-      );
-      setState(() {
-        currentMarkerIndex = index;
-      });
-    }
+  void _moveToMarker() {
+    setState(() {
+      if (markers.isNotEmpty) {
+        _center = markers[currentMarkerIndex].point;
+        currentMarkerIndex = (currentMarkerIndex + 1) % markers.length;
+      }
+    });
   }
 
   @override
@@ -75,15 +73,17 @@ class _RouteMapState extends State<ViewPlaceMap> {
     return Scaffold(
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: widget.position,
-              zoom: 18,
+          FlutterMap(
+            options: MapOptions(
+              initialCenter: _center,
+              initialZoom: 17,
             ),
-            markers: Set<Marker>.of(markers), // Use markers list
-            onMapCreated: (controller) {
-              _mapController = controller;
-            },
+            children: [
+              TileLayer(
+                urlTemplate: urlMap,
+              ),
+              MarkerLayer(markers: markers),
+            ],
           ),
           titleW(
               title: widget.lang ? '  Lugar seleccionado' : '  Place selected'),
@@ -105,7 +105,7 @@ class _RouteMapState extends State<ViewPlaceMap> {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.green[200]),
                 ),
-                onPressed: () => _moveToMarker(currentMarkerIndex),
+                onPressed: () => _moveToMarker(),
                 icon: const Icon(
                   Icons.mode_of_travel_outlined,
                   size: 30,

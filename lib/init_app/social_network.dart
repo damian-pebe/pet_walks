@@ -1,17 +1,17 @@
 // ignore_for_file: prefer_typing_uninitialized_variables, empty_catches, deprecated_member_use
-
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
+import 'package:latlong2/latlong.dart' as latLng;
+import 'package:flutter_map/flutter_map.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/init_app/servicios/add_post.dart';
 import 'package:petwalks_app/init_app/servicios/markers_details/social_details.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/utils/constans.dart';
-import 'package:petwalks_app/utils/utils.dart';
 import 'package:petwalks_app/widgets/toast.dart';
 
 class SocialNetwork extends StatefulWidget {
@@ -22,16 +22,13 @@ class SocialNetwork extends StatefulWidget {
 }
 
 class _SocialNetwork extends State<SocialNetwork> {
-  Completer<GoogleMapController> googleMapController = Completer();
-  late CameraPosition initialCameraPosition;
-  late BitmapDescriptor icon;
-  late BitmapDescriptor iconDeluxe;
+  late latLng.LatLng _center;
+
   Marker? selectedMarker;
-  LatLng? selectedPosition;
+  map.LatLng? selectedPosition;
   String? domicilio;
-  LatLng? _center;
   bool _isPermissionGranted = false;
-  Set<Marker> markers = {};
+  List<Marker> markers = [];
   var showData;
 
   Future<void> _getPosts(Set<Map<String, dynamic>> idsAddress) async {
@@ -64,19 +61,28 @@ class _SocialNetwork extends State<SocialNetwork> {
 
   Future<void> _addMarker(List<String> idsWithSameAddress,
       String addressToCheck, bool premium) async {
-    LatLng? position = await getLatLngFromAddress(addressToCheck);
+    map.LatLng? position = await getLatLngFromAddress(addressToCheck);
 
     if (position != null && idsWithSameAddress.isNotEmpty) {
+      latLng.LatLng latLngPosition =
+          latLng.LatLng(position.latitude, position.longitude);
+
+      String assetPath = premium ? businessMarkerDeluxe : businessMarker;
+
       markers.add(Marker(
-        markerId: MarkerId(
-          lang! ? 'Publicacion' : 'Post',
-        ),
-        position: position,
-        icon: premium ? iconDeluxe : icon,
-        onTap: () {
-          _showBottomSheet(postIds: idsWithSameAddress);
-        },
-      ));
+          point: latLngPosition,
+          width: 80,
+          height: 80,
+          child: TextButton(
+            child: Image.asset(
+              assetPath,
+              width: 80,
+              height: 80,
+            ),
+            onPressed: () {
+              _showBottomSheet(postIds: idsWithSameAddress);
+            },
+          )));
     }
     if (mounted) {
       setState(() {});
@@ -124,11 +130,8 @@ class _SocialNetwork extends State<SocialNetwork> {
   void initState() {
     super.initState();
     _checkArrayDeletedPosts();
-    initialCameraPosition = const CameraPosition(
-      target: LatLng(0, 0),
-    );
+
     _checkLocationPermission();
-    initData();
     _getLanguage();
   }
 
@@ -156,22 +159,10 @@ class _SocialNetwork extends State<SocialNetwork> {
         desiredAccuracy: geo.LocationAccuracy.high);
     if (mounted) {
       setState(() {
-        _center = LatLng(position.latitude, position.longitude);
+        _center = latLng.LatLng(position.latitude, position.longitude);
         _isPermissionGranted = true;
       });
     }
-  }
-
-  Future<void> initData() async {
-    await setIcon();
-  }
-
-  Future<void> setIcon() async {
-    Uint8List iconBytes = await Utils.getBytesFromAsset(postMarker, 170);
-    icon = BitmapDescriptor.fromBytes(iconBytes);
-    Uint8List iconBytesDeluxe =
-        await Utils.getBytesFromAsset(postMarkerDeluxe, 170);
-    iconDeluxe = BitmapDescriptor.fromBytes(iconBytesDeluxe);
   }
 
   bool _isTypeWindowVisible = false;
@@ -326,18 +317,17 @@ class _SocialNetwork extends State<SocialNetwork> {
           : Stack(
               children: [
                 if (_isPermissionGranted)
-                  GoogleMap(
-                    markers: markers,
-                    mapType: MapType.normal,
-                    initialCameraPosition: _center == null
-                        ? initialCameraPosition
-                        : CameraPosition(
-                            target: _center!,
-                            zoom: 17,
-                          ),
-                    onMapCreated: (GoogleMapController controller) {
-                      googleMapController.complete(controller);
-                    },
+                  FlutterMap(
+                    options: MapOptions(
+                      initialCenter: _center,
+                      initialZoom: 17,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate: urlMap,
+                      ),
+                      MarkerLayer(markers: markers),
+                    ],
                   )
                 else
                   const Center(

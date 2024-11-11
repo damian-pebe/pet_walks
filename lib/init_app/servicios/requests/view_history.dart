@@ -3,14 +3,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
+import 'package:latlong2/latlong.dart' as latLng;
+import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/init_app/servicios/chat.dart';
 import 'package:petwalks_app/init_app/servicios/markers_details/place_view.dart';
 import 'package:petwalks_app/init_app/servicios/reports.dart';
 import 'package:petwalks_app/init_app/servicios/view_active_route.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/services/stripe_services.dart';
+import 'package:petwalks_app/utils/constans.dart';
 import 'package:petwalks_app/widgets/call_comments.dart';
 import 'package:petwalks_app/widgets/decorations.dart';
 import 'package:petwalks_app/widgets/rate_dialog.dart';
@@ -40,11 +44,13 @@ class ViewRequest extends StatefulWidget {
 }
 
 class _ViewRequestState extends State<ViewRequest> {
-  ValueNotifier<LatLng?> positionNotifier = ValueNotifier<LatLng?>(null);
-  ValueNotifier<LatLng?> businessNotifier = ValueNotifier<LatLng?>(null);
+  ValueNotifier<map.LatLng?> positionNotifier =
+      ValueNotifier<map.LatLng?>(null);
+  ValueNotifier<map.LatLng?> businessNotifier =
+      ValueNotifier<map.LatLng?>(null);
 
-  LatLng? position;
-  LatLng? business;
+  map.LatLng? position;
+  map.LatLng? business;
   void _getLatLngFromAddressWalk(String address) async {
     position = await getLatLngFromAddress(address);
     positionNotifier.value = position;
@@ -482,42 +488,58 @@ class _ViewRequestState extends State<ViewRequest> {
                                       MainAxisAlignment.spaceEvenly,
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
-                                    ValueListenableBuilder<LatLng?>(
+                                    ValueListenableBuilder<map.LatLng?>(
                                       valueListenable: positionNotifier,
                                       builder: (context, position, child) {
                                         if (position != null) {
                                           return Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: SizedBox(
-                                              height: 190,
-                                              width: 390,
-                                              child: GoogleMap(
-                                                initialCameraPosition:
-                                                    CameraPosition(
-                                                  target: position,
-                                                  zoom: 15,
-                                                ),
-                                                markers: {
-                                                  Marker(
-                                                    markerId: const MarkerId(
-                                                        'marker'),
-                                                    position: position,
-                                                    onTap: () => Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              ViewPlaceMap(
-                                                                  position: LatLng(
-                                                                      position
-                                                                          .latitude,
-                                                                      position
-                                                                          .longitude),
-                                                                  lang: lang!),
-                                                        )),
+                                                height: 190,
+                                                width: 390,
+                                                child: FlutterMap(
+                                                  options: MapOptions(
+                                                    initialCenter:
+                                                        latLng.LatLng(
+                                                            position.latitude,
+                                                            position.longitude),
+                                                    initialZoom: 17,
                                                   ),
-                                                },
-                                              ),
-                                            ),
+                                                  children: [
+                                                    TileLayer(
+                                                      urlTemplate: urlMap,
+                                                    ),
+                                                    MarkerLayer(
+                                                      markers: [
+                                                        Marker(
+                                                            point: latLng.LatLng(
+                                                                position
+                                                                    .latitude,
+                                                                position
+                                                                    .longitude),
+                                                            width: 80,
+                                                            height: 80,
+                                                            child: TextButton(
+                                                              child:
+                                                                  Image.asset(
+                                                                userMarker,
+                                                                width: 80,
+                                                                height: 80,
+                                                              ),
+                                                              onPressed: () =>
+                                                                  Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                        builder: (context) => ViewPlaceMap(
+                                                                            position:
+                                                                                map.LatLng(position.latitude, position.longitude),
+                                                                            lang: lang!),
+                                                                      )),
+                                                            )),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                )),
                                           );
                                         } else {
                                           return const Center(
@@ -1100,42 +1122,56 @@ class _ViewRequestState extends State<ViewRequest> {
                                           : 'Address: ${info['address'] ?? ''}',
                                       style: _textStyle),
                                   const SizedBox(height: 5),
-                                  ValueListenableBuilder<LatLng?>(
+                                  ValueListenableBuilder<map.LatLng?>(
                                     valueListenable: businessNotifier,
                                     builder: (context, business, child) {
                                       if (business != null) {
                                         return Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: SizedBox(
-                                            height: 190,
-                                            width: 390,
-                                            child: GoogleMap(
-                                              initialCameraPosition:
-                                                  CameraPosition(
-                                                target: business,
-                                                zoom: 15,
-                                              ),
-                                              markers: {
-                                                Marker(
-                                                  markerId: const MarkerId(
-                                                      'Get pets here'),
-                                                  position: business,
-                                                  onTap: () => Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ViewPlaceMap(
-                                                                position: LatLng(
-                                                                    business
-                                                                        .latitude,
-                                                                    business
-                                                                        .longitude),
-                                                                lang: lang!),
-                                                      )),
+                                              height: 190,
+                                              width: 390,
+                                              child: FlutterMap(
+                                                options: MapOptions(
+                                                  initialCenter: latLng.LatLng(
+                                                      business.latitude,
+                                                      business.longitude),
+                                                  initialZoom: 17,
                                                 ),
-                                              },
-                                            ),
-                                          ),
+                                                children: [
+                                                  TileLayer(
+                                                    urlTemplate: urlMap,
+                                                  ),
+                                                  MarkerLayer(
+                                                    markers: [
+                                                      Marker(
+                                                          point: latLng.LatLng(
+                                                              business.latitude,
+                                                              business
+                                                                  .longitude),
+                                                          width: 80,
+                                                          height: 80,
+                                                          child: TextButton(
+                                                            child: Image.asset(
+                                                              userMarker,
+                                                              width: 80,
+                                                              height: 80,
+                                                            ),
+                                                            onPressed: () =>
+                                                                Navigator.push(
+                                                                    context,
+                                                                    MaterialPageRoute(
+                                                                      builder: (context) => ViewPlaceMap(
+                                                                          position: map.LatLng(
+                                                                              business.latitude,
+                                                                              business.longitude),
+                                                                          lang: lang!),
+                                                                    )),
+                                                          )),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )),
                                         );
                                       } else {
                                         return const Center(
