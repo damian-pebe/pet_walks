@@ -1,17 +1,18 @@
 // ignore_for_file: prefer_typing_uninitialized_variables, empty_catches, deprecated_member_use
 
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart' as latLng;
+import 'package:flutter_map/flutter_map.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/init_app/servicios/markers_details/business_details.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/utils/constans.dart';
-import 'package:petwalks_app/utils/utils.dart';
 
 class OpenMap extends StatefulWidget {
   const OpenMap({super.key});
@@ -21,18 +22,14 @@ class OpenMap extends StatefulWidget {
 }
 
 class _OpenMap extends State<OpenMap> {
-  Completer<GoogleMapController> googleMapController = Completer();
-  late CameraPosition initialCameraPosition;
-  late BitmapDescriptor icon;
-  late BitmapDescriptor iconPremium;
+  late latLng.LatLng _center;
 
   Marker? selectedMarker;
-  LatLng? selectedPosition;
+  map.LatLng? selectedPosition;
   String? domicilio;
-  LatLng? _center;
   bool _isPermissionGranted = false;
   late var geoPoint;
-  Set<Marker> markers = {};
+  List<Marker> markers = [];
 
   Future<void> _getBusiness() async {
     try {
@@ -41,43 +38,51 @@ class _OpenMap extends State<OpenMap> {
         try {
           geoPoint = marker['position'];
           if (geoPoint is GeoPoint) {
-            LatLng latLng = LatLng(geoPoint.latitude, geoPoint.longitude);
+            latLng.LatLng latLngPosition =
+                latLng.LatLng(geoPoint.latitude, geoPoint.longitude);
+            bool isPremium = marker['premium'] ?? false;
+
+            String assetPath =
+                isPremium ? businessMarkerDeluxe : businessMarker;
 
             markers.add(Marker(
-              markerId: MarkerId(marker['name'] ?? 'Unknown'),
-              position: latLng,
-              icon: marker['premium'] ? iconPremium : icon,
-              infoWindow: InfoWindow(
-                title: marker['name'] ?? 'Unknown',
-                snippet: marker['description'] ?? 'No description available',
+              point: latLngPosition,
+              width: 80,
+              height: 80,
+              child: TextButton(
+                child: Image.asset(
+                  assetPath,
+                  width: 80,
+                  height: 80,
+                ),
+                onPressed: () {
+                  List<double> ratings = (marker['rating'] as List<dynamic>)
+                      .where((e) => e != null) // Remove null values
+                      .map((e) =>
+                          e is int ? e.toDouble() : (e is double ? e : 0.0))
+                      .toList();
+
+                  double rating = ratings.isNotEmpty
+                      ? (ratings.reduce((a, b) => a + b) / ratings.length)
+                      : 0.0;
+
+                  _showBottomSheet(
+                      position: latLngPosition,
+                      name: marker['name'] ?? 'Unknown',
+                      address: marker['address'] ?? 'Unknown',
+                      phone: marker['phone'] ?? 'Unknown',
+                      description:
+                          marker['description'] ?? 'No description available',
+                      rating: rating,
+                      imageUrls: marker['imageUrls'] != null &&
+                              marker['imageUrls'] is List
+                          ? List<String>.from(marker['imageUrls'])
+                          : ['https://via.placeholder.com/1500x500'],
+                      comments: marker['comments'] ?? [],
+                      id: marker['id'] ?? "",
+                      category: marker['category'] ?? '');
+                },
               ),
-              onTap: () {
-                List<double> ratings = (marker['rating'] as List<dynamic>)
-                    .where((e) => e != null) // Remove null values
-                    .map((e) =>
-                        e is int ? e.toDouble() : (e is double ? e : 0.0))
-                    .toList();
-
-                double rating = ratings.isNotEmpty
-                    ? (ratings.reduce((a, b) => a + b) / ratings.length)
-                    : 0.0;
-
-                _showBottomSheet(
-                    position: latLng,
-                    name: marker['name'] ?? 'Unknown',
-                    address: marker['address'] ?? 'Unknown',
-                    phone: marker['phone'] ?? 'Unknown',
-                    description:
-                        marker['description'] ?? 'No description available',
-                    rating: rating,
-                    imageUrls: marker['imageUrls'] != null &&
-                            marker['imageUrls'] is List
-                        ? List<String>.from(marker['imageUrls'])
-                        : ['https://via.placeholder.com/1500x500'],
-                    comments: marker['comments'] ?? [],
-                    id: marker['id'] ?? "",
-                    category: marker['category'] ?? '');
-              },
             ));
           } else {}
         } catch (e) {}
@@ -97,7 +102,7 @@ class _OpenMap extends State<OpenMap> {
       required double rating,
       required List<String> imageUrls,
       required List<dynamic> comments,
-      required LatLng position,
+      required latLng.LatLng position,
       required String id,
       required String category}) {
     showModalBottomSheet(
@@ -111,7 +116,7 @@ class _OpenMap extends State<OpenMap> {
             rating: rating,
             imageUrls: imageUrls,
             comments: comments,
-            geoPoint: position,
+            geoPoint: map.LatLng(position.latitude, position.longitude),
             id: id,
             category: category);
       },
@@ -121,13 +126,8 @@ class _OpenMap extends State<OpenMap> {
   @override
   void initState() {
     super.initState();
-    initialCameraPosition = const CameraPosition(
-      target: LatLng(0, 0),
-    );
     _checkLocationPermission();
-    initData().then((_) {
-      _getBusiness();
-    });
+    _getBusiness();
   }
 
   Future<void> _checkLocationPermission() async {
@@ -149,23 +149,11 @@ class _OpenMap extends State<OpenMap> {
           desiredAccuracy: geo.LocationAccuracy.high);
       if (mounted) {
         setState(() {
-          _center = LatLng(position.latitude, position.longitude);
+          _center = latLng.LatLng(position.latitude, position.longitude);
           _isPermissionGranted = true;
         });
       }
     } catch (e) {}
-  }
-
-  Future<void> initData() async {
-    await setIcon();
-  }
-
-  Future<void> setIcon() async {
-    Uint8List iconBytes = await Utils.getBytesFromAsset(businessMarker, 120);
-    icon = BitmapDescriptor.fromBytes(iconBytes);
-    Uint8List iconPremiumBytes =
-        await Utils.getBytesFromAsset(businessMarkerDeluxe, 140); //premium
-    iconPremium = BitmapDescriptor.fromBytes(iconPremiumBytes);
   }
 
   @override
@@ -178,18 +166,17 @@ class _OpenMap extends State<OpenMap> {
           body: Stack(
             children: [
               if (_isPermissionGranted)
-                GoogleMap(
-                  markers: markers,
-                  mapType: MapType.normal,
-                  initialCameraPosition: _center == null
-                      ? initialCameraPosition
-                      : CameraPosition(
-                          target: _center!,
-                          zoom: 17,
-                        ),
-                  onMapCreated: (GoogleMapController controller) {
-                    googleMapController.complete(controller);
-                  },
+                FlutterMap(
+                  options: MapOptions(
+                    initialCenter: _center,
+                    initialZoom: 17,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: urlMap,
+                    ),
+                    MarkerLayer(markers: markers),
+                  ],
                 )
               else
                 const Center(

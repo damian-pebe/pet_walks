@@ -1,16 +1,17 @@
 // ignore_for_file: file_names, empty_catches, deprecated_member_use
 
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
+import 'package:latlong2/latlong.dart' as latLng;
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:geocoding/geocoding.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
 import 'package:petwalks_app/utils/constans.dart';
-import 'package:petwalks_app/utils/utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SelectHome extends StatefulWidget {
@@ -39,25 +40,20 @@ class _SelectHome extends State<SelectHome> {
     return user != null;
   }
 
-  Completer<GoogleMapController> googleMapController = Completer();
-  Set<Marker> markers = {};
-  late CameraPosition initialCameraPosition;
-  late BitmapDescriptor icon;
+  List<Marker> markers = [];
+
   Marker? selectedMarker;
-  LatLng? selectedPosition;
+  map.LatLng? selectedPosition;
   String? domicilio;
-  LatLng? _center;
+  late latLng.LatLng _center;
   bool _isPermissionGranted = false;
 
   @override
   void initState() {
     _getLanguage();
     super.initState();
-    initialCameraPosition = const CameraPosition(
-      target: LatLng(0, 0),
-    );
+
     _checkLocationPermission();
-    initData();
   }
 
   Future<void> _checkLocationPermission() async {
@@ -78,39 +74,40 @@ class _SelectHome extends State<SelectHome> {
       geo.Position position = await geo.Geolocator.getCurrentPosition(
           desiredAccuracy: geo.LocationAccuracy.high);
       setState(() {
-        _center = LatLng(position.latitude, position.longitude);
+        _center = latLng.LatLng(position.latitude, position.longitude);
         _isPermissionGranted = true;
       });
     } catch (e) {}
   }
 
-  Future<void> initData() async {
-    await setIcon();
-  }
-
-  Future<void> setIcon() async {
-    Uint8List iconBytes = await Utils.getBytesFromAsset(userMarker, 120);
-    icon = BitmapDescriptor.fromBytes(iconBytes);
-  }
-
-  void addMarker(LatLng nuevaPosicion) async {
+  void addMarker(map.LatLng nuevaPosicion) async {
     String nuevaDireccion = await getAddressFromLatLng(nuevaPosicion);
     setState(() {
       markers.clear();
       selectedPosition = nuevaPosicion;
       domicilio = nuevaDireccion;
       selectedMarker = Marker(
-        markerId: MarkerId(nuevaPosicion.toString()),
-        position: nuevaPosicion,
-        icon: icon,
+        point: latLng.LatLng(nuevaPosicion.latitude, nuevaPosicion.longitude),
+        width: 80,
+        height: 80,
+        child: TextButton(
+          child: Image.asset(
+            userMarker,
+            width: 80,
+            height: 80,
+          ),
+          onPressed: () {
+            markers.add(selectedMarker!);
+            _center =
+                latLng.LatLng(nuevaPosicion.latitude, nuevaPosicion.longitude);
+            setState(() {});
+          },
+        ),
       );
-      markers.add(selectedMarker!);
     });
-
-    moverCamara(nuevaPosicion);
   }
 
-  Future<String> getAddressFromLatLng(LatLng position) async {
+  Future<String> getAddressFromLatLng(map.LatLng position) async {
     List<Placemark> placemarks = await placemarkFromCoordinates(
       position.latitude,
       position.longitude,
@@ -122,32 +119,25 @@ class _SelectHome extends State<SelectHome> {
     return 'Dirección no encontrada';
   }
 
-  Future<void> moverCamara(LatLng posicion) async {
-    final controller = await googleMapController.future;
-    controller.animateCamera(CameraUpdate.newLatLng(posicion));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           if (_isPermissionGranted)
-            GoogleMap(
-              markers: markers,
-              mapType: MapType.normal,
-              initialCameraPosition: _center == null
-                  ? initialCameraPosition
-                  : CameraPosition(
-                      target: _center!,
-                      zoom: 17,
-                    ),
-              onMapCreated: (GoogleMapController controller) {
-                googleMapController.complete(controller);
-              },
-              onTap: (LatLng posicion) {
-                addMarker(posicion);
-              },
+            FlutterMap(
+              options: MapOptions(
+                initialCenter: _center,
+                initialZoom: 17,
+                onTap: (tapPosition, posicion) => addMarker(
+                    map.LatLng(posicion.latitude, posicion.longitude)),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: urlMap,
+                ),
+                MarkerLayer(markers: markers),
+              ],
             )
           else
             const Center(
