@@ -1,17 +1,14 @@
 // ignore_for_file: library_private_types_in_public_api, empty_catches, deprecated_member_use
 
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/utils/constans.dart';
-import 'package:petwalks_app/utils/utils.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:petwalks_app/widgets/decorations.dart';
 

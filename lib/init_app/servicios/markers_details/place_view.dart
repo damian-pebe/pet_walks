@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/utils/constans.dart';
-import 'package:petwalks_app/utils/utils.dart';
 import 'package:petwalks_app/widgets/titleW.dart';
 
 class ViewPlaceMap extends StatefulWidget {
