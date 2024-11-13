@@ -5,8 +5,11 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
+import 'package:latlong2/latlong.dart' as latLng;
+import 'package:flutter_map/flutter_map.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/utils/constans.dart';
 import 'package:petwalks_app/utils/utils.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -23,12 +26,10 @@ class RouteMap extends StatefulWidget {
 }
 
 class _RouteMapState extends State<RouteMap> {
-  GoogleMapController? _mapController;
-  List<LatLng> route = [];
+  List<latLng.LatLng> route = [];
   List<Marker> markers = [];
   Set<Polyline> polylines = {};
-  late BitmapDescriptor icon;
-  LatLng? _center;
+  late latLng.LatLng _center;
   bool _isPermissionGranted = false;
   int currentMarkerIndex = 0;
 
@@ -36,9 +37,7 @@ class _RouteMapState extends State<RouteMap> {
   void initState() {
     super.initState();
     _checkLocationPermission();
-    initData().then((_) {
-      fetchAndDisplayRoute();
-    });
+    fetchAndDisplayRoute();
   }
 
   Future<void> _checkLocationPermission() async {
@@ -61,20 +60,11 @@ class _RouteMapState extends State<RouteMap> {
       );
       if (mounted) {
         setState(() {
-          _center = LatLng(position.latitude, position.longitude);
+          _center = latLng.LatLng(position.latitude, position.longitude);
           _isPermissionGranted = true;
         });
       }
     } catch (e) {}
-  }
-
-  Future<void> initData() async {
-    await setIcon();
-  }
-
-  Future<void> setIcon() async {
-    Uint8List iconBytes = await Utils.getBytesFromAsset(walkMarker, 105);
-    icon = BitmapDescriptor.fromBytes(iconBytes);
   }
 
   void fetchAndDisplayRoute() {
@@ -84,14 +74,14 @@ class _RouteMapState extends State<RouteMap> {
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists) {
-        List<LatLng> newRoute = [];
+        List<latLng.LatLng> newRoute = [];
         var data = snapshot.data() as Map<String, dynamic>;
         List<dynamic> positions = data['position'] ?? [];
 
         for (var pos in positions) {
           double lat = pos['lat'];
           double lng = pos['lng'];
-          newRoute.add(LatLng(lat, lng));
+          newRoute.add(latLng.LatLng(lat, lng));
         }
 
         if (newRoute.isNotEmpty) {
@@ -107,45 +97,38 @@ class _RouteMapState extends State<RouteMap> {
     });
   }
 
-  List<Marker> _createMarkers(List<LatLng> route) {
+  List<Marker> _createMarkers(List<latLng.LatLng> route) {
     return route.asMap().entries.map((entry) {
       return Marker(
-        markerId: MarkerId(entry.key.toString()),
-        position: entry.value,
-        icon: icon,
-        infoWindow: InfoWindow(
-          title: 'Marker ${entry.key + 1}',
+        point: entry.value,
+        width: 80,
+        height: 80,
+        child: Image.asset(
+          walkMarker,
+          width: 80,
+          height: 80,
         ),
       );
     }).toList();
   }
 
-  Set<Polyline> _createPolylines(List<LatLng> route) {
+  Set<Polyline> _createPolylines(List<latLng.LatLng> route) {
     return {
       Polyline(
-        polylineId: const PolylineId("route"),
         points: route,
         color: Colors.blue,
-        width: 5,
+        strokeWidth: 5.0,
       ),
     };
   }
 
   void _moveToMarker(int index) {
-    if (index >= 0 && index < markers.length) {
-      LatLng markerPosition = markers[index].position;
-      _mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: markerPosition,
-            zoom: 20,
-          ),
-        ),
-      );
-      setState(() {
-        currentMarkerIndex = index;
-      });
-    }
+    setState(() {
+      if (markers.isNotEmpty) {
+        _center = markers[index].point;
+        index = (index + 1) % markers.length;
+      }
+    });
   }
 
   @override
@@ -154,16 +137,17 @@ class _RouteMapState extends State<RouteMap> {
       body: _isPermissionGranted
           ? Stack(
               children: [
-                GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: _center ?? const LatLng(0, 0),
-                    zoom: 20,
+                FlutterMap(
+                  options: MapOptions(
+                    initialCenter: _center,
+                    initialZoom: 17,
                   ),
-                  markers: Set<Marker>.of(markers),
-                  polylines: polylines,
-                  onMapCreated: (controller) {
-                    _mapController = controller;
-                  },
+                  children: [
+                    TileLayer(
+                      urlTemplate: urlMap,
+                    ),
+                    MarkerLayer(markers: markers),
+                  ],
                 ),
                 Positioned(
                   bottom: 20.0,
