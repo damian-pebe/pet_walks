@@ -8,11 +8,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart' as geo;
-import 'package:geocoding/geocoding.dart';
 import 'package:petwalks_app/env.dart';
 import 'package:petwalks_app/services/firebase_services.dart';
-import 'package:petwalks_app/utils/constans.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:petwalks_app/utils/constans.dart';
 
 class SelectHome extends StatefulWidget {
   const SelectHome({super.key});
@@ -23,6 +24,7 @@ class SelectHome extends StatefulWidget {
 
 class _SelectHome extends State<SelectHome> {
   bool lang = true;
+
   void _getLanguage() async {
     if (await isUserLoggedIn()) {
       lang = await getLanguage();
@@ -41,7 +43,6 @@ class _SelectHome extends State<SelectHome> {
   }
 
   List<Marker> markers = [];
-
   Marker? selectedMarker;
   map.LatLng? selectedPosition;
   String? domicilio;
@@ -52,7 +53,6 @@ class _SelectHome extends State<SelectHome> {
   void initState() {
     _getLanguage();
     super.initState();
-
     _checkLocationPermission();
   }
 
@@ -80,11 +80,12 @@ class _SelectHome extends State<SelectHome> {
     } catch (e) {}
   }
 
-  void addMarker(map.LatLng nuevaPosicion) async {
+  void addMarker(latLng.LatLng nuevaPosicion) async {
     String nuevaDireccion = await getAddressFromLatLng(nuevaPosicion);
     setState(() {
       markers.clear();
-      selectedPosition = nuevaPosicion;
+      selectedPosition =
+          map.LatLng(nuevaPosicion.latitude, nuevaPosicion.longitude);
       domicilio = nuevaDireccion;
       selectedMarker = Marker(
         point: latLng.LatLng(nuevaPosicion.latitude, nuevaPosicion.longitude),
@@ -97,7 +98,6 @@ class _SelectHome extends State<SelectHome> {
             height: 80,
           ),
           onPressed: () {
-            markers.add(selectedMarker!);
             _center =
                 latLng.LatLng(nuevaPosicion.latitude, nuevaPosicion.longitude);
             setState(() {});
@@ -107,16 +107,25 @@ class _SelectHome extends State<SelectHome> {
     });
   }
 
-  Future<String> getAddressFromLatLng(map.LatLng position) async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
-    if (placemarks.isNotEmpty) {
-      Placemark placemark = placemarks.first;
-      return '${placemark.street}, ${placemark.locality}, ${placemark.postalCode}, ${placemark.country}';
+  Future<String> getAddressFromLatLng(latLng.LatLng position) async {
+    final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&addressdetails=1');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final address = data['address'];
+        if (address != null) {
+          return '${address['road'] ?? ''}, ${address['city'] ?? ''}, ${address['postcode'] ?? ''}, ${address['country'] ?? ''}';
+        }
+        return 'Address not found';
+      } else {
+        return 'Error retrieving address';
+      }
+    } catch (e) {
+      return 'Failed to fetch address';
     }
-    return 'Dirección no encontrada';
   }
 
   @override
@@ -129,8 +138,12 @@ class _SelectHome extends State<SelectHome> {
               options: MapOptions(
                 initialCenter: _center,
                 initialZoom: 17,
-                onTap: (tapPosition, posicion) => addMarker(
-                    map.LatLng(posicion.latitude, posicion.longitude)),
+                onTap: (tapPosition, latLng.LatLng flutterMapPosition) {
+                  final mapLatLngPosition = map.LatLng(
+                      flutterMapPosition.latitude,
+                      flutterMapPosition.longitude);
+                  addMarker(flutterMapPosition);
+                },
               ),
               children: [
                 TileLayer(

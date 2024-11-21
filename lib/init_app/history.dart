@@ -329,8 +329,8 @@ class _HistorialState extends State<Historial> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildMenuItem('History', 0),
-                      _buildMenuItem('Requests', 1),
+                      _buildMenuItem(lang! ? 'Historial' : 'History', 0),
+                      _buildMenuItem(lang! ? 'Solicitudes' : 'Requests', 1),
                       _buildMenuItem('Chats', 2),
                     ],
                   ),

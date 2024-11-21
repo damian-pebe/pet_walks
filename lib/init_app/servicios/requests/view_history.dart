@@ -52,13 +52,21 @@ class _ViewRequestState extends State<ViewRequest> {
   map.LatLng? position;
   map.LatLng? business;
   void _getLatLngFromAddressWalk(String address) async {
-    position = await getLatLngFromAddress(address);
-    positionNotifier.value = position;
+    try {
+      position = await getLatLngFromAddress(address);
+      positionNotifier.value = position;
+    } catch (e) {
+      positionNotifier.value = const map.LatLng(20.6240472, -103.3504135);
+    }
   }
 
   void _getLatLngFromAddressBusiness(String address) async {
-    business = await getLatLngFromAddress(address);
-    businessNotifier.value = business;
+    try {
+      business = await getLatLngFromAddress(address);
+      businessNotifier.value = business;
+    } catch (e) {
+      businessNotifier.value = const map.LatLng(20.6240472, -103.3504135);
+    }
   }
 
   int? amount;
@@ -90,7 +98,7 @@ class _ViewRequestState extends State<ViewRequest> {
     email = await fetchUserEmail();
   }
 
-  DateTime thief = DateTime.now().subtract(const Duration(hours: 1));
+  DateTime thief = DateTime.now().add(const Duration(hours: 1));
   Timestamp identifierNow = Timestamp.now();
   @override
   void initState() {
@@ -252,8 +260,8 @@ class _ViewRequestState extends State<ViewRequest> {
                         ))
                   ],
                 ),
-                if (identifierNow.toDate().isAfter(thief)) const Divider(),
-                if (identifierNow.toDate().isAfter(thief))
+                if (identifierNow.toDate().isBefore(thief)) const Divider(),
+                if (identifierNow.toDate().isBefore(thief))
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: Column(
